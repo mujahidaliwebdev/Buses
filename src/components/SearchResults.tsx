@@ -92,13 +92,13 @@ export default function SearchResults({ buses, origin, destination, onClose }: S
 
                   <div className="shrink-0 lg:w-48 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-slate-100 pt-4 lg:pt-0 lg:pl-6 text-center lg:text-left">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Fare</p>
-                    <p className="text-3xl font-black text-emerald-600 mb-4">Rs. {bus.fare}</p>
+                    <p className="text-3xl font-bold text-emerald-700 mb-4 tracking-tighter">Rs. {bus.fare}</p>
                     
-                    <button className="w-full bg-slate-900 group-hover:bg-emerald-600 text-white h-11 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors">
+                    <button className="w-full bg-emerald-700 hover:bg-emerald-800 text-white h-11 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/10 transition-all active:scale-95">
                       <Phone className="w-4 h-4" />
                       Book Now
                     </button>
-                    <p className="text-[10px] text-slate-400 mt-2 text-center">{bus.contactNumber}</p>
+                    <p className="text-[10px] font-bold text-slate-400 mt-2 text-center uppercase tracking-tighter">{bus.contactNumber}</p>
                   </div>
                 </div>
               </motion.div>
