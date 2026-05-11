@@ -20,30 +20,39 @@ export default function Hero({ onSearch }: HeroProps) {
   };
 
   return (
-    <section id="hero" className="relative bg-emerald-900 overflow-hidden py-24 sm:py-32">
-      {/* Decorative patterns */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-400 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2" />
+    <section id="hero" className="relative bg-emerald-900 overflow-hidden py-16 sm:py-24">
+      {/* Subtle organic pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+      <div className="relative max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <span className="px-3 py-1 bg-emerald-800/50 text-emerald-400 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border border-emerald-700">
+            Real-time Transport Platform
+          </span>
+        </motion.div>
+
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-tight tracking-tight mb-6"
+          className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4"
         >
-          Travel Across <span className="text-emerald-400">Pakistan</span> <br className="hidden sm:block" /> with Ease
+          Travel Across Pakistan with Ease
         </motion.h1>
         
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-lg text-emerald-100/80 max-w-2xl mb-12"
+          className="text-base text-emerald-100/70 max-w-2xl mb-12"
         >
-          Discover real-time bus timings, verified fares, and book your journey across 50+ cities in Pakistan. No more waiting at terminals.
+          Find verified schedules, daily fares, and route availability instantly.
         </motion.p>
 
         <motion.form
@@ -51,53 +60,50 @@ export default function Hero({ onSearch }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           onSubmit={handleSearchClick}
-          className="w-full max-w-5xl bg-white p-2 sm:p-4 rounded-2xl shadow-2xl shadow-emerald-950/20 grid grid-cols-1 md:grid-cols-4 gap-2 sm:gap-4 items-center"
+          className="w-full bg-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-4 border-white/10 flex flex-col md:flex-row gap-4 items-end"
         >
-          <div className="relative">
-            <label className="absolute left-4 top-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Origin</label>
-            <div className="flex items-center pl-4 pr-3 pt-6 pb-2">
-              <MapPin className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-              <select name="origin" required className="w-full bg-transparent text-slate-700 font-medium focus:outline-none appearance-none cursor-pointer">
-                <option value="">Select City</option>
+          <div className="flex-1 w-full text-left">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Origin City</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+              <select name="origin" required className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer">
+                <option value="">Select Origin City</option>
                 {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="hidden md:block w-px h-12 bg-slate-100" />
-
-          <div className="relative">
-            <label className="absolute left-4 top-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Destination</label>
-            <div className="flex items-center pl-4 pr-3 pt-6 pb-2">
-              <MapPin className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
-              <select name="destination" required className="w-full bg-transparent text-slate-700 font-medium focus:outline-none appearance-none cursor-pointer">
-                <option value="">Select City</option>
+          <div className="flex-1 w-full text-left">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Destination</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+              <select name="destination" required className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer">
+                <option value="">Select Destination</option>
                 {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="hidden md:block w-px h-12 bg-slate-100" />
-
-          <div className="relative">
-            <label className="absolute left-4 top-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">Travel Date</label>
-            <div className="flex items-center pl-4 pr-3 pt-6 pb-2">
-              <Calendar className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
+          <div className="w-full md:w-52 text-left">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Travel Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
               <input 
                 type="date" 
                 name="date"
+                defaultValue={new Date().toISOString().split('T')[0]}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full bg-transparent text-slate-700 font-medium focus:outline-none cursor-pointer"
+                className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               />
             </div>
           </div>
 
           <button 
             type="submit"
-            className="h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 group"
+            className="w-full md:w-auto h-14 px-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95 flex items-center justify-center gap-2"
           >
-            <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span>Search Buses</span>
+            <Search className="w-5 h-5" />
+            <span>SEARCH</span>
           </button>
         </motion.form>
       </div>
