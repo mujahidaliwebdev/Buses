@@ -1,20 +1,33 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# ChaloBus Pakistan 🇵🇰
 
-# Run and deploy your AI Studio app
+A modern, fast, and responsive bus transportation platform built for Pakistan. Users can search for AC and Non-AC bus timings, fares, and route details across 50+ cities.
 
-This contains everything you need to run your app locally.
+## 🚀 Features
 
-View your app in AI Studio: https://ai.studio/apps/a2dbd2bd-2e45-40ae-b737-db260d3e69dd
+- **Real-time Search:** Find buses between any two major cities in Pakistan.
+- **Verified Data:** Fares and timings sourced directly from terminal operators.
+- **Mobile First:** Fully responsive design that works perfectly on all devices.
+- **Modern UI:** Built with React, Tailwind CSS 4, and Motion for smooth animations.
 
-## Run Locally
+## 🛠️ Tech Stack
 
-**Prerequisites:**  Node.js
+- **Frontend:** React 19, TypeScript
+- **Styling:** Tailwind CSS 4
+- **Animations:** Motion (formerly Framer Motion)
+- **Icons:** Lucide React
 
+## 📂 Project Structure
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- `src/components/`: Reusable UI components (Navbar, Hero, etc.)
+- `src/data/`: Mock data and constants (City lists, Bus records)
+- `src/types.ts`: TypeScript interfaces for the application.
+- `src/App.tsx`: Main application logic and layout.
+
+## 🚦 Getting Started
+
+1. Install dependencies: `npm install`
+2. Run development server: `npm run dev`
+3. Build for production: `npm run build`
+
+---
+Built with ❤️ for Pakistan.
