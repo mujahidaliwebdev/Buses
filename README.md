@@ -31,3 +31,14 @@ A modern, fast, and responsive bus transportation platform built for Pakistan. U
 
 ---
 Built with ❤️ for Pakistan.
+
+## 🚀 Deployment to GitHub Pages
+
+If your website is showing a blank page on GitHub Pages, follow these steps:
+
+1. **Vite Base Path:** Ensure `base: '/Buses/'` is set in your `vite.config.ts`.
+2. **GitHub Actions:** Ensure your repository setings are configured to deploy from GitHub Actions:
+   - Go to your repo **Settings** -> **Pages**.
+   - Under **Build and deployment**, set **Source** to `GitHub Actions`.
+3. **Commit & Push:** Push all files, including the `.github/workflows/deploy.yml` file created by the assistant.
+4. **Environment:** Make sure your repository name matches the base path (`/Buses/`). If your repo name isDifferent, update `base` in `vite.config.ts` accordingly.
