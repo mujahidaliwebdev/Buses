@@ -24,7 +24,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
       } else if (err.code === 'auth/cancelled-popup-request') {
         setError('Sign in was cancelled.');
       } else {
-        setError('Failed to sign in. Please try again or check if popups are enabled.');
+        setError('Failed to sign in. If you are in the AI Studio preview, please open the app in a new tab first.');
       }
     } finally {
       setLoading(false);
@@ -60,10 +60,15 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-xs font-bold flex items-start gap-3 text-left"
+                className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[11px] font-bold flex flex-col gap-2 text-left"
               >
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+                <p className="text-slate-500 text-[10px] font-medium pl-6">
+                  Tip: Look for the <span className="bg-slate-200 px-1 rounded">↗</span> (Open in new tab) icon at the top right of the preview.
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
