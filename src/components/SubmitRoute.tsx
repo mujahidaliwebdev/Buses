@@ -8,9 +8,11 @@ import {
   CheckCircle2, 
   Info,
   Smartphone,
-  Tag
+  Tag,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { contributionService } from '../lib/firestoreService';
 
 interface SubmitRouteProps {
   onClose: () => void;
@@ -18,6 +20,7 @@ interface SubmitRouteProps {
 
 export default function SubmitRoute({ onClose }: SubmitRouteProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     companyName: '',
     origin: '',
@@ -29,13 +32,22 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
     note: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    // In a real app, we would send this to a database
-    setTimeout(() => {
-      onClose();
-    }, 3000);
+    setIsSubmitting(true);
+    
+    try {
+      await contributionService.submitContribution(formData);
+      setIsSubmitted(true);
+      setTimeout(() => {
+        onClose();
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -151,9 +163,15 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
 
             <button 
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 transition-all active:scale-95"
+              disabled={isSubmitting}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send className="w-5 h-5" /> Submit Contribution
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
+              {isSubmitting ? 'Submitting...' : 'Submit Contribution'}
             </button>
           </form>
         </div>

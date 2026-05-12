@@ -16,17 +16,18 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { busService } from '../lib/firestoreService';
 
 interface AdminDashboardProps {
   buses: Bus[];
-  onUpdate: (buses: Bus[]) => void;
   onClose: () => void;
 }
 
-export default function AdminDashboard({ buses, onUpdate, onClose }: AdminDashboardProps) {
+export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState<Partial<Bus>>({
@@ -65,6 +66,7 @@ export default function AdminDashboard({ buses, onUpdate, onClose }: AdminDashbo
     });
     setEditingId(null);
     setIsAdding(false);
+    setIsSaving(false);
   };
 
   const handleEdit = (bus: Bus) => {
@@ -73,25 +75,33 @@ export default function AdminDashboard({ buses, onUpdate, onClose }: AdminDashbo
     setIsAdding(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this route?')) {
-      onUpdate(buses.filter(b => b.id !== id));
+      try {
+        await busService.deleteBus(id);
+      } catch (error) {
+        console.error(error);
+        alert('Failed to delete route. Check console for details.');
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     
-    if (editingId) {
-      onUpdate(buses.map(b => b.id === editingId ? { ...b, ...formData } as Bus : b));
-    } else {
-      const newBus: Bus = {
-        ...formData,
-        id: Math.random().toString(36).substr(2, 9),
-      } as Bus;
-      onUpdate([...buses, newBus]);
+    try {
+      if (editingId) {
+        await busService.updateBus(editingId, formData);
+      } else {
+        await busService.addBus(formData as Omit<Bus, 'id'>);
+      }
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to save route. Check console for details.');
+      setIsSaving(false);
     }
-    resetForm();
   };
 
   return (
@@ -347,10 +357,15 @@ export default function AdminDashboard({ buses, onUpdate, onClose }: AdminDashbo
                     </button>
                     <button 
                       type="submit"
-                      className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-600/20 text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                      disabled={isSaving}
+                      className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-600/20 text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50"
                     >
-                      <Save className="w-5 h-5" /> 
-                      {editingId ? 'Update Record' : 'Save New Route'}
+                      {isSaving ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <Save className="w-5 h-5" /> 
+                      )}
+                      {isSaving ? 'Processing...' : (editingId ? 'Update Record' : 'Save New Route')}
                     </button>
                  </div>
               </form>

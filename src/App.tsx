@@ -22,10 +22,12 @@ import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
+import { busService } from './lib/firestoreService';
 import { User as FirebaseUser } from 'firebase/auth';
 
 export default function App() {
-  const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+  const [buses, setBuses] = useState<Bus[]>([]);
+  const [loadingBuses, setLoadingBuses] = useState(true);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdminView, setIsAdminView] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
@@ -37,9 +39,23 @@ export default function App() {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    return auth.onAuthStateChanged((u) => {
+    const unsubscribeAuth = auth.onAuthStateChanged((u) => {
       setUser(u);
     });
+
+    const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
+      if (fetchedBuses.length === 0) {
+        setBuses(MOCK_BUSES);
+      } else {
+        setBuses(fetchedBuses);
+      }
+      setLoadingBuses(false);
+    });
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeBuses();
+    };
   }, []);
 
   const handleSearch = (filters: SearchFilters) => {
@@ -55,10 +71,6 @@ export default function App() {
       setSearchResults(filtered);
       setIsSearching(false);
     }, 800);
-  };
-
-  const handleUpdateBuses = (newBuses: Bus[]) => {
-    setBuses(newBuses);
   };
 
   const handleSelectCompany = (companyName: string) => {
@@ -90,7 +102,6 @@ export default function App() {
         {isAdminView && isAdmin ? (
           <AdminDashboard 
             buses={buses} 
-            onUpdate={handleUpdateBuses} 
             onClose={() => setIsAdminView(false)} 
           />
         ) : isSubmitView ? (

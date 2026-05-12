@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Bus } from '../types';
-import { Clock, Phone, Snowflake, Sun, ShieldCheck, ArrowRight, X, Filter, SlidersHorizontal, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Clock, Phone, Snowflake, Sun, ShieldCheck, ArrowRight, X, Filter, SlidersHorizontal, ChevronDown, ArrowUpDown, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface SearchResultsProps {

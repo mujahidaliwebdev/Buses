@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, LogIn, Mail } from 'lucide-react';
+import { X, LogIn, AlertCircle } from 'lucide-react';
 import { signInWithGoogle } from '../lib/firebase';
 
 interface AuthModalProps {
@@ -8,12 +8,26 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ onClose }: AuthModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
     try {
       await signInWithGoogle();
       onClose();
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/popup-blocked') {
+        setError('Popup was blocked by your browser. Please allow popups for this site.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Sign in was cancelled.');
+      } else {
+        setError('Failed to sign in. Please try again or check if popups are enabled.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,13 +54,32 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             Sign in to contribute routes and manage your personalized travel network.
           </p>
 
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-xs font-bold flex items-start gap-3 text-left"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="space-y-4">
             <button 
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 py-4 rounded-2xl font-bold transition-all active:scale-95 group"
+              disabled={loading}
+              className={`w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 py-4 rounded-2xl font-bold transition-all active:scale-95 group ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 grayscale group-hover:grayscale-0 transition-all" />
-              <span className="text-slate-700">Continue with Google</span>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-slate-300 border-t-emerald-600 rounded-full animate-spin" />
+              ) : (
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 grayscale group-hover:grayscale-0 transition-all" />
+              )}
+              <span className="text-slate-700">{loading ? 'Signing in...' : 'Continue with Google'}</span>
             </button>
 
             <div className="relative py-4">
