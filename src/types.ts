@@ -4,6 +4,7 @@ export interface Bus {
   destination: string;
   departureTime: string;
   arrivalTime: string;
+  duration: string;
   fare: number;
   companyName: string;
   busNumber: string;

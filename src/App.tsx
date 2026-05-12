@@ -40,25 +40,36 @@ export default function App() {
       <Navbar />
       
       <main>
-        <Hero onSearch={handleSearch} />
-        
-        <PopularRoutes />
-        
-        <Features />
-        
-        <HowItWorks />
-        
-        {/* Placeholder for SEO Content or CTA */}
-        <section className="py-20 bg-white">
-           <div className="max-w-4xl mx-auto px-4 text-center">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 tracking-tight">The Future of Bus Travel in Pakistan</h2>
-              <p className="text-slate-500 leading-relaxed text-sm">
-                We are on a mission to digitize every terminal and bus operator in Pakistan. 
-                From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
-                our platform ensures you have the most accurate data at your fingertips.
-              </p>
-           </div>
-        </section>
+        {searchResults && searchParams ? (
+          <SearchResults 
+            buses={searchResults}
+            origin={searchParams.origin}
+            destination={searchParams.destination}
+            onClose={() => {
+              setSearchResults(null);
+              window.scrollTo(0, 0);
+            }}
+          />
+        ) : (
+          <>
+            <Hero onSearch={handleSearch} />
+            <PopularRoutes />
+            <Features />
+            <HowItWorks />
+            
+            {/* SEO Content or CTA */}
+            <section className="py-20 bg-white">
+               <div className="max-w-4xl mx-auto px-4 text-center">
+                  <h2 className="text-2xl font-bold text-slate-800 mb-6 tracking-tight">The Future of Bus Travel in Pakistan</h2>
+                  <p className="text-slate-500 leading-relaxed text-sm">
+                    We are on a mission to digitize every terminal and bus operator in Pakistan. 
+                    From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
+                    our platform ensures you have the most accurate data at your fingertips.
+                  </p>
+               </div>
+            </section>
+          </>
+        )}
       </main>
 
       <Footer />
@@ -70,18 +81,6 @@ export default function App() {
             <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4" />
             <p className="text-emerald-900 font-bold tracking-tight">Finding the best buses for you...</p>
           </div>
-        )}
-      </AnimatePresence>
-
-      {/* Results Overlay */}
-      <AnimatePresence>
-        {searchResults && searchParams && (
-          <SearchResults 
-            buses={searchResults}
-            origin={searchParams.origin}
-            destination={searchParams.destination}
-            onClose={() => setSearchResults(null)}
-          />
         )}
       </AnimatePresence>
     </div>
