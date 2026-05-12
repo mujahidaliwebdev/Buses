@@ -9,6 +9,8 @@ export interface Bus {
   companyName: string;
   busNumber: string;
   contactNumber: string;
+  terminalLocation: string;
+  standNumber: string;
   isAC: boolean;
   type: "Luxury" | "Executive" | "Non-AC" | "Standard";
 }

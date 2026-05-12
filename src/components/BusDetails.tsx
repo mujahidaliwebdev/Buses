@@ -122,6 +122,8 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
                 <div className="space-y-4">
                   <DetailItem label="Service Type" value={bus.type} />
                   <DetailItem label="Climate Control" value={bus.isAC ? "Air Conditioned" : "Normal Ventilation"} />
+                  <DetailItem label="Terminal" value={bus.terminalLocation} />
+                  <DetailItem label="Stand #" value={bus.standNumber} />
                   <DetailItem label="Registration #" value={bus.busNumber} />
                   <DetailItem label="Status" value="On Schedule" status="emerald" />
                 </div>

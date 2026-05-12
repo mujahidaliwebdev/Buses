@@ -26,6 +26,8 @@
         "companyName": { "type": "string" },
         "busNumber": { "type": "string" },
         "contactNumber": { "type": "string" },
+        "terminalLocation": { "type": "string" },
+        "standNumber": { "type": "string" },
         "isAC": { "type": "boolean" },
         "type": { "type": "string", "enum": ["Luxury", "Executive", "Non-AC", "Standard"] }
       },

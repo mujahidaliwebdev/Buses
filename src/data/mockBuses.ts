@@ -30,6 +30,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Daewoo Express",
     busNumber: "LZ-552",
     contactNumber: "042-111-007-007",
+    terminalLocation: "Thokar Niaz Baig, Lahore",
+    standNumber: "Stand 4",
     isAC: true,
     type: "Luxury"
   },
@@ -44,6 +46,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Faisal Movers",
     busNumber: "FM-101",
     contactNumber: "0311-1222260",
+    terminalLocation: "Band Road, Lahore",
+    standNumber: "Stand 1",
     isAC: true,
     type: "Executive"
   },
@@ -58,6 +62,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Road Master",
     busNumber: "RM-990",
     contactNumber: "0310-1111111",
+    terminalLocation: "Pindi Bypass, Lahore",
+    standNumber: "Stand 15",
     isAC: true,
     type: "Luxury"
   },
@@ -72,6 +78,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Skyways",
     busNumber: "SW-442",
     contactNumber: "042-111-555-444",
+    terminalLocation: "Vehari Chowk, Multan",
+    standNumber: "Stand 8",
     isAC: true,
     type: "Standard"
   },
@@ -86,6 +94,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Local Express",
     busNumber: "LEC-001",
     contactNumber: "041-222-3333",
+    terminalLocation: "Yadgaar Chowk, Faisalabad",
+    standNumber: "Stand 2",
     isAC: false,
     type: "Non-AC"
   },
@@ -100,6 +110,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Sania Express",
     busNumber: "SE-221",
     contactNumber: "0300-1234567",
+    terminalLocation: "Niaz Baig, Lahore",
+    standNumber: "Stand 5",
     isAC: true,
     type: "Standard"
   },
@@ -114,6 +126,8 @@ export const MOCK_BUSES: Bus[] = [
     companyName: "Silk Line",
     busNumber: "SL-778",
     contactNumber: "0321-7778881",
+    terminalLocation: "Kalma Chowk, Lahore",
+    standNumber: "Stand 3",
     isAC: true,
     type: "Luxury"
   }

@@ -13,7 +13,8 @@ import {
   MapPin, 
   Smartphone,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Tag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService } from '../lib/firestoreService';
@@ -40,6 +41,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     fare: 0,
     busNumber: '',
     contactNumber: '',
+    terminalLocation: '',
+    standNumber: '',
     type: 'Standard',
     isAC: true
   });
@@ -61,6 +64,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       fare: 0,
       busNumber: '',
       contactNumber: '',
+      terminalLocation: '',
+      standNumber: '',
       type: 'Standard',
       isAC: true
     });
@@ -290,6 +295,26 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         onChange={(e) => setFormData({...formData, departureTime: e.target.value})}
                         className="admin-input" 
                         placeholder="e.g. 08:30 AM"
+                      />
+                    </InputGroup>
+
+                    <InputGroup label="Terminal Location" icon={<MapPin className="w-4 h-4" />}>
+                      <input 
+                        required
+                        value={formData.terminalLocation}
+                        onChange={(e) => setFormData({...formData, terminalLocation: e.target.value})}
+                        className="admin-input" 
+                        placeholder="e.g. Band Road Terminal"
+                      />
+                    </InputGroup>
+
+                    <InputGroup label="Stand #" icon={<Tag className="w-4 h-4" />}>
+                      <input 
+                        required
+                        value={formData.standNumber}
+                        onChange={(e) => setFormData({...formData, standNumber: e.target.value})}
+                        className="admin-input" 
+                        placeholder="e.g. Stand 12"
                       />
                     </InputGroup>
 
