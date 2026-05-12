@@ -20,16 +20,16 @@ export default function Hero({ onSearch }: HeroProps) {
   };
 
   return (
-    <section id="hero" className="relative h-[650px] sm:h-[600px] flex items-center overflow-hidden">
+    <section id="hero" className="relative h-[650px] sm:h-[600px] flex items-center overflow-hidden bg-emerald-950">
       {/* Background with Pakistani Bus Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://upload.wikimedia.org/wikipedia/commons/d/df/Colorful_Bus_in_Karachi.jpg"
-          alt="Pakistani Colorful Bus"
-          className="w-full h-full object-cover"
+          src="https://images.unsplash.com/photo-1596700030561-abd973da9322?q=80&w=2071&auto=format&fit=crop"
+          alt="Pakistani Bus"
+          className="w-full h-full object-cover opacity-60"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/80 via-emerald-950/60 to-emerald-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-950/20 to-emerald-950/60" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
@@ -112,26 +112,29 @@ export default function Hero({ onSearch }: HeroProps) {
             <span>SEARCH</span>
           </button>
         </motion.form>
+      </div>
 
-        {/* Company Marquee */}
-        <div className="absolute bottom-0 left-0 w-full bg-black/40 backdrop-blur-md border-t border-white/10 py-4 overflow-hidden">
-          <div className="flex whitespace-nowrap">
-            <motion.div
-              animate={{ x: [0, -1000] }}
-              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-              className="flex gap-12 items-center px-12"
-            >
-              {[
-                'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-                'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
-              ].map((name, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" />
-                  <span className="text-xs font-black text-white/60 uppercase tracking-[0.3em]">{name}</span>
-                </div>
-              ))}
-            </motion.div>
-          </div>
+      {/* Company Marquee - Moved outside max-w-5xl and adjusted */}
+      <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-lg border-t border-white/5 py-5 overflow-hidden z-20">
+        <div className="flex whitespace-nowrap">
+          <motion.div
+            initial={{ x: 0 }}
+            animate={{ x: "-50%" }}
+            transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+            className="flex gap-20 items-center px-10"
+          >
+            {[
+              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
+            ].map((name, i) => (
+              <div key={i} className="flex items-center gap-5">
+                <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-[0_0_15px_#34d399]" />
+                <span className="text-[11px] font-black text-white/50 uppercase tracking-[0.5em]">{name}</span>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
