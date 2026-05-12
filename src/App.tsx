@@ -14,11 +14,14 @@ import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
 import BusDetails from './components/BusDetails';
 import CompanyProfile from './components/CompanyProfile';
+import AdminDashboard from './components/AdminDashboard';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 
 export default function App() {
+  const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+  const [isAdminView, setIsAdminView] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
@@ -31,13 +34,17 @@ export default function App() {
     
     // Simulate API delay
     setTimeout(() => {
-      const filtered = MOCK_BUSES.filter(bus => 
+      const filtered = buses.filter(bus => 
         bus.origin.toLowerCase() === filters.origin.toLowerCase() && 
         bus.destination.toLowerCase() === filters.destination.toLowerCase()
       );
       setSearchResults(filtered);
       setIsSearching(false);
     }, 800);
+  };
+
+  const handleUpdateBuses = (newBuses: Bus[]) => {
+    setBuses(newBuses);
   };
 
   const handleSelectCompany = (companyName: string) => {
@@ -52,7 +59,13 @@ export default function App() {
       <Navbar />
       
       <main>
-        {searchResults && searchParams ? (
+        {isAdminView ? (
+          <AdminDashboard 
+            buses={buses} 
+            onUpdate={handleUpdateBuses} 
+            onClose={() => setIsAdminView(false)} 
+          />
+        ) : searchResults && searchParams ? (
           <SearchResults 
             buses={searchResults}
             origin={searchParams.origin}
@@ -79,6 +92,12 @@ export default function App() {
                     From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
                     our platform ensures you have the most accurate data at your fingertips.
                   </p>
+                  <button 
+                    onClick={() => setIsAdminView(true)}
+                    className="mt-8 text-xs font-bold text-slate-300 hover:text-emerald-500 transition-colors uppercase tracking-widest"
+                  >
+                    Operator Login / Dashboard
+                  </button>
                </div>
             </section>
           </>
