@@ -22,14 +22,14 @@ export default function Hero({ onSearch }: HeroProps) {
   return (
     <section id="hero" className="relative h-[650px] sm:h-[600px] flex items-center overflow-hidden bg-emerald-950">
       {/* Background with Pakistani Bus Image */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-emerald-900">
         <img 
-          src="https://images.unsplash.com/photo-1596700030561-abd973da9322?q=80&w=2071&auto=format&fit=crop"
-          alt="Pakistani Bus"
-          className="w-full h-full object-cover opacity-60"
+          src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop"
+          alt="Travel Across Pakistan"
+          className="w-full h-full object-cover opacity-50"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/40 via-emerald-950/20 to-emerald-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-transparent to-emerald-900/90" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
@@ -115,7 +115,7 @@ export default function Hero({ onSearch }: HeroProps) {
       </div>
 
       {/* Company Marquee - Moved outside max-w-5xl and adjusted */}
-      <div className="absolute bottom-0 left-0 w-full bg-black/60 backdrop-blur-lg border-t border-white/5 py-5 overflow-hidden z-20">
+      <div className="absolute bottom-14 left-0 w-full bg-black/60 backdrop-blur-lg border-y border-white/5 py-5 overflow-hidden z-20">
         <div className="flex whitespace-nowrap">
           <motion.div
             initial={{ x: 0 }}
