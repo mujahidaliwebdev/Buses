@@ -6,9 +6,11 @@ import { User as FirebaseUser } from 'firebase/auth';
 
 interface NavbarProps {
   onLoginClick: () => void;
+  onAdminClick?: () => void;
+  isAdmin?: boolean;
 }
 
-export default function Navbar({ onLoginClick }: NavbarProps) {
+export default function Navbar({ onLoginClick, onAdminClick, isAdmin }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
@@ -56,6 +58,14 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
                     </div>
                   )}
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 py-2">
+                    {isAdmin && (
+                      <button 
+                        onClick={onAdminClick}
+                        className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-bold text-emerald-600 flex items-center gap-2 border-b border-slate-50 mb-1"
+                      >
+                        <BusFront className="w-4 h-4" /> Admin Console
+                      </button>
+                    )}
                     <button 
                       onClick={() => logout()}
                       className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-medium text-red-600 flex items-center gap-2"

@@ -9,11 +9,12 @@ interface SearchResultsProps {
   destination: string;
   onClose: () => void;
   onSelectBus: (bus: Bus) => void;
+  onAddRoute: () => void;
 }
 
 type SortOption = 'cheapest' | 'earliest';
 
-export default function SearchResults({ buses, origin, destination, onClose, onSelectBus }: SearchResultsProps) {
+export default function SearchResults({ buses, origin, destination, onClose, onSelectBus, onAddRoute }: SearchResultsProps) {
   const [sortBy, setSortBy] = useState<SortOption>('cheapest');
   const [maxFare, setMaxFare] = useState<number>(2000);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
@@ -294,17 +295,26 @@ export default function SearchResults({ buses, origin, destination, onClose, onS
                     Try adjusting your fare range or clearing the company filters to find more options.
                   </p>
                   <button 
-                    onClick={() => {
-                      setMaxFare(5000);
-                      setSelectedCompanies([]);
-                    }}
+                    onClick={onAddRoute}
                     className="mt-8 px-6 py-3 bg-emerald-100 text-emerald-700 rounded-xl font-bold hover:bg-emerald-200 transition-colors"
                   >
-                    Reset Filters
+                    Reset Filters Or Suggest Route
                   </button>
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {filteredAndSortedBuses.length > 0 && (
+              <div className="mt-12 text-center p-8 bg-slate-100 rounded-[2rem] border border-dashed border-slate-300">
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Can't find your bus?</p>
+                <button 
+                  onClick={onAddRoute}
+                  className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-black text-sm uppercase tracking-widest transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Suggest a missing route
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

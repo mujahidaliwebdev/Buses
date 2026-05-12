@@ -80,7 +80,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white selection:bg-emerald-100 selection:text-emerald-900 font-sans">
-      <Navbar onLoginClick={() => setShowAuthModal(true)} />
+      <Navbar 
+        onLoginClick={() => setShowAuthModal(true)} 
+        onAdminClick={() => setIsAdminView(true)}
+        isAdmin={isAdmin}
+      />
       
       <main>
         {isAdminView && isAdmin ? (
@@ -101,6 +105,7 @@ export default function App() {
               window.scrollTo(0, 0);
             }}
             onSelectBus={(bus) => setSelectedBus(bus)}
+            onAddRoute={handleContributionClick}
           />
         ) : (
           <>
