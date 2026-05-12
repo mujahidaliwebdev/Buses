@@ -78,7 +78,7 @@ export default function Features() {
             <div className="bg-emerald-950 rounded-2xl p-6 text-white flex items-center justify-between shadow-xl">
                <div className="flex flex-col">
                   <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider mb-1">Customer Support</span>
-                  <span className="text-lg font-bold">0800-CHALO-PK</span>
+                  <span className="text-lg font-bold">0301-432-1122</span>
                </div>
                <div className="w-10 h-10 bg-emerald-900 rounded-full flex items-center justify-center text-emerald-400 text-lg">
                   📞

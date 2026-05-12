@@ -8,10 +8,11 @@ interface NavbarProps {
   onLoginClick: () => void;
   onAdminClick?: () => void;
   onHomeClick?: () => void;
+  onAboutClick?: () => void;
   isAdmin?: boolean;
 }
 
-export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, isAdmin }: NavbarProps) {
+export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, onAboutClick, isAdmin }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, isAdmi
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
             <a href="#" className="text-emerald-700 hover:text-emerald-800 transition-colors">Search Buses</a>
             <a href="#routes" className="hover:text-emerald-600 transition-colors">Popular Routes</a>
+            <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors">About Us</button>
             {isAdmin && (
               <button 
                 onClick={onAdminClick}

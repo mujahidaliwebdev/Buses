@@ -17,6 +17,7 @@ import BusDetails from './components/BusDetails';
 import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
+import AboutUs from './components/AboutUs';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -31,6 +32,7 @@ export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdminView, setIsAdminView] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
+  const [isAboutUsView, setIsAboutUsView] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
@@ -83,6 +85,7 @@ export default function App() {
   const handleHome = () => {
     setIsAdminView(false);
     setIsSubmitView(false);
+    setIsAboutUsView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -106,6 +109,7 @@ export default function App() {
         onLoginClick={() => setShowAuthModal(true)} 
         onAdminClick={() => setIsAdminView(true)}
         onHomeClick={handleHome}
+        onAboutClick={() => setIsAboutUsView(true)}
         isAdmin={isAdmin}
       />
       
@@ -115,6 +119,8 @@ export default function App() {
             buses={buses} 
             onClose={() => setIsAdminView(false)} 
           />
+        ) : isAboutUsView ? (
+          <AboutUs />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
