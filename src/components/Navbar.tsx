@@ -39,6 +39,14 @@ export default function Navbar({ onLoginClick, onAdminClick, isAdmin }: NavbarPr
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
             <a href="#" className="text-emerald-700 hover:text-emerald-800 transition-colors">Search Buses</a>
             <a href="#routes" className="hover:text-emerald-600 transition-colors">Popular Routes</a>
+            {isAdmin && (
+              <button 
+                onClick={onAdminClick}
+                className="text-emerald-600 hover:text-emerald-800 transition-colors font-bold flex items-center gap-1"
+              >
+                Admin Panel
+              </button>
+            )}
             <a href="#features" className="hover:text-emerald-600 transition-colors">Features</a>
           </div>
 
