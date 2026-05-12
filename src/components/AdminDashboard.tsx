@@ -298,6 +298,16 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       />
                     </InputGroup>
 
+                    <InputGroup label="Arrival Time" icon={<Clock className="w-4 h-4" />}>
+                      <input 
+                        required
+                        value={formData.arrivalTime}
+                        onChange={(e) => setFormData({...formData, arrivalTime: e.target.value})}
+                        className="admin-input" 
+                        placeholder="e.g. 12:30 PM"
+                      />
+                    </InputGroup>
+
                     <InputGroup label="Terminal Location" icon={<MapPin className="w-4 h-4" />}>
                       <input 
                         required
@@ -315,16 +325,6 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         onChange={(e) => setFormData({...formData, standNumber: e.target.value})}
                         className="admin-input" 
                         placeholder="e.g. Stand 12"
-                      />
-                    </InputGroup>
-
-                    <InputGroup label="Arrival Time" icon={<Clock className="w-4 h-4" />}>
-                      <input 
-                        required
-                        value={formData.arrivalTime}
-                        onChange={(e) => setFormData({...formData, arrivalTime: e.target.value})}
-                        className="admin-input" 
-                        placeholder="e.g. 12:30 PM"
                       />
                     </InputGroup>
 
