@@ -8,11 +8,12 @@ interface SearchResultsProps {
   origin: string;
   destination: string;
   onClose: () => void;
+  onSelectBus: (bus: Bus) => void;
 }
 
 type SortOption = 'cheapest' | 'earliest';
 
-export default function SearchResults({ buses, origin, destination, onClose }: SearchResultsProps) {
+export default function SearchResults({ buses, origin, destination, onClose, onSelectBus }: SearchResultsProps) {
   const [sortBy, setSortBy] = useState<SortOption>('cheapest');
   const [maxFare, setMaxFare] = useState<number>(2000);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
@@ -201,7 +202,8 @@ export default function SearchResults({ buses, origin, destination, onClose }: S
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500 hover:shadow-xl transition-all group"
+                    onClick={() => onSelectBus(bus)}
+                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500 hover:shadow-xl transition-all group cursor-pointer"
                   >
                     <div className="flex flex-col lg:flex-row">
                       {/* Left Block: Bus Info & Times */}

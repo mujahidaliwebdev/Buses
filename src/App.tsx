@@ -12,12 +12,14 @@ import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
+import BusDetails from './components/BusDetails';
 import { Bus, SearchFilters } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 
 export default function App() {
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
+  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (filters: SearchFilters) => {
@@ -49,6 +51,7 @@ export default function App() {
               setSearchResults(null);
               window.scrollTo(0, 0);
             }}
+            onSelectBus={(bus) => setSelectedBus(bus)}
           />
         ) : (
           <>
@@ -73,6 +76,16 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Bus Details Modal */}
+      <AnimatePresence>
+        {selectedBus && (
+          <BusDetails 
+            bus={selectedBus} 
+            onClose={() => setSelectedBus(null)} 
+          />
+        )}
+      </AnimatePresence>
 
       {/* Loading Overlay */}
       <AnimatePresence>
