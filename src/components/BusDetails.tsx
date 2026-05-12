@@ -19,9 +19,10 @@ import { motion } from 'motion/react';
 interface BusDetailsProps {
   bus: Bus;
   onClose: () => void;
+  onSelectCompany: (companyName: string) => void;
 }
 
-export default function BusDetails({ bus, onClose }: BusDetailsProps) {
+export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetailsProps) {
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -59,7 +60,11 @@ export default function BusDetails({ bus, onClose }: BusDetailsProps) {
                   </span>
                 )}
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+              <h2 
+                onClick={() => onSelectCompany(bus.companyName)}
+                className="text-3xl md:text-4xl font-black text-white tracking-tight cursor-pointer hover:text-emerald-400 transition-colors"
+                title="View Company Profile"
+              >
                 {bus.companyName}
               </h2>
               <p className="text-emerald-400 font-bold uppercase tracking-tighter text-sm mt-1 flex items-center gap-2">

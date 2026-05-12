@@ -13,13 +13,16 @@ import HowItWorks from './components/HowItWorks';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
 import BusDetails from './components/BusDetails';
-import { Bus, SearchFilters } from './types';
+import CompanyProfile from './components/CompanyProfile';
+import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
+import { MOCK_COMPANIES } from './data/mockCompanies';
 
 export default function App() {
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (filters: SearchFilters) => {
@@ -35,6 +38,13 @@ export default function App() {
       setSearchResults(filtered);
       setIsSearching(false);
     }, 800);
+  };
+
+  const handleSelectCompany = (companyName: string) => {
+    const company = MOCK_COMPANIES.find(c => c.name === companyName);
+    if (company) {
+      setSelectedCompany(company);
+    }
   };
 
   return (
@@ -83,6 +93,17 @@ export default function App() {
           <BusDetails 
             bus={selectedBus} 
             onClose={() => setSelectedBus(null)} 
+            onSelectCompany={handleSelectCompany}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Company Profile Modal */}
+      <AnimatePresence>
+        {selectedCompany && (
+          <CompanyProfile 
+            company={selectedCompany} 
+            onClose={() => setSelectedCompany(null)} 
           />
         )}
       </AnimatePresence>

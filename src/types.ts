@@ -13,6 +13,15 @@ export interface Bus {
   type: "Luxury" | "Executive" | "Non-AC" | "Standard";
 }
 
+export interface Company {
+  name: string;
+  description: string;
+  totalBuses: string;
+  routes: string[];
+  contactInfo: string;
+  officeAddress: string;
+}
+
 export interface SearchFilters {
   origin: string;
   destination: string;
