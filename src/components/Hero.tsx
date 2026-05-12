@@ -20,13 +20,19 @@ export default function Hero({ onSearch }: HeroProps) {
   };
 
   return (
-    <section id="hero" className="relative bg-emerald-900 overflow-hidden py-16 sm:py-24">
-      {/* Subtle organic pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
+    <section id="hero" className="relative h-[650px] sm:h-[600px] flex items-center overflow-hidden">
+      {/* Background with Pakistani Bus Image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/d/df/Colorful_Bus_in_Karachi.jpg"
+          alt="Pakistani Colorful Bus"
+          className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/80 via-emerald-950/60 to-emerald-950/90" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -106,6 +112,27 @@ export default function Hero({ onSearch }: HeroProps) {
             <span>SEARCH</span>
           </button>
         </motion.form>
+
+        {/* Company Marquee */}
+        <div className="absolute bottom-0 left-0 w-full bg-black/40 backdrop-blur-md border-t border-white/10 py-4 overflow-hidden">
+          <div className="flex whitespace-nowrap">
+            <motion.div
+              animate={{ x: [0, -1000] }}
+              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+              className="flex gap-12 items-center px-12"
+            >
+              {[
+                'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+                'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
+              ].map((name, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" />
+                  <span className="text-xs font-black text-white/60 uppercase tracking-[0.3em]">{name}</span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
