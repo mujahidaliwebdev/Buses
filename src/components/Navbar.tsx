@@ -7,10 +7,11 @@ import { User as FirebaseUser } from 'firebase/auth';
 interface NavbarProps {
   onLoginClick: () => void;
   onAdminClick?: () => void;
+  onHomeClick?: () => void;
   isAdmin?: boolean;
 }
 
-export default function Navbar({ onLoginClick, onAdminClick, isAdmin }: NavbarProps) {
+export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, isAdmin }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
@@ -23,10 +24,11 @@ export default function Navbar({ onLoginClick, onAdminClick, isAdmin }: NavbarPr
     <nav id="navbar" className="sticky top-0 z-50 w-full bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <motion.div 
+          <motion.button 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
+            onClick={onHomeClick}
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity outline-none"
           >
             <div className="w-10 h-10 bg-emerald-700 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-700/20">
               <BusFront className="w-6 h-6 text-white" />
@@ -34,7 +36,7 @@ export default function Navbar({ onLoginClick, onAdminClick, isAdmin }: NavbarPr
             <span className="text-2xl font-bold tracking-tight text-emerald-950">
               Chalo<span className="text-emerald-600">Bus</span>
             </span>
-          </motion.div>
+          </motion.button>
           
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
             <a href="#" className="text-emerald-700 hover:text-emerald-800 transition-colors">Search Buses</a>

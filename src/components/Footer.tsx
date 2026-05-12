@@ -1,17 +1,24 @@
 import { BusFront, Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'lucide-react';
 
-export default function Footer() {
+interface FooterProps {
+  onHomeClick?: () => void;
+}
+
+export default function Footer({ onHomeClick }: FooterProps) {
   return (
     <footer className="bg-white border-t border-slate-200 py-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
+            <button 
+              onClick={onHomeClick}
+              className="flex items-center gap-3 mb-6 cursor-pointer hover:opacity-80 transition-opacity outline-none"
+            >
               <BusFront className="w-7 h-7 text-emerald-600" />
               <span className="text-xl font-bold tracking-tight text-emerald-950">
                 ChaloBus
               </span>
-            </div>
+            </button>
             <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6 max-w-xs">
               Pakistan's first data-driven bus terminal information platform. Bringing transparency to your digital travel journey.
             </p>

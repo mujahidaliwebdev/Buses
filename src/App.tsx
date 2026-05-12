@@ -80,6 +80,16 @@ export default function App() {
     }
   };
 
+  const handleHome = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
   const handleContributionClick = () => {
     if (!user) {
       setShowAuthModal(true);
@@ -95,6 +105,7 @@ export default function App() {
       <Navbar 
         onLoginClick={() => setShowAuthModal(true)} 
         onAdminClick={() => setIsAdminView(true)}
+        onHomeClick={handleHome}
         isAdmin={isAdmin}
       />
       
@@ -156,7 +167,7 @@ export default function App() {
         )}
       </main>
 
-      <Footer />
+      <Footer onHomeClick={handleHome} />
 
       {/* Auth Modal */}
       <AnimatePresence>
