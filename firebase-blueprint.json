@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Bus": {
+      "title": "Bus",
+      "description": "Bus route and timing details",
+      "type": "object",
+      "properties": {
+        "origin": { "type": "string" },
+        "destination": { "type": "string" },
+        "departureTime": { "type": "string" },
+        "arrivalTime": { "type": "string" },
+        "duration": { "type": "string" },
+        "fare": { "type": "number" },
+        "companyName": { "type": "string" },
+        "busNumber": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "isAC": { "type": "boolean" },
+        "type": { "type": "string", "enum": ["Luxury", "Executive", "Non-AC", "Standard"] }
+      },
+      "required": ["origin", "destination", "departureTime", "fare", "companyName"]
+    },
+    "Contribution": {
+      "title": "Contribution",
+      "description": "User submitted route information",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string" },
+        "origin": { "type": "string" },
+        "destination": { "type": "string" },
+        "departureTime": { "type": "string" },
+        "fare": { "type": "string" },
+        "vehicleNumber": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "note": { "type": "string" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["companyName", "origin", "destination", "departureTime"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Public and private user profile data"
+    },
+    "buses/{busId}": {
+      "schema": "Bus",
+      "description": "Authenticated access for admins to manage schedules"
+    },
+    "contributions/{contributionId}": {
+      "schema": "Contribution",
+      "description": "Routes submitted by users for verification"
+    },
+    "admins/{adminId}": {
+      "schema": { "type": "object", "properties": { "role": { "type": "string" } } },
+      "description": "List of admin users"
+    }
+  }
+}

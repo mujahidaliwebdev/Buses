@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Bus as BusIcon, Plus } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -17,19 +17,30 @@ import BusDetails from './components/BusDetails';
 import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
+import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
+import { auth } from './lib/firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 
 export default function App() {
   const [buses, setBuses] = useState<Bus[]>(MOCK_BUSES);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdminView, setIsAdminView] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    return auth.onAuthStateChanged((u) => {
+      setUser(u);
+    });
+  }, []);
 
   const handleSearch = (filters: SearchFilters) => {
     setIsSearching(true);
@@ -57,12 +68,22 @@ export default function App() {
     }
   };
 
+  const handleContributionClick = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      setIsSubmitView(true);
+    }
+  };
+
+  const isAdmin = user?.email === 'mujahidali.webdev@gmail.com';
+
   return (
     <div className="min-h-screen bg-white selection:bg-emerald-100 selection:text-emerald-900 font-sans">
-      <Navbar />
+      <Navbar onLoginClick={() => setShowAuthModal(true)} />
       
       <main>
-        {isAdminView ? (
+        {isAdminView && isAdmin ? (
           <AdminDashboard 
             buses={buses} 
             onUpdate={handleUpdateBuses} 
@@ -86,7 +107,7 @@ export default function App() {
             <Hero onSearch={handleSearch} />
             <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
                <button 
-                 onClick={() => setIsSubmitView(true)}
+                 onClick={handleContributionClick}
                  className="w-full md:w-auto bg-emerald-950 text-emerald-400 py-4 px-8 rounded-2xl font-bold flex items-center justify-center gap-3 border border-emerald-800 shadow-xl hover:bg-emerald-900 transition-all active:scale-95 mx-auto"
                >
                  <Plus className="w-5 h-5" /> Missing a route? Add it here
@@ -105,12 +126,14 @@ export default function App() {
                     From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
                     our platform ensures you have the most accurate data at your fingertips.
                   </p>
-                  <button 
-                    onClick={() => setIsAdminView(true)}
-                    className="mt-8 text-xs font-bold text-slate-300 hover:text-emerald-500 transition-colors uppercase tracking-widest"
-                  >
-                    Operator Login / Dashboard
-                  </button>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => setIsAdminView(true)}
+                      className="mt-8 text-xs font-bold text-slate-300 hover:text-emerald-500 transition-colors uppercase tracking-widest"
+                    >
+                      Operator Login / Dashboard
+                    </button>
+                  )}
                </div>
             </section>
           </>
@@ -118,6 +141,13 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Auth Modal */}
+      <AnimatePresence>
+        {showAuthModal && (
+          <AuthModal onClose={() => setShowAuthModal(false)} />
+        )}
+      </AnimatePresence>
 
       {/* Bus Details Modal */}
       <AnimatePresence>
