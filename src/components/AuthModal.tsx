@@ -23,8 +23,10 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         setError('Popup was blocked by your browser. Please allow popups for this site.');
       } else if (err.code === 'auth/cancelled-popup-request') {
         setError('Sign in was cancelled.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('This domain is not authorized in Firebase. Please add it to "Authorized domains" in Firebase Console.');
       } else {
-        setError('Failed to sign in. If you are in the AI Studio preview, please open the app in a new tab first.');
+        setError('Failed to sign in. If you are in the AI Studio preview, please open the app in a new tab. Otherwise, check your Firebase configuration.');
       }
     } finally {
       setLoading(false);
