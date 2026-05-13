@@ -58,7 +58,7 @@ export default function Hero({ onSearch }: HeroProps) {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-base text-emerald-100/70 max-w-2xl mb-12"
         >
-          Find verified schedules, daily fares, and route availability instantly.
+          We list only verified scheduled non-AC buses with fixed routes and reliable timings.
         </motion.p>
 
         <motion.form
