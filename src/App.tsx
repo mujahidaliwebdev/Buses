@@ -20,6 +20,7 @@ import SubmitRoute from './components/SubmitRoute';
 import AboutUs from './components/AboutUs';
 import ServicePolicy from './components/ServicePolicy';
 import ContactUs from './components/ContactUs';
+import PrivacyPolicy from './components/PrivacyPolicy';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -37,6 +38,7 @@ export default function App() {
   const [isAboutUsView, setIsAboutUsView] = useState(false);
   const [isServicePolicyView, setIsServicePolicyView] = useState(false);
   const [isContactView, setIsContactView] = useState(false);
+  const [isPrivacyPolicyView, setIsPrivacyPolicyView] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
@@ -92,6 +94,7 @@ export default function App() {
     setIsAboutUsView(false);
     setIsServicePolicyView(false);
     setIsContactView(false);
+    setIsPrivacyPolicyView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -105,6 +108,7 @@ export default function App() {
     setIsAboutUsView(false);
     setIsServicePolicyView(false);
     setIsContactView(false);
+    setIsPrivacyPolicyView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -164,6 +168,8 @@ export default function App() {
           <ServicePolicy />
         ) : isContactView ? (
           <ContactUs />
+        ) : isPrivacyPolicyView ? (
+          <PrivacyPolicy />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
@@ -220,6 +226,7 @@ export default function App() {
         onHomeClick={handleHome} 
         onPolicyClick={() => setIsServicePolicyView(true)} 
         onContactClick={() => setIsContactView(true)}
+        onPrivacyClick={() => setIsPrivacyPolicyView(true)}
       />
 
       {/* Auth Modal */}

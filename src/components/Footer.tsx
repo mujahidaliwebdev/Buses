@@ -4,9 +4,10 @@ interface FooterProps {
   onHomeClick?: () => void;
   onPolicyClick?: () => void;
   onContactClick?: () => void;
+  onPrivacyClick?: () => void;
 }
 
-export default function Footer({ onHomeClick, onPolicyClick, onContactClick }: FooterProps) {
+export default function Footer({ onHomeClick, onPolicyClick, onContactClick, onPrivacyClick }: FooterProps) {
   return (
     <footer className="bg-white border-t border-slate-200 py-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -46,7 +47,7 @@ export default function Footer({ onHomeClick, onPolicyClick, onContactClick }: F
             <ul className="space-y-4 text-xs font-bold text-slate-600">
               <li><button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button></li>
               <li><button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button></li>
-              <li><a href="#" className="hover:text-emerald-600 transition-colors">Privacy Policy</a></li>
+              <li><button onClick={onPrivacyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Privacy Policy</button></li>
               <li><a href="#" className="hover:text-emerald-600 transition-colors">Terms of Service</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Disclaimer</a></li>
             </ul>
