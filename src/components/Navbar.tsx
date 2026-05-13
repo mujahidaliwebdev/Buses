@@ -9,6 +9,7 @@ interface NavbarProps {
   onAdminClick?: () => void;
   onHomeClick?: () => void;
   onAboutClick?: () => void;
+  onPolicyClick?: () => void;
   onSearchClick?: () => void;
   onRoutesClick?: () => void;
   onFeaturesClick?: () => void;
@@ -20,6 +21,7 @@ export default function Navbar({
   onAdminClick, 
   onHomeClick, 
   onAboutClick,
+  onPolicyClick,
   onSearchClick,
   onRoutesClick,
   onFeaturesClick,
@@ -55,6 +57,7 @@ export default function Navbar({
             <button onClick={onSearchClick} className="text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer outline-none">Search Buses</button>
             <button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Popular Routes</button>
             <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button>
+            <button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button>
             {isAdmin && (
               <button 
                 onClick={onAdminClick}

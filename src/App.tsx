@@ -18,6 +18,7 @@ import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
 import AboutUs from './components/AboutUs';
+import ServicePolicy from './components/ServicePolicy';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -33,6 +34,7 @@ export default function App() {
   const [isAdminView, setIsAdminView] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
   const [isAboutUsView, setIsAboutUsView] = useState(false);
+  const [isServicePolicyView, setIsServicePolicyView] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
@@ -86,6 +88,7 @@ export default function App() {
     setIsAdminView(false);
     setIsSubmitView(false);
     setIsAboutUsView(false);
+    setIsServicePolicyView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -97,6 +100,7 @@ export default function App() {
     setIsAdminView(false);
     setIsSubmitView(false);
     setIsAboutUsView(false);
+    setIsServicePolicyView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -136,6 +140,7 @@ export default function App() {
         onAdminClick={() => setIsAdminView(true)}
         onHomeClick={handleHome}
         onAboutClick={() => setIsAboutUsView(true)}
+        onPolicyClick={() => setIsServicePolicyView(true)}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
@@ -150,6 +155,8 @@ export default function App() {
           />
         ) : isAboutUsView ? (
           <AboutUs />
+        ) : isServicePolicyView ? (
+          <ServicePolicy />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
@@ -202,7 +209,7 @@ export default function App() {
         )}
       </main>
 
-      <Footer onHomeClick={handleHome} />
+      <Footer onHomeClick={handleHome} onPolicyClick={() => setIsServicePolicyView(true)} />
 
       {/* Auth Modal */}
       <AnimatePresence>
