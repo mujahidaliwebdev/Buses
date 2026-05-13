@@ -15,6 +15,7 @@ interface NavbarProps {
   onRoutesClick?: () => void;
   onFeaturesClick?: () => void;
   isAdmin?: boolean;
+  activeTab?: string;
 }
 
 export default function Navbar({ 
@@ -27,7 +28,8 @@ export default function Navbar({
   onSearchClick,
   onRoutesClick,
   onFeaturesClick,
-  isAdmin 
+  isAdmin,
+  activeTab
 }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
@@ -56,14 +58,34 @@ export default function Navbar({
           </motion.button>
           
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
-            <button onClick={onHomeClick} className="text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer outline-none">Home</button>
-            <button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Popular Routes</button>
-            <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button>
-            <button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button>
+            <button 
+              onClick={onHomeClick} 
+              className={`${activeTab === 'home' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-800'} transition-all cursor-pointer outline-none`}
+            >
+              Home
+            </button>
+            <button 
+              onClick={onRoutesClick} 
+              className={`${activeTab === 'routes' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+            >
+              Popular Routes
+            </button>
+            <button 
+              onClick={onAboutClick} 
+              className={`${activeTab === 'about' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+            >
+              About Us
+            </button>
+            <button 
+              onClick={onContactClick} 
+              className={`${activeTab === 'contact' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+            >
+              Contact Us
+            </button>
             {isAdmin && (
               <button 
                 onClick={onAdminClick}
-                className="text-emerald-600 hover:text-emerald-800 transition-colors font-bold flex items-center gap-1 outline-none"
+                className={`${activeTab === 'admin' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'text-emerald-600 hover:text-emerald-800'} transition-all font-bold flex items-center gap-1 outline-none`}
               >
                 Admin Panel
               </button>

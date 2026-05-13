@@ -39,6 +39,7 @@ export default function App() {
   const [isServicePolicyView, setIsServicePolicyView] = useState(false);
   const [isContactView, setIsContactView] = useState(false);
   const [isPrivacyPolicyView, setIsPrivacyPolicyView] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
@@ -95,6 +96,7 @@ export default function App() {
     setIsServicePolicyView(false);
     setIsContactView(false);
     setIsPrivacyPolicyView(false);
+    setActiveTab('home');
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -109,6 +111,7 @@ export default function App() {
     setIsServicePolicyView(false);
     setIsContactView(false);
     setIsPrivacyPolicyView(false);
+    setActiveTab('about');
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -123,6 +126,7 @@ export default function App() {
     setIsServicePolicyView(true);
     setIsContactView(false);
     setIsPrivacyPolicyView(false);
+    setActiveTab(''); // No specific tab in navbar for policy
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -137,6 +141,7 @@ export default function App() {
     setIsServicePolicyView(false);
     setIsContactView(true);
     setIsPrivacyPolicyView(false);
+    setActiveTab('contact');
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -151,6 +156,7 @@ export default function App() {
     setIsServicePolicyView(false);
     setIsContactView(false);
     setIsPrivacyPolicyView(true);
+    setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -165,6 +171,7 @@ export default function App() {
     setIsServicePolicyView(false);
     setIsContactView(false);
     setIsPrivacyPolicyView(false);
+    setActiveTab(sectionId === 'routes' ? 'routes' : 'home');
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -201,7 +208,10 @@ export default function App() {
     <div className="min-h-screen bg-white selection:bg-emerald-100 selection:text-emerald-900 font-sans">
       <Navbar 
         onLoginClick={() => setShowAuthModal(true)} 
-        onAdminClick={() => setIsAdminView(true)}
+        onAdminClick={() => {
+          setIsAdminView(true);
+          setActiveTab('admin');
+        }}
         onHomeClick={handleHome}
         onAboutClick={handleAboutClick}
         onPolicyClick={handlePolicyClick}
@@ -210,6 +220,7 @@ export default function App() {
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
         isAdmin={isAdmin}
+        activeTab={activeTab}
       />
       
       <main>
