@@ -19,6 +19,7 @@ import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
 import AboutUs from './components/AboutUs';
 import ServicePolicy from './components/ServicePolicy';
+import ContactUs from './components/ContactUs';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -35,6 +36,7 @@ export default function App() {
   const [isSubmitView, setIsSubmitView] = useState(false);
   const [isAboutUsView, setIsAboutUsView] = useState(false);
   const [isServicePolicyView, setIsServicePolicyView] = useState(false);
+  const [isContactView, setIsContactView] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
@@ -89,6 +91,7 @@ export default function App() {
     setIsSubmitView(false);
     setIsAboutUsView(false);
     setIsServicePolicyView(false);
+    setIsContactView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -101,6 +104,7 @@ export default function App() {
     setIsSubmitView(false);
     setIsAboutUsView(false);
     setIsServicePolicyView(false);
+    setIsContactView(false);
     setSearchResults(null);
     setSearchParams(null);
     setSelectedBus(null);
@@ -141,6 +145,7 @@ export default function App() {
         onHomeClick={handleHome}
         onAboutClick={() => setIsAboutUsView(true)}
         onPolicyClick={() => setIsServicePolicyView(true)}
+        onContactClick={() => setIsContactView(true)}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
@@ -157,6 +162,8 @@ export default function App() {
           <AboutUs />
         ) : isServicePolicyView ? (
           <ServicePolicy />
+        ) : isContactView ? (
+          <ContactUs />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
@@ -209,7 +216,11 @@ export default function App() {
         )}
       </main>
 
-      <Footer onHomeClick={handleHome} onPolicyClick={() => setIsServicePolicyView(true)} />
+      <Footer 
+        onHomeClick={handleHome} 
+        onPolicyClick={() => setIsServicePolicyView(true)} 
+        onContactClick={() => setIsContactView(true)}
+      />
 
       {/* Auth Modal */}
       <AnimatePresence>

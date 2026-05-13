@@ -10,6 +10,7 @@ interface NavbarProps {
   onHomeClick?: () => void;
   onAboutClick?: () => void;
   onPolicyClick?: () => void;
+  onContactClick?: () => void;
   onSearchClick?: () => void;
   onRoutesClick?: () => void;
   onFeaturesClick?: () => void;
@@ -22,6 +23,7 @@ export default function Navbar({
   onHomeClick, 
   onAboutClick,
   onPolicyClick,
+  onContactClick,
   onSearchClick,
   onRoutesClick,
   onFeaturesClick,
@@ -58,6 +60,7 @@ export default function Navbar({
             <button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Popular Routes</button>
             <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button>
             <button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button>
+            <button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button>
             {isAdmin && (
               <button 
                 onClick={onAdminClick}
