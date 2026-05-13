@@ -2,12 +2,23 @@ import { BusFront, Facebook, Twitter, Instagram, Mail, Phone, Globe } from 'luci
 
 interface FooterProps {
   onHomeClick?: () => void;
+  onAboutClick?: () => void;
   onPolicyClick?: () => void;
   onContactClick?: () => void;
   onPrivacyClick?: () => void;
+  onFeaturesClick?: () => void;
+  onRoutesClick?: () => void;
 }
 
-export default function Footer({ onHomeClick, onPolicyClick, onContactClick, onPrivacyClick }: FooterProps) {
+export default function Footer({ 
+  onHomeClick, 
+  onAboutClick, 
+  onPolicyClick, 
+  onContactClick, 
+  onPrivacyClick,
+  onFeaturesClick,
+  onRoutesClick
+}: FooterProps) {
   return (
     <footer className="bg-white border-t border-slate-200 py-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -35,10 +46,10 @@ export default function Footer({ onHomeClick, onPolicyClick, onContactClick, onP
           <div>
              <h4 className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-6">Discovery</h4>
             <ul className="space-y-4 text-xs font-bold text-slate-600">
-              <li><a href="#" className="hover:text-emerald-600 transition-colors">Search Route</a></li>
-              <li><a href="#routes" className="hover:text-emerald-600 transition-colors">Route Maps</a></li>
-              <li><a href="#" className="hover:text-emerald-600 transition-colors">Terminal Locations</a></li>
-              <li><a href="#" className="hover:text-emerald-600 transition-colors">Bus Operators</a></li>
+              <li><button onClick={onHomeClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Search Route</button></li>
+              <li><button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Route Maps</button></li>
+              <li><button onClick={onFeaturesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none font-bold">Features</button></li>
+              <li><button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button></li>
             </ul>
           </div>
 

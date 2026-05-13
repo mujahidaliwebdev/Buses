@@ -102,6 +102,62 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleAboutClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(true);
+    setIsServicePolicyView(false);
+    setIsContactView(false);
+    setIsPrivacyPolicyView(false);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
+  const handlePolicyClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setIsServicePolicyView(true);
+    setIsContactView(false);
+    setIsPrivacyPolicyView(false);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
+  const handleContactClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setIsServicePolicyView(false);
+    setIsContactView(true);
+    setIsPrivacyPolicyView(false);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
+  const handlePrivacyClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setIsServicePolicyView(false);
+    setIsContactView(false);
+    setIsPrivacyPolicyView(true);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
   const handleNavClick = (sectionId: string) => {
     setIsAdminView(false);
     setIsSubmitView(false);
@@ -147,9 +203,9 @@ export default function App() {
         onLoginClick={() => setShowAuthModal(true)} 
         onAdminClick={() => setIsAdminView(true)}
         onHomeClick={handleHome}
-        onAboutClick={() => setIsAboutUsView(true)}
-        onPolicyClick={() => setIsServicePolicyView(true)}
-        onContactClick={() => setIsContactView(true)}
+        onAboutClick={handleAboutClick}
+        onPolicyClick={handlePolicyClick}
+        onContactClick={handleContactClick}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
@@ -224,9 +280,12 @@ export default function App() {
 
       <Footer 
         onHomeClick={handleHome} 
-        onPolicyClick={() => setIsServicePolicyView(true)} 
-        onContactClick={() => setIsContactView(true)}
-        onPrivacyClick={() => setIsPrivacyPolicyView(true)}
+        onAboutClick={handleAboutClick}
+        onPolicyClick={handlePolicyClick} 
+        onContactClick={handleContactClick}
+        onPrivacyClick={handlePrivacyClick}
+        onFeaturesClick={() => handleNavClick('features')}
+        onRoutesClick={() => handleNavClick('routes')}
       />
 
       {/* Auth Modal */}

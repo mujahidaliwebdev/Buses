@@ -56,10 +56,9 @@ export default function Navbar({
           </motion.button>
           
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
-            <button onClick={onSearchClick} className="text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer outline-none">Search Buses</button>
+            <button onClick={onHomeClick} className="text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer outline-none">Home</button>
             <button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Popular Routes</button>
             <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button>
-            <button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button>
             <button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button>
             {isAdmin && (
               <button 
@@ -69,7 +68,6 @@ export default function Navbar({
                 Admin Panel
               </button>
             )}
-            <button onClick={onFeaturesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Features</button>
           </div>
 
           <div className="flex items-center gap-6">
