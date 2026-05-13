@@ -93,6 +93,32 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleNavClick = (sectionId: string) => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    
+    // Allow React to re-render the home components before scrolling
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const handleRouteClick = (from: string, to: string) => {
+    handleSearch({
+      origin: from,
+      destination: to,
+      date: new Date().toISOString().split('T')[0]
+    });
+  };
+
   const handleContributionClick = () => {
     if (!user) {
       setShowAuthModal(true);
@@ -110,6 +136,9 @@ export default function App() {
         onAdminClick={() => setIsAdminView(true)}
         onHomeClick={handleHome}
         onAboutClick={() => setIsAboutUsView(true)}
+        onSearchClick={() => handleNavClick('hero')}
+        onRoutesClick={() => handleNavClick('routes')}
+        onFeaturesClick={() => handleNavClick('features')}
         isAdmin={isAdmin}
       />
       
@@ -146,7 +175,7 @@ export default function App() {
                  <Plus className="w-5 h-5" /> Missing a route? Add it here
                </button>
             </div>
-            <PopularRoutes />
+            <PopularRoutes onRouteClick={handleRouteClick} />
             <Features />
             <HowItWorks />
             

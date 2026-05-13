@@ -9,10 +9,22 @@ interface NavbarProps {
   onAdminClick?: () => void;
   onHomeClick?: () => void;
   onAboutClick?: () => void;
+  onSearchClick?: () => void;
+  onRoutesClick?: () => void;
+  onFeaturesClick?: () => void;
   isAdmin?: boolean;
 }
 
-export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, onAboutClick, isAdmin }: NavbarProps) {
+export default function Navbar({ 
+  onLoginClick, 
+  onAdminClick, 
+  onHomeClick, 
+  onAboutClick,
+  onSearchClick,
+  onRoutesClick,
+  onFeaturesClick,
+  isAdmin 
+}: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
@@ -40,18 +52,18 @@ export default function Navbar({ onLoginClick, onAdminClick, onHomeClick, onAbou
           </motion.button>
           
           <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
-            <a href="#" className="text-emerald-700 hover:text-emerald-800 transition-colors">Search Buses</a>
-            <a href="#routes" className="hover:text-emerald-600 transition-colors">Popular Routes</a>
-            <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors">About Us</button>
+            <button onClick={onSearchClick} className="text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer outline-none">Search Buses</button>
+            <button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Popular Routes</button>
+            <button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button>
             {isAdmin && (
               <button 
                 onClick={onAdminClick}
-                className="text-emerald-600 hover:text-emerald-800 transition-colors font-bold flex items-center gap-1"
+                className="text-emerald-600 hover:text-emerald-800 transition-colors font-bold flex items-center gap-1 outline-none"
               >
                 Admin Panel
               </button>
             )}
-            <a href="#features" className="hover:text-emerald-600 transition-colors">Features</a>
+            <button onClick={onFeaturesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Features</button>
           </div>
 
           <div className="flex items-center gap-6">

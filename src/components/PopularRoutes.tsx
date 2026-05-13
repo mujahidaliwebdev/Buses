@@ -2,7 +2,11 @@ import { ArrowRight, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { POPULAR_ROUTES } from '../data/mockBuses';
 
-export default function PopularRoutes() {
+interface PopularRoutesProps {
+  onRouteClick?: (from: string, to: string) => void;
+}
+
+export default function PopularRoutes({ onRouteClick }: PopularRoutesProps) {
   return (
     <section id="routes" className="py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -25,7 +29,8 @@ export default function PopularRoutes() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white p-5 border border-slate-200 rounded-2xl hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between"
+              onClick={() => onRouteClick?.(route.from, route.to)}
+              className="bg-white p-5 border border-slate-200 rounded-2xl hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer"
             >
               <div className="flex gap-6 items-center">
                  <div className="flex flex-col">
