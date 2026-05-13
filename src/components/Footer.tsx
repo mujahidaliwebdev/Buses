@@ -6,6 +6,8 @@ interface FooterProps {
   onPolicyClick?: () => void;
   onContactClick?: () => void;
   onPrivacyClick?: () => void;
+  onTermsClick?: () => void;
+  onDisclaimerClick?: () => void;
   onFeaturesClick?: () => void;
   onRoutesClick?: () => void;
 }
@@ -16,6 +18,8 @@ export default function Footer({
   onPolicyClick, 
   onContactClick, 
   onPrivacyClick,
+  onTermsClick,
+  onDisclaimerClick,
   onFeaturesClick,
   onRoutesClick
 }: FooterProps) {
@@ -59,8 +63,8 @@ export default function Footer({
               <li><button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button></li>
               <li><button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button></li>
               <li><button onClick={onPrivacyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Privacy Policy</button></li>
-              <li><a href="#" className="hover:text-emerald-600 transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Disclaimer</a></li>
+              <li><button onClick={onTermsClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Terms & Conditions</button></li>
+              <li><button onClick={onDisclaimerClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Disclaimer</button></li>
             </ul>
           </div>
 
