@@ -1,4 +1,4 @@
-# Security Specification for ChaloBus
+# Security Specification for AsaanBusSafar
 
 ## 1. Data Invariants
 - `buses`: Can only be modified by admins. Read access for everyone.

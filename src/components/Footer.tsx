@@ -16,7 +16,7 @@ export default function Footer({ onHomeClick }: FooterProps) {
             >
               <BusFront className="w-7 h-7 text-emerald-600" />
               <span className="text-xl font-bold tracking-tight text-emerald-950">
-                ChaloBus
+                AsaanBusSafar
               </span>
             </button>
             <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6 max-w-xs">
@@ -63,7 +63,7 @@ export default function Footer({ onHomeClick }: FooterProps) {
         </div>
 
         <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 ChaloBus PK • Built for Pakistan 🇵🇰</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 AsaanBusSafar PK • Built for Pakistan 🇵🇰</p>
           <div className="flex gap-4">
              <span className="text-[10px] font-bold text-emerald-600/50 uppercase tracking-widest leading-none">Verified Schedules</span>
           </div>

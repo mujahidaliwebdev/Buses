@@ -20,7 +20,7 @@ export default function AboutUs() {
               Our Journey to <span className="text-emerald-400">Digitize</span> Pakistan's Roadways
             </h1>
             <p className="text-lg leading-8 text-emerald-100/70">
-              ChaloBus is Pakistan's first data-driven bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+              AsaanBusSafar is Pakistan's first data-driven bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
             </p>
           </motion.div>
         </div>

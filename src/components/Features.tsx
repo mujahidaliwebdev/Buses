@@ -29,7 +29,7 @@ export default function Features() {
                 <div className="relative z-10">
                   <h2 className="text-2xl font-bold text-emerald-950 mb-4">Digitizing Pakistan's Roadways</h2>
                   <p className="text-emerald-700/80 leading-relaxed max-w-2xl mb-8">
-                    ChaloBus is on a mission to bring full transparency to bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+                    AsaanBusSafar is on a mission to bring full transparency to bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
                   </p>
                   <div className="grid grid-cols-2 gap-8">
                      <div className="flex flex-col gap-1">
@@ -59,7 +59,7 @@ export default function Features() {
 
           <aside className="lg:col-span-4 flex flex-col gap-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-[0.2em] mb-6 border-b border-slate-100 pb-3">Why ChaloBus?</h3>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-[0.2em] mb-6 border-b border-slate-100 pb-3">Why AsaanBusSafar?</h3>
                 <ul className="space-y-6">
                    {WHY_US.map((item, idx) => (
                      <li key={idx} className="flex gap-4">
