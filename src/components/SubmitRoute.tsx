@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { contributionService } from '../lib/firestoreService';
+import { PAKISTAN_CITIES } from '../data/mockBuses';
 
 interface SubmitRouteProps {
   onClose: () => void;
@@ -106,21 +107,21 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
                 value={formData.vehicleNumber}
                 onChange={(v) => setFormData({...formData, vehicleNumber: v})}
               />
-              <ContributionInput 
+              <ContributionSelect 
                 label="Departure City" 
                 icon={<MapPin className="w-4 h-4" />}
-                placeholder="e.g. Lahore"
                 required
                 value={formData.origin}
                 onChange={(v) => setFormData({...formData, origin: v})}
+                options={PAKISTAN_CITIES}
               />
-              <ContributionInput 
+              <ContributionSelect 
                 label="Arrival City" 
                 icon={<MapPin className="w-4 h-4" />}
-                placeholder="e.g. Multan"
                 required
                 value={formData.destination}
                 onChange={(v) => setFormData({...formData, destination: v})}
+                options={PAKISTAN_CITIES}
               />
               <ContributionInput 
                 label="Departure Time" 
@@ -210,6 +211,39 @@ function ContributionInput({
         onChange={(e) => onChange(e.target.value)}
         className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none"
       />
+    </div>
+  );
+}
+
+function ContributionSelect({ 
+  label, 
+  icon, 
+  required = false, 
+  value,
+  onChange,
+  options
+}: { 
+  label: string, 
+  icon: React.ReactNode, 
+  required?: boolean,
+  value: string,
+  onChange: (v: string) => void,
+  options: string[]
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+        {icon} {label} {required && <span className="text-emerald-500">*</span>}
+      </label>
+      <select 
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none appearance-none cursor-pointer"
+      >
+        <option value="">Select City</option>
+        {options.map(city => <option key={city} value={city}>{city}</option>)}
+      </select>
     </div>
   );
 }

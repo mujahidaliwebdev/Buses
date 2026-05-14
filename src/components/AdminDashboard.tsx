@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService } from '../lib/firestoreService';
+import { PAKISTAN_CITIES } from '../data/mockBuses';
 import Papa from 'papaparse';
 
 interface AdminDashboardProps {
@@ -446,23 +447,27 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                     </InputGroup>
 
                     <InputGroup label="Origin City" icon={<MapPin className="w-4 h-4" />}>
-                      <input 
+                      <select 
                         required
                         value={formData.origin}
                         onChange={(e) => setFormData({...formData, origin: e.target.value})}
-                        className="admin-input" 
-                        placeholder="e.g. Lahore"
-                      />
+                        className="admin-input bg-slate-50 px-2"
+                      >
+                        <option value="">Select Origin</option>
+                        {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                      </select>
                     </InputGroup>
 
                     <InputGroup label="Destination City" icon={<MapPin className="w-4 h-4" />}>
-                      <input 
+                      <select 
                         required
                         value={formData.destination}
                         onChange={(e) => setFormData({...formData, destination: e.target.value})}
-                        className="admin-input" 
-                        placeholder="e.g. Islamabad"
-                      />
+                        className="admin-input bg-slate-50 px-2"
+                      >
+                        <option value="">Select Destination</option>
+                        {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                      </select>
                     </InputGroup>
 
                     <InputGroup label="Departure Time" icon={<Clock className="w-4 h-4" />}>

@@ -1,9 +1,24 @@
 import { Bus } from '../types';
 
 export const PAKISTAN_CITIES = [
-  "Lahore", "Karachi", "Islamabad", "Faisalabad", "Multan", 
-  "Peshawar", "Quetta", "Sialkot", "Gujranwala", "Rawalpindi",
-  "Sargodha", "Bahawalpur", "Sukkur", "Larkana", "Sheikhupura"
+  // Popular Cities
+  "Lahore", "Islamabad", "Karachi", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Peshawar", "Quetta",
+  // All Other Cities
+  "Raiwind", "Kasur", "Chunian", "Pattoki", "Kot Radha Kishan", "Okara", "Depalpur", "Renala Khurd", "Sahiwal", 
+  "Chichawatni", "Pakpattan", "Arifwala", "Chak Jhumra", "Jaranwala", "Sammundri", "Tandlianwala", "Toba Tek Singh", 
+  "Gojra", "Kamalia", "Pir Mahal", "Jhang", "Ahmedpur Sial", "Shorkot", "18 Hazari", "Chiniot", "Lalian", "Bhowana", 
+  "Sheikhupura", "Ferozewala", "Muridke", "Safdarabad", "Sharaqpur", "Nankana Sahib", "Shahkot", "Sangla Hill", 
+  "Kamoke", "Wazirabad", "Nowshera Virkan", "Hafizabad", "Pindi Bhattian", "Gujrat", "Kharian", "Sarai Alamgir", 
+  "Mandi Bahauddin", "Phalia", "Malakwal", "Daska", "Pasrur", "Sambrial", "Narowal", "Shakargarh", "Zafarwal", 
+  "Gujar Khan", "Kahuta", "Kotli Sattian", "Murree", "Taxila", "Attock", "Fateh Jang", "Hasan Abdal", "Hazro", 
+  "Jand", "Pindi Gheb", "Chakwal", "Talagang", "Choa Saidan Shah", "Kallar Kahar", "Lawa", "Jhelum", "Dina", 
+  "Pind Dadan Khan", "Sohawa", "Sargodha", "Bhalwal", "Kot Momin", "Shahpur", "Sillanwali", "Bhera", "Khushab", 
+  "Noorpur Thal", "Quaidabad", "Mianwali", "Isa Khel", "Piplan", "Bhakkar", "Darya Khan", "Kalur Kot", "Mankera", 
+  "Jalalpur Pirwala", "Shujabad", "Khanewal", "Kabirwala", "Jahanian", "Mian Channu", "Vehari", "Burewala", 
+  "Mailsi", "Lodhran", "Dunyapur", "Kahror Pacca", "Bahawalpur", "Ahmadpur East", "Hasilpur", "Khairpur Tamewali", 
+  "Yazman", "Bahawalnagar", "Chishtian", "Fort Abbas", "Haroonabad", "Minchinabad", "Rahim Yar Khan", "Khanpur", 
+  "Liaquatpur", "Sadiqabad", "Dera Ghazi Khan", "Kot Chutta", "Taunsa", "Muzaffargarh", "Alipur", "Jatoi", 
+  "Kot Addu", "Layyah", "Chaubara", "Karor Lal Esan", "Rajanpur", "Jampur", "Rojhan", "Sukkar", "Larkana"
 ];
 
 export const BUS_COMPANIES = [
