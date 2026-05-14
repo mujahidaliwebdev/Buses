@@ -8,6 +8,7 @@ interface FooterProps {
   onPrivacyClick?: () => void;
   onTermsClick?: () => void;
   onDisclaimerClick?: () => void;
+  onBlogClick?: () => void;
   onFeaturesClick?: () => void;
   onRoutesClick?: () => void;
 }
@@ -20,6 +21,7 @@ export default function Footer({
   onPrivacyClick,
   onTermsClick,
   onDisclaimerClick,
+  onBlogClick,
   onFeaturesClick,
   onRoutesClick
 }: FooterProps) {
@@ -63,6 +65,7 @@ export default function Footer({
               <li><button onClick={onPolicyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Service Policy</button></li>
               <li><button onClick={onContactClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Contact Us</button></li>
               <li><button onClick={onPrivacyClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Privacy Policy</button></li>
+              <li><button onClick={onBlogClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Travel Blog</button></li>
               <li><button onClick={onTermsClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Terms & Conditions</button></li>
               <li><button onClick={onDisclaimerClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Disclaimer</button></li>
             </ul>

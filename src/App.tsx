@@ -23,6 +23,7 @@ import ContactUs from './components/ContactUs';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import Disclaimer from './components/Disclaimer';
+import Blog from './components/Blog';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -43,6 +44,7 @@ export default function App() {
   const [isPrivacyPolicyView, setIsPrivacyPolicyView] = useState(false);
   const [isTermsView, setIsTermsView] = useState(false);
   const [isDisclaimerView, setIsDisclaimerView] = useState(false);
+  const [isBlogView, setIsBlogView] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
@@ -102,6 +104,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab('home');
     setSearchResults(null);
     setSearchParams(null);
@@ -119,6 +122,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab('about');
     setSearchResults(null);
     setSearchParams(null);
@@ -136,6 +140,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab(''); // No specific tab in navbar for policy
     setSearchResults(null);
     setSearchParams(null);
@@ -153,6 +158,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab('contact');
     setSearchResults(null);
     setSearchParams(null);
@@ -170,6 +176,7 @@ export default function App() {
     setIsPrivacyPolicyView(true);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -187,6 +194,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(true);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -204,6 +212,25 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(true);
+    setIsBlogView(false);
+    setActiveTab('');
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
+
+  const handleBlogClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setIsServicePolicyView(false);
+    setIsContactView(false);
+    setIsPrivacyPolicyView(false);
+    setIsTermsView(false);
+    setIsDisclaimerView(false);
+    setIsBlogView(true);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -221,6 +248,7 @@ export default function App() {
     setIsPrivacyPolicyView(false);
     setIsTermsView(false);
     setIsDisclaimerView(false);
+    setIsBlogView(false);
     setActiveTab(sectionId === 'routes' ? 'routes' : 'home');
     setSearchResults(null);
     setSearchParams(null);
@@ -289,6 +317,8 @@ export default function App() {
           <TermsConditions />
         ) : isDisclaimerView ? (
           <Disclaimer />
+        ) : isBlogView ? (
+          <Blog />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
@@ -349,6 +379,7 @@ export default function App() {
         onPrivacyClick={handlePrivacyClick}
         onTermsClick={handleTermsClick}
         onDisclaimerClick={handleDisclaimerClick}
+        onBlogClick={handleBlogClick}
         onFeaturesClick={() => handleNavClick('features')}
         onRoutesClick={() => handleNavClick('routes')}
       />
