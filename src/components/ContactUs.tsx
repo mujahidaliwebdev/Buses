@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Mail, Globe, Phone, MessageSquare, Send, MapPin, AlertCircle } from 'lucide-react';
+import { Mail, Globe, Phone, MessageSquare, Send, MapPin, AlertCircle, MessageCircle } from 'lucide-react';
 
 export default function ContactUs() {
   const contactMethods = [
@@ -7,20 +7,21 @@ export default function ContactUs() {
       icon: <Mail className="w-6 h-6" />,
       title: "Email Support",
       value: "support@asaanbussafar.com",
-      link: "mailto:support@asaanbussafar.com"
+      link: "mailto:support@asaanbussafar.com",
+      type: "link"
     },
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Official Website",
       value: "www.asaanbussafar.com",
-      link: "https://www.asaanbussafar.com"
-    },
-    {
-      icon: <Phone className="w-6 h-6" />,
-      title: "Phone Support",
-      value: "0300-8155443 / 0301-4321122",
-      link: "tel:03008155443"
+      link: "https://www.asaanbussafar.com",
+      type: "link"
     }
+  ];
+
+  const phoneNumbers = [
+    { label: "0300-8155443", value: "03008155443" },
+    { label: "0301-4321122", value: "03014321122" }
   ];
 
   const topics = [
@@ -87,6 +88,8 @@ export default function ContactUs() {
                   <a 
                     key={i} 
                     href={method.link}
+                    target={method.type === 'link' && !method.link.startsWith('mailto') ? "_blank" : undefined}
+                    rel={method.type === 'link' && !method.link.startsWith('mailto') ? "noopener noreferrer" : undefined}
                     className="flex items-center gap-6 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-200 hover:shadow-md transition-all group"
                   >
                     <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -98,6 +101,45 @@ export default function ContactUs() {
                     </div>
                   </a>
                 ))}
+
+                {/* Phone Numbers with Call/WhatsApp toggle */}
+                <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                      <Phone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Phone Support</h4>
+                      <p className="text-lg font-bold text-slate-800">Direct Assistance</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {phoneNumbers.map((phone, i) => (
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200/50">
+                        <span className="font-bold text-slate-700">{phone.label}</span>
+                        <div className="flex gap-2">
+                          <a 
+                            href={`tel:${phone.value}`}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 rounded-lg text-xs font-bold transition-all"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                            CALL
+                          </a>
+                          <a 
+                            href={`https://wa.me/92${phone.value.substring(1)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg text-xs font-bold transition-all"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            WHATSAPP
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
