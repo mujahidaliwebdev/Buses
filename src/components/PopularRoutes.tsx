@@ -4,9 +4,10 @@ import { POPULAR_ROUTES } from '../data/mockBuses';
 
 interface PopularRoutesProps {
   onRouteClick?: (from: string, to: string) => void;
+  onViewAllClick?: () => void;
 }
 
-export default function PopularRoutes({ onRouteClick }: PopularRoutesProps) {
+export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularRoutesProps) {
   return (
     <section id="routes" className="py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -18,14 +19,12 @@ export default function PopularRoutes({ onRouteClick }: PopularRoutesProps) {
             </h2>
             <p className="text-slate-500 text-sm mt-1">Reliable connectivity between Pakistan's major transport hubs.</p>
           </div>
-          <a 
-            href="/?view=schedules" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-xs font-bold text-emerald-600 uppercase tracking-widest cursor-pointer hover:text-emerald-700 transition-colors"
+          <button 
+            onClick={onViewAllClick}
+            className="text-xs font-bold text-emerald-600 uppercase tracking-widest cursor-pointer hover:text-emerald-700 transition-colors outline-none"
           >
             View All Schedule
-          </a>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

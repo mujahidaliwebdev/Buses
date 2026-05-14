@@ -9,6 +9,7 @@ interface FooterProps {
   onTermsClick?: () => void;
   onDisclaimerClick?: () => void;
   onBlogClick?: () => void;
+  onSchedulesClick?: () => void;
   onFeaturesClick?: () => void;
   onRoutesClick?: () => void;
 }
@@ -22,6 +23,7 @@ export default function Footer({
   onTermsClick,
   onDisclaimerClick,
   onBlogClick,
+  onSchedulesClick,
   onFeaturesClick,
   onRoutesClick
 }: FooterProps) {
@@ -53,7 +55,7 @@ export default function Footer({
              <h4 className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-6">Discovery</h4>
             <ul className="space-y-4 text-xs font-bold text-slate-600">
               <li><button onClick={onHomeClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Search Route</button></li>
-              <li><button onClick={onRoutesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Route Maps</button></li>
+              <li><button onClick={onSchedulesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">Bus Schedules</button></li>
               <li><button onClick={onFeaturesClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none font-bold">Features</button></li>
               <li><button onClick={onAboutClick} className="hover:text-emerald-600 transition-colors cursor-pointer outline-none">About Us</button></li>
             </ul>

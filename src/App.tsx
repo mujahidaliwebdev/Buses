@@ -69,17 +69,30 @@ export default function App() {
       setLoadingBuses(false);
     });
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'schedules') {
-      setIsSchedulesView(true);
-      setActiveTab('');
-    }
-
     return () => {
       unsubscribeAuth();
       unsubscribeBuses();
     };
   }, []);
+
+  const handleSchedulesClick = () => {
+    setIsAdminView(false);
+    setIsSubmitView(false);
+    setIsAboutUsView(false);
+    setIsServicePolicyView(false);
+    setIsContactView(false);
+    setIsPrivacyPolicyView(false);
+    setIsTermsView(false);
+    setIsDisclaimerView(false);
+    setIsBlogView(false);
+    setIsSchedulesView(true);
+    setActiveTab('');
+    setSearchResults(null);
+    setSearchParams(null);
+    setSelectedBus(null);
+    setSelectedCompany(null);
+    window.scrollTo(0, 0);
+  };
 
   const handleSearch = (filters: SearchFilters) => {
     setIsSearching(true);
@@ -364,7 +377,7 @@ export default function App() {
                  <Plus className="w-5 h-5" /> Missing a route? Add it here
                </button>
             </div>
-            <PopularRoutes onRouteClick={handleRouteClick} />
+            <PopularRoutes onRouteClick={handleRouteClick} onViewAllClick={handleSchedulesClick} />
             <Features />
             <HowItWorks />
             
@@ -400,6 +413,7 @@ export default function App() {
         onTermsClick={handleTermsClick}
         onDisclaimerClick={handleDisclaimerClick}
         onBlogClick={handleBlogClick}
+        onSchedulesClick={handleSchedulesClick}
         onFeaturesClick={() => handleNavClick('features')}
         onRoutesClick={() => handleNavClick('routes')}
       />
