@@ -18,7 +18,14 @@ export default function PopularRoutes({ onRouteClick }: PopularRoutesProps) {
             </h2>
             <p className="text-slate-500 text-sm mt-1">Reliable connectivity between Pakistan's major transport hubs.</p>
           </div>
-          <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest cursor-pointer hover:text-emerald-700 transition-colors">View All Schedule</span>
+          <a 
+            href="/?view=schedules" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs font-bold text-emerald-600 uppercase tracking-widest cursor-pointer hover:text-emerald-700 transition-colors"
+          >
+            View All Schedule
+          </a>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

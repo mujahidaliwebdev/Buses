@@ -24,6 +24,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import Disclaimer from './components/Disclaimer';
 import Blog from './components/Blog';
+import Schedules from './components/Schedules';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -45,6 +46,7 @@ export default function App() {
   const [isTermsView, setIsTermsView] = useState(false);
   const [isDisclaimerView, setIsDisclaimerView] = useState(false);
   const [isBlogView, setIsBlogView] = useState(false);
+  const [isSchedulesView, setIsSchedulesView] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
@@ -67,6 +69,12 @@ export default function App() {
       setLoadingBuses(false);
     });
 
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'schedules') {
+      setIsSchedulesView(true);
+      setActiveTab('');
+    }
+
     return () => {
       unsubscribeAuth();
       unsubscribeBuses();
@@ -75,6 +83,7 @@ export default function App() {
 
   const handleSearch = (filters: SearchFilters) => {
     setIsSearching(true);
+    setIsSchedulesView(false); // Reset schedules view when searching
     setSearchParams(filters);
     
     // Simulate API delay
@@ -105,6 +114,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('home');
     setSearchResults(null);
     setSearchParams(null);
@@ -123,6 +133,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('about');
     setSearchResults(null);
     setSearchParams(null);
@@ -141,6 +152,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab(''); // No specific tab in navbar for policy
     setSearchResults(null);
     setSearchParams(null);
@@ -159,6 +171,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('contact');
     setSearchResults(null);
     setSearchParams(null);
@@ -177,6 +190,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -195,6 +209,7 @@ export default function App() {
     setIsTermsView(true);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -213,6 +228,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(true);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -231,6 +247,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(true);
+    setIsSchedulesView(false);
     setActiveTab('');
     setSearchResults(null);
     setSearchParams(null);
@@ -249,6 +266,7 @@ export default function App() {
     setIsTermsView(false);
     setIsDisclaimerView(false);
     setIsBlogView(false);
+    setIsSchedulesView(false);
     setActiveTab(sectionId === 'routes' ? 'routes' : 'home');
     setSearchResults(null);
     setSearchParams(null);
@@ -319,6 +337,8 @@ export default function App() {
           <Disclaimer />
         ) : isBlogView ? (
           <Blog />
+        ) : isSchedulesView ? (
+          <Schedules onRouteClick={handleRouteClick} />
         ) : isSubmitView ? (
           <SubmitRoute onClose={() => setIsSubmitView(false)} />
         ) : searchResults && searchParams ? (
