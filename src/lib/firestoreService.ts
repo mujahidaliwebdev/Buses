@@ -8,7 +8,8 @@ import {
   addDoc,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  writeBatch
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { Bus, Company } from '../types';
@@ -76,6 +77,29 @@ export const busService = {
     try {
       const docRef = await addDoc(collection(db, path), bus);
       return docRef.id;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  bulkAddBuses: async (buses: Omit<Bus, 'id'>[]) => {
+    const path = 'buses';
+    try {
+      const chunks = [];
+      const chunkSize = 500;
+      
+      for (let i = 0; i < buses.length; i += chunkSize) {
+        chunks.push(buses.slice(i, i + chunkSize));
+      }
+
+      for (const chunk of chunks) {
+        const batch = writeBatch(db);
+        chunk.forEach(bus => {
+          const newDocRef = doc(collection(db, path));
+          batch.set(newDocRef, bus);
+        });
+        await batch.commit();
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }

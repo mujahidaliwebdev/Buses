@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Bus } from '../types';
 import { 
   Plus, 
@@ -14,10 +14,14 @@ import {
   Smartphone,
   CheckCircle2,
   AlertCircle,
-  Tag
+  Tag,
+  Upload,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService } from '../lib/firestoreService';
+import Papa from 'papaparse';
 
 interface AdminDashboardProps {
   buses: Bus[];
@@ -27,8 +31,11 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form State
   const [formData, setFormData] = useState<Partial<Bus>>({
@@ -71,7 +78,9 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     });
     setEditingId(null);
     setIsAdding(false);
+    setIsBulkUploading(false);
     setIsSaving(false);
+    setUploadProgress(null);
   };
 
   const handleEdit = (bus: Bus) => {
@@ -109,6 +118,88 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rawData = results.data as any[];
+        const validBuses: Omit<Bus, 'id'>[] = rawData.map(row => ({
+          companyName: row.companyName || '',
+          origin: row.origin || '',
+          destination: row.destination || '',
+          departureTime: row.departureTime || '',
+          arrivalTime: row.arrivalTime || '',
+          duration: row.duration || '',
+          fare: parseInt(row.fare) || 0,
+          busNumber: row.busNumber || '',
+          contactNumber: row.contactNumber || row.phone || '',
+          terminalLocation: row.terminalLocation || '',
+          standNumber: row.standNumber || '',
+          type: row.type || 'Standard',
+          isAC: String(row.isAC).toLowerCase() === 'true' || row.isAC === '1' || row.isAC === true
+        })).filter(b => b.companyName && b.origin && b.destination);
+
+        if (validBuses.length === 0) {
+          alert('No valid records found in the file. Please check the template.');
+          return;
+        }
+
+        if (confirm(`Found ${validBuses.length} valid routes. Start upload?`)) {
+          setIsSaving(true);
+          try {
+            await busService.bulkAddBuses(validBuses);
+            alert(`Successfully uploaded ${validBuses.length} routes!`);
+            resetForm();
+          } catch (error) {
+            console.error(error);
+            alert('Bulk upload failed. Check the console for details.');
+          } finally {
+            setIsSaving(false);
+          }
+        }
+      },
+      error: (error) => {
+        console.error(error);
+        alert('Failed to parse CSV file.');
+      }
+    });
+  };
+
+  const downloadTemplate = () => {
+    const template = [
+      {
+        companyName: 'Example Travels',
+        origin: 'Lahore',
+        destination: 'Islamabad',
+        departureTime: '08:00 AM',
+        arrivalTime: '12:00 PM',
+        duration: '4h 0m',
+        fare: 1500,
+        busNumber: 'LX-123',
+        contactNumber: '0300-1234567',
+        terminalLocation: 'General Bus Stand',
+        standNumber: '5',
+        type: 'Executive',
+        isAC: 'TRUE'
+      }
+    ];
+
+    const csv = Papa.unparse(template);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'bus_routes_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-20 px-4 md:px-8">
       <div className="max-w-6xl mx-auto">
@@ -130,12 +221,20 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             </h1>
           </div>
 
-          <button 
-            onClick={() => setIsAdding(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-          >
-            <Plus className="w-5 h-5" /> Add New Route
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsBulkUploading(true)}
+              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <Upload className="w-5 h-5 text-blue-500" /> Bulk Upload
+            </button>
+            <button 
+              onClick={() => setIsAdding(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+            >
+              <Plus className="w-5 h-5" /> Add New Route
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -220,6 +319,84 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           </div>
         </div>
       </div>
+
+      {/* Bulk Upload Modal */}
+      <AnimatePresence>
+        {isBulkUploading && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-10 md:p-14"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center text-blue-600 mx-auto mb-6">
+                  <FileSpreadsheet className="w-10 h-10" />
+                </div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Bulk Route Upload</h2>
+                <p className="text-slate-500 leading-relaxed">
+                  Upload a CSV file containing your bus routes. You can export your Google Sheet as a CSV and upload it here.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-8 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 text-center group hover:border-emerald-500 hover:bg-emerald-50/10 transition-all cursor-pointer"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-10 h-10 text-slate-300 mx-auto mb-4 group-hover:text-emerald-500 transition-colors" />
+                  <p className="text-sm font-bold text-slate-600 mb-1">Click to select CSV file</p>
+                  <p className="text-xs text-slate-400">Max file size 5MB • CSV Only</p>
+                  <input 
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept=".csv"
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 flex items-start gap-4">
+                  <AlertCircle className="w-5 h-5 text-emerald-600 mt-1 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-900 mb-2">Instructions</h4>
+                    <p className="text-xs text-emerald-700 leading-relaxed">
+                      Make sure your CSV columns match the template exactly. Using the template ensures 100% successful upload.
+                    </p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={downloadTemplate}
+                  className="w-full flex items-center justify-center gap-2 py-4 border border-slate-200 rounded-2xl text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all"
+                >
+                  <Download className="w-4 h-4" /> Download CSV Template
+                </button>
+              </div>
+
+              {isSaving && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4" />
+                  <p className="font-bold text-slate-900">Uploading Routes...</p>
+                  <p className="text-xs text-slate-500 mt-1">Please do not close this window</p>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Editor Modal */}
       <AnimatePresence>
