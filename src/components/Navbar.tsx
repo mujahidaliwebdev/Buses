@@ -8,9 +8,7 @@ interface NavbarProps {
   onLoginClick: () => void;
   onAdminClick?: () => void;
   onHomeClick?: () => void;
-  onAboutClick?: () => void;
   onPolicyClick?: () => void;
-  onContactClick?: () => void;
   onSearchClick?: () => void;
   onRoutesClick?: () => void;
   onFeaturesClick?: () => void;
@@ -22,9 +20,7 @@ export default function Navbar({
   onLoginClick, 
   onAdminClick, 
   onHomeClick, 
-  onAboutClick,
   onPolicyClick,
-  onContactClick,
   onSearchClick,
   onRoutesClick,
   onFeaturesClick,
@@ -69,18 +65,6 @@ export default function Navbar({
               className={`${activeTab === 'routes' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
             >
               Popular Routes
-            </button>
-            <button 
-              onClick={onAboutClick} 
-              className={`${activeTab === 'about' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
-            >
-              About Us
-            </button>
-            <button 
-              onClick={onContactClick} 
-              className={`${activeTab === 'contact' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
-            >
-              Contact Us
             </button>
             {isAdmin && (
               <button 

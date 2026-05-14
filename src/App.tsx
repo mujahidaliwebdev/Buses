@@ -263,9 +263,7 @@ export default function App() {
           setActiveTab('admin');
         }}
         onHomeClick={handleHome}
-        onAboutClick={handleAboutClick}
         onPolicyClick={handlePolicyClick}
-        onContactClick={handleContactClick}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
