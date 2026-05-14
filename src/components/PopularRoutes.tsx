@@ -21,9 +21,10 @@ export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularR
           </div>
           <button 
             onClick={onViewAllClick}
-            className="text-xs font-bold text-emerald-600 uppercase tracking-widest cursor-pointer hover:text-emerald-700 transition-colors outline-none"
+            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 border border-emerald-100/50 shadow-sm outline-none"
           >
             View All Schedule
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
