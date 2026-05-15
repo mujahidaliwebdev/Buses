@@ -24,9 +24,9 @@ export default function Hero({ onSearch }: HeroProps) {
       {/* Background with Pakistani Bus Image */}
       <div className="absolute inset-0 z-0 bg-emerald-900">
         <img 
-          src="https://images.unsplash.com/photo-1582234372722-50d7ccc30ebe?q=80&w=2070&auto=format&fit=crop"
+          src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Colorful_bus_in_Pakistan.jpg"
           alt="Travel Across Pakistan"
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-50"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-transparent to-emerald-900/90" />
