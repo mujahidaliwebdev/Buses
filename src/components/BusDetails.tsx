@@ -131,10 +131,10 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
 
               <div>
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-blue-500" /> Terminal Contact
+                  <Phone className="w-4 h-4 text-blue-500" /> Bus Contact
                 </h3>
                 <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100/50">
-                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Terminal Booking #</p>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Bus Contact #</p>
                   <p className="text-2xl font-black text-blue-900">{bus.contactNumber}</p>
                   <a 
                     href={`tel:${bus.contactNumber}`}

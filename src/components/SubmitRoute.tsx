@@ -143,7 +143,7 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
                <ContributionInput 
                 label="Contact Number" 
                 icon={<Smartphone className="w-4 h-4" />}
-                placeholder="Terminal booking number"
+                placeholder="Bus booking number"
                 required
                 value={formData.contactNumber}
                 onChange={(v) => setFormData({...formData, contactNumber: v})}

@@ -276,7 +276,7 @@ export default function SearchResults({ buses, origin, destination, onClose, onS
                           <Phone className="w-4 h-4" />
                           Book Ticket
                         </button>
-                        <p className="text-[8px] text-slate-400 mt-3 font-medium">Verified by Terminal Operator</p>
+                        <p className="text-[8px] text-slate-400 mt-3 font-medium">Verified by Operator</p>
                       </div>
                     </div>
                   </motion.div>
