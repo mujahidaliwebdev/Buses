@@ -121,6 +121,22 @@ export const busService = {
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, path);
     }
+  },
+
+  getBusesByRoute: async (origin: string, destination: string) => {
+    const path = 'buses';
+    try {
+      const q = query(
+        collection(db, path), 
+        where('origin', '==', origin),
+        where('destination', '==', destination)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bus));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+      return [];
+    }
   }
 };
 

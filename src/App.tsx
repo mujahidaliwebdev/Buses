@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Bus as BusIcon, Plus } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -25,6 +26,7 @@ import TermsConditions from './components/TermsConditions';
 import Disclaimer from './components/Disclaimer';
 import Blog from './components/Blog';
 import Schedules from './components/Schedules';
+import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -33,27 +35,19 @@ import { auth } from './lib/firebase';
 import { busService } from './lib/firestoreService';
 import { User as FirebaseUser } from 'firebase/auth';
 
-export default function App() {
+function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loadingBuses, setLoadingBuses] = useState(true);
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [isAdminView, setIsAdminView] = useState(false);
-  const [isSubmitView, setIsSubmitView] = useState(false);
-  const [isAboutUsView, setIsAboutUsView] = useState(false);
-  const [isServicePolicyView, setIsServicePolicyView] = useState(false);
-  const [isContactView, setIsContactView] = useState(false);
-  const [isPrivacyPolicyView, setIsPrivacyPolicyView] = useState(false);
-  const [isTermsView, setIsTermsView] = useState(false);
-  const [isDisclaimerView, setIsDisclaimerView] = useState(false);
-  const [isBlogView, setIsBlogView] = useState(false);
-  const [isSchedulesView, setIsSchedulesView] = useState(false);
-  const [activeTab, setActiveTab] = useState('home');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchResults, setSearchResults] = useState<Bus[] | null>(null);
   const [searchParams, setSearchParams] = useState<SearchFilters | null>(null);
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isSubmitView, setIsSubmitView] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((u) => {
@@ -75,28 +69,13 @@ export default function App() {
     };
   }, []);
 
-  const handleSchedulesClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(true);
-    setActiveTab('');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
+  // Sync scroll on route change
+  useEffect(() => {
     window.scrollTo(0, 0);
-  };
+  }, [location.pathname]);
 
   const handleSearch = (filters: SearchFilters) => {
     setIsSearching(true);
-    setIsSchedulesView(false); // Reset schedules view when searching
     setSearchParams(filters);
     
     // Simulate API delay
@@ -107,6 +86,7 @@ export default function App() {
       );
       setSearchResults(filtered);
       setIsSearching(false);
+      navigate('/'); // Go back to top level to show search results if they were on another page
     }, 800);
   };
 
@@ -115,192 +95,6 @@ export default function App() {
     if (company) {
       setSelectedCompany(company);
     }
-  };
-
-  const handleHome = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('home');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleAboutClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(true);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('about');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handlePolicyClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(true);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab(''); // No specific tab in navbar for policy
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleContactClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(true);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('contact');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handlePrivacyClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(true);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleTermsClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(true);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleDisclaimerClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(true);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab('');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleBlogClick = () => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(true);
-    setIsSchedulesView(false);
-    setActiveTab('');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    window.scrollTo(0, 0);
-  };
-
-  const handleNavClick = (sectionId: string) => {
-    setIsAdminView(false);
-    setIsSubmitView(false);
-    setIsAboutUsView(false);
-    setIsServicePolicyView(false);
-    setIsContactView(false);
-    setIsPrivacyPolicyView(false);
-    setIsTermsView(false);
-    setIsDisclaimerView(false);
-    setIsBlogView(false);
-    setIsSchedulesView(false);
-    setActiveTab(sectionId === 'routes' ? 'routes' : 'home');
-    setSearchResults(null);
-    setSearchParams(null);
-    setSelectedBus(null);
-    setSelectedCompany(null);
-    
-    // Allow React to re-render the home components before scrolling
-    setTimeout(() => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
-  const handleRouteClick = (from: string, to: string) => {
-    handleSearch({
-      origin: from,
-      destination: to,
-      date: new Date().toISOString().split('T')[0]
-    });
   };
 
   const handleContributionClick = () => {
@@ -313,119 +107,115 @@ export default function App() {
 
   const isAdmin = user?.email === 'mujahidali.webdev@gmail.com';
 
+  const handleNavClick = (sectionId: string) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white selection:bg-emerald-100 selection:text-emerald-900 font-sans">
       <Navbar 
         onLoginClick={() => setShowAuthModal(true)} 
-        onAdminClick={() => {
-          setIsAdminView(true);
-          setActiveTab('admin');
-        }}
-        onHomeClick={handleHome}
-        onPolicyClick={handlePolicyClick}
+        onAdminClick={() => navigate('/admin')}
+        onHomeClick={() => navigate('/')}
+        onPolicyClick={() => navigate('/policy')}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
         isAdmin={isAdmin}
-        activeTab={activeTab}
+        activeTab={location.pathname === '/' ? 'home' : ''}
       />
       
       <main>
-        {isAdminView && isAdmin ? (
-          <AdminDashboard 
-            buses={buses} 
-            onClose={() => setIsAdminView(false)} 
-          />
-        ) : isAboutUsView ? (
-          <AboutUs />
-        ) : isServicePolicyView ? (
-          <ServicePolicy />
-        ) : isContactView ? (
-          <ContactUs />
-        ) : isPrivacyPolicyView ? (
-          <PrivacyPolicy />
-        ) : isTermsView ? (
-          <TermsConditions />
-        ) : isDisclaimerView ? (
-          <Disclaimer />
-        ) : isBlogView ? (
-          <Blog />
-        ) : isSchedulesView ? (
-          <Schedules onRouteClick={handleRouteClick} />
-        ) : isSubmitView ? (
-          <SubmitRoute onClose={() => setIsSubmitView(false)} />
-        ) : searchResults && searchParams ? (
-          <SearchResults 
-            buses={searchResults}
-            origin={searchParams.origin}
-            destination={searchParams.destination}
-            onClose={() => {
-              setSearchResults(null);
-              window.scrollTo(0, 0);
-            }}
-            onSelectBus={(bus) => setSelectedBus(bus)}
-            onAddRoute={handleContributionClick}
-          />
-        ) : (
-          <>
-            <Hero onSearch={handleSearch} />
-            <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
-               <button 
-                 onClick={handleContributionClick}
-                 className="w-full md:w-auto bg-emerald-950 text-emerald-400 py-4 px-8 rounded-2xl font-bold flex items-center justify-center gap-3 border border-emerald-800 shadow-xl hover:bg-emerald-900 transition-all active:scale-95 mx-auto"
-               >
-                 <Plus className="w-5 h-5" /> Missing a route? Add it here
-               </button>
-            </div>
-            <PopularRoutes onRouteClick={handleRouteClick} onViewAllClick={handleSchedulesClick} />
-            <Features />
-            <HowItWorks />
-            
-            {/* SEO Content or CTA */}
-            <section className="py-20 bg-white">
-               <div className="max-w-4xl mx-auto px-4 text-center">
-                  <h2 className="text-2xl font-bold text-slate-800 mb-6 tracking-tight">The Future of Bus Travel in Pakistan</h2>
-                  <p className="text-slate-500 leading-relaxed text-sm">
-                    We are on a mission to digitize every terminal and bus operator in Pakistan. 
-                    From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
-                    our platform ensures you have the most accurate data at your fingertips.
-                  </p>
-                  {isAdmin && (
-                    <button 
-                      onClick={() => setIsAdminView(true)}
-                      className="mt-8 text-xs font-bold text-slate-300 hover:text-emerald-500 transition-colors uppercase tracking-widest"
-                    >
-                      Operator Login / Dashboard
-                    </button>
-                  )}
-               </div>
-            </section>
-          </>
-        )}
+        <Routes>
+          <Route path="/" element={
+            searchResults && searchParams ? (
+              <SearchResults 
+                buses={searchResults}
+                origin={searchParams.origin}
+                destination={searchParams.destination}
+                onClose={() => {
+                  setSearchResults(null);
+                  window.scrollTo(0, 0);
+                }}
+                onSelectBus={(bus) => setSelectedBus(bus)}
+                onAddRoute={handleContributionClick}
+              />
+            ) : (
+              <>
+                <Hero onSearch={handleSearch} />
+                <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
+                   <button 
+                     onClick={handleContributionClick}
+                     className="w-full md:w-auto bg-emerald-950 text-emerald-400 py-4 px-8 rounded-2xl font-bold flex items-center justify-center gap-3 border border-emerald-800 shadow-xl hover:bg-emerald-900 transition-all active:scale-95 mx-auto"
+                   >
+                     <Plus className="w-5 h-5" /> Missing a route? Add it here
+                   </button>
+                </div>
+                <PopularRoutes onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} onViewAllClick={() => navigate('/schedules')} />
+                <Features />
+                <HowItWorks />
+                
+                {/* SEO Content */}
+                <section className="py-20 bg-white">
+                   <div className="max-w-4xl mx-auto px-4 text-center">
+                      <h2 className="text-2xl font-bold text-slate-800 mb-6 tracking-tight">The Future of Bus Travel in Pakistan</h2>
+                      <p className="text-slate-500 leading-relaxed text-sm">
+                        We are on a mission to digitize every terminal and bus operator in Pakistan. 
+                        From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
+                        our platform ensures you have the most accurate data at your fingertips.
+                      </p>
+                   </div>
+                </section>
+              </>
+            )
+          } />
+
+          <Route path="/admin" element={isAdmin ? <AdminDashboard buses={buses} onClose={() => navigate('/')} /> : <div className="p-20 text-center">Unauthorized</div>} />
+          <Route path="/schedules" element={<Schedules onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/policy" element={<ServicePolicy />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsConditions />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/blog" element={<Blog />} />
+          
+          {/* SEO Routes */}
+          <Route path="/:slug" element={<RouteSpecificPage />} />
+        </Routes>
       </main>
 
       <Footer 
-        onHomeClick={handleHome} 
-        onAboutClick={handleAboutClick}
-        onPolicyClick={handlePolicyClick} 
-        onContactClick={handleContactClick}
-        onPrivacyClick={handlePrivacyClick}
-        onTermsClick={handleTermsClick}
-        onDisclaimerClick={handleDisclaimerClick}
-        onBlogClick={handleBlogClick}
-        onSchedulesClick={handleSchedulesClick}
+        onHomeClick={() => navigate('/')} 
+        onAboutClick={() => navigate('/about')}
+        onPolicyClick={() => navigate('/policy')} 
+        onContactClick={() => navigate('/contact')}
+        onPrivacyClick={() => navigate('/privacy')}
+        onTermsClick={() => navigate('/terms')}
+        onDisclaimerClick={() => navigate('/disclaimer')}
+        onBlogClick={() => navigate('/blog')}
+        onSchedulesClick={() => navigate('/schedules')}
         onFeaturesClick={() => handleNavClick('features')}
         onRoutesClick={() => handleNavClick('routes')}
       />
 
-      {/* Auth Modal */}
       <AnimatePresence>
-        {showAuthModal && (
-          <AuthModal onClose={() => setShowAuthModal(false)} />
-        )}
+        {isSubmitView && <SubmitRoute onClose={() => setIsSubmitView(false)} />}
       </AnimatePresence>
 
-      {/* Bus Details Modal */}
+      <AnimatePresence>
+        {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      </AnimatePresence>
+
       <AnimatePresence>
         {selectedBus && (
           <BusDetails 
@@ -436,7 +226,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Company Profile Modal */}
       <AnimatePresence>
         {selectedCompany && (
           <CompanyProfile 
@@ -446,7 +235,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Loading Overlay */}
       <AnimatePresence>
         {isSearching && (
           <div className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
@@ -456,5 +244,13 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }

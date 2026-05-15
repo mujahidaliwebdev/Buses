@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, MapPin, Search } from 'lucide-react';
 
 const ALL_SCHEDULE_ROUTES = [
@@ -56,9 +57,12 @@ export default function Schedules({ onRouteClick }: SchedulesProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03 }}
-              onClick={() => onRouteClick(route.from, route.to)}
               className="group bg-white p-6 border border-slate-200 rounded-3xl hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-900/5 transition-all cursor-pointer relative overflow-hidden"
             >
+              <Link 
+                to={`/${route.from.toLowerCase().replace(/ /g, '-')}-to-${route.to.toLowerCase().replace(/ /g, '-')}-bus-timing`}
+                className="absolute inset-0 z-20"
+              />
               {/* Decorative background element */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-colors" />
               

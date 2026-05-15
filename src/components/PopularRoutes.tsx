@@ -1,5 +1,6 @@
 import { ArrowRight, Star } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { POPULAR_ROUTES } from '../data/mockBuses';
 
 interface PopularRoutesProps {
@@ -36,9 +37,12 @@ export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularR
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               viewport={{ once: true }}
-              onClick={() => onRouteClick?.(route.from, route.to)}
-              className="bg-white p-5 border border-slate-200 rounded-2xl hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer"
+              className="bg-white p-5 border border-slate-200 rounded-2xl hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer relative"
             >
+              <Link 
+                to={`/${route.from.toLowerCase()}-to-${route.to.toLowerCase()}-bus-timing`}
+                className="absolute inset-0 z-20"
+              />
               <div className="flex gap-6 items-center">
                  <div className="flex flex-col">
                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">From</span>
