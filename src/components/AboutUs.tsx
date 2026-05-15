@@ -17,10 +17,10 @@ export default function AboutUs() {
             className="max-w-2xl"
           >
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl mb-6">
-              Our Journey to <span className="text-emerald-400">Digitize</span> Pakistan's Roadways
+              Our Journey to <span className="text-emerald-400">Digitize</span> Pakistan's Non-AC Roadways
             </h1>
             <p className="text-lg leading-8 text-emerald-100/70">
-              AsaanBusSafar is Pakistan's first data-driven bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+              AsaanBusSafar is Pakistan's first data-driven Non-AC bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
             </p>
           </motion.div>
         </div>
@@ -33,7 +33,7 @@ export default function AboutUs() {
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-emerald-950 mb-6">Our Mission</h2>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                We believe that travel information should be accessible to everyone, everywhere. Our mission is to categorize, verify, and digitize every bus route and terminal in Pakistan, bringing transparency to an industry that has long been underserved by technology.
+                We believe that travel information should be accessible to everyone, everywhere. Our mission is to categorize, verify, and digitize every Non-AC bus route and terminal in Pakistan, bringing transparency to an industry that has long been underserved by technology.
               </p>
               <div className="space-y-4">
                 {[

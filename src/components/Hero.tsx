@@ -39,7 +39,7 @@ export default function Hero({ onSearch }: HeroProps) {
           className="mb-6"
         >
           <span className="px-3 py-1 bg-emerald-800/50 text-emerald-400 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border border-emerald-700">
-            Real-time Transport Platform
+            Pakistan's #1 Non-AC Bus Platform
           </span>
         </motion.div>
 
@@ -49,7 +49,7 @@ export default function Hero({ onSearch }: HeroProps) {
           transition={{ duration: 0.6 }}
           className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4"
         >
-          Travel Across Pakistan with Ease
+          Verified Non-AC Bus Timings & Fares
         </motion.h1>
         
         <motion.p 

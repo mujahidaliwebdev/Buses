@@ -3,7 +3,7 @@ import { Zap, ShieldCheck, PhoneCall, Map, Search, Check, MessageCircle, Phone }
 const WHY_US = [
   {
     title: "Verified Fares",
-    desc: "Latest rates for Daewoo, Faisal Movers, and local operators."
+    desc: "Latest rates for local Non-AC and economy bus operators."
   },
   {
     title: "Real-time Timings",
@@ -14,8 +14,8 @@ const WHY_US = [
     desc: "Instant access to terminal help desk phone numbers."
   },
   {
-    title: "AC/Non-AC Options",
-    desc: "Compare luxury and economy services side-by-side."
+    title: "Non-AC Platform",
+    desc: "Specifically built for affordable and local bus travel."
   }
 ];
 
@@ -32,7 +32,7 @@ export default function Features() {
                 <div className="relative z-10">
                   <h2 className="text-2xl font-bold text-emerald-950 mb-4">Digitizing Pakistan's Roadways</h2>
                   <p className="text-emerald-700/80 leading-relaxed max-w-2xl mb-8">
-                    AsaanBusSafar is on a mission to bring full transparency to bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+                    AsaanBusSafar is on a mission to bring full transparency to Non-AC bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
                   </p>
                   <div className="grid grid-cols-2 gap-8">
                      <div className="flex flex-col gap-1">

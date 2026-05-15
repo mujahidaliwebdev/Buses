@@ -42,7 +42,7 @@ export default function Footer({
               </span>
             </button>
             <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6 max-w-xs">
-              Pakistan's first data-driven bus terminal information platform. Bringing transparency to your digital travel journey.
+              Pakistan's first data-driven Non-AC bus terminal information platform. Bringing transparency to your digital travel journey.
             </p>
             <div className="flex gap-4">
               <a href="https://www.facebook.com/AsaanBusSafar/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors border border-slate-100 hover:border-emerald-100"><Facebook className="w-4 h-4" /></a>
