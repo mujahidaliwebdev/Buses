@@ -52,6 +52,9 @@ export default function RouteSpecificPage() {
         }
         setLoading(false);
       });
+    } else {
+      // Not a valid route slug, stop loading
+      setLoading(false);
     }
   }, [slug]);
 
@@ -69,6 +72,21 @@ export default function RouteSpecificPage() {
           <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
           <p className="text-slate-500 font-bold">Loading route information...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!origin || !destination) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-6 mx-auto">
+          <Info className="w-10 h-10" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 mb-4">Schedule Not Found</h2>
+        <p className="text-slate-500 mb-8 max-w-md mx-auto">The requested route schedule could not be found or the link is invalid. Please check the URL or search for a new route.</p>
+        <Link to="/" className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-600/20">
+          Return to Home
+        </Link>
       </div>
     );
   }
