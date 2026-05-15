@@ -45,7 +45,7 @@ export default function Footer({
               Pakistan's first data-driven bus terminal information platform. Bringing transparency to your digital travel journey.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors border border-slate-100 hover:border-emerald-100"><Facebook className="w-4 h-4" /></a>
+              <a href="https://www.facebook.com/AsaanBusSafar/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors border border-slate-100 hover:border-emerald-100"><Facebook className="w-4 h-4" /></a>
               <a href="#" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors border border-slate-100 hover:border-emerald-100"><Instagram className="w-4 h-4" /></a>
               <a href="#" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors border border-slate-100 hover:border-emerald-100"><Twitter className="w-4 h-4" /></a>
             </div>
