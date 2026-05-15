@@ -65,6 +65,66 @@
       "schema": "Contribution",
       "description": "Routes submitted by users for verification"
     },
+    "feedback/{feedbackId}": {
+      "schema": {
+        "title": "Feedback",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "mobile": { "type": "string" },
+          "email": { "type": "string" },
+          "message": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name", "mobile", "message"]
+      },
+      "description": "User feedback submissions"
+    },
+    "complaints/{complaintId}": {
+      "schema": {
+        "title": "Complaint",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "mobile": { "type": "string" },
+          "email": { "type": "string" },
+          "message": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name", "mobile", "message"]
+      },
+      "description": "User complaint submissions"
+    },
+    "reports/{reportId}": {
+      "schema": {
+        "title": "Report",
+        "type": "object",
+        "properties": {
+          "busId": { "type": "string" },
+          "name": { "type": "string" },
+          "mobile": { "type": "string" },
+          "email": { "type": "string" },
+          "issues": { "type": "array", "items": { "type": "string" } },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name", "mobile", "issues"]
+      },
+      "description": "Reports of incorrect information"
+    },
+    "ratings/{ratingId}": {
+      "schema": {
+        "title": "Rating",
+        "type": "object",
+        "properties": {
+          "busId": { "type": "string" },
+          "userId": { "type": "string" },
+          "stars": { "type": "number" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["busId", "stars"]
+      },
+      "description": "User ratings for buses"
+    },
     "admins/{adminId}": {
       "schema": { "type": "object", "properties": { "role": { "type": "string" } } },
       "description": "List of admin users"

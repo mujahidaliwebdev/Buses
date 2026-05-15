@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bus } from '../types';
 import { 
   X, 
@@ -12,9 +12,13 @@ import {
   ChevronLeft,
   AlertTriangle,
   Snowflake,
-  Sun
+  Sun,
+  Star
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import ReportModal from './ReportModal';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface BusDetailsProps {
   bus: Bus;
@@ -23,7 +27,28 @@ interface BusDetailsProps {
 }
 
 export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetailsProps) {
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [isRatingSent, setIsRatingSent] = useState(false);
+
+  const handleRating = async (stars: number) => {
+    setRating(stars);
+    try {
+      await addDoc(collection(db, 'ratings'), {
+        busId: bus.id || `${bus.companyName}-${bus.busNumber}`,
+        stars,
+        createdAt: serverTimestamp()
+      });
+      setIsRatingSent(true);
+      setTimeout(() => setIsRatingSent(false), 2000);
+    } catch (error) {
+      console.error("Error saving rating", error);
+    }
+  };
+
   return (
+    <>
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -67,9 +92,18 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
               >
                 {bus.companyName}
               </h2>
-              <p className="text-emerald-400 font-bold uppercase tracking-tighter text-sm mt-1 flex items-center gap-2">
-                <BusIcon className="w-4 h-4" /> {bus.busNumber}
-              </p>
+              <div className="flex items-center gap-4 mt-1">
+                <p className="text-emerald-400 font-bold uppercase tracking-tighter text-sm flex items-center gap-2">
+                  <BusIcon className="w-4 h-4" /> {bus.busNumber}
+                </p>
+                {/* Star Rating Display */}
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  ))}
+                  <span className="text-[10px] font-bold text-white/50 ml-1">4.8 (120+ reviews)</span>
+                </div>
+              </div>
             </div>
             <div className="text-left md:text-right">
               <p className="text-emerald-400/60 text-xs font-bold uppercase tracking-widest mb-1">Ticket Price</p>
@@ -162,7 +196,41 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
                 </div>
               </div>
 
-              <button className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-red-100">
+              {/* Vehicle Experience Rating */}
+              <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm">
+                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Rate your travel experience</h4>
+                 <div className="flex flex-col items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => handleRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="p-1 transition-transform active:scale-125"
+                        >
+                          <Star 
+                            className={`w-8 h-8 transition-colors ${
+                              star <= (hoverRating || rating) 
+                                ? 'text-amber-400 fill-amber-400' 
+                                : 'text-slate-200'
+                            }`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    {isRatingSent ? (
+                      <p className="text-emerald-600 text-xs font-bold animate-bounce">Thank you for rating!</p>
+                    ) : (
+                      <p className="text-slate-400 text-[10px] font-medium">Tap stars to rate this vehicle</p>
+                    )}
+                 </div>
+              </div>
+
+              <button 
+                onClick={() => setShowReportModal(true)}
+                className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-red-100"
+              >
                 <AlertTriangle className="w-4 h-4" />
                 Report Incorrect Information
               </button>
@@ -171,6 +239,14 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
         </div>
       </motion.div>
     </motion.div>
+
+    <ReportModal 
+      isOpen={showReportModal} 
+      onClose={() => setShowReportModal(false)}
+      busId={bus.id || `${bus.companyName}-${bus.busNumber}`}
+      busInfo={`${bus.companyName} (${bus.origin} to ${bus.destination})`}
+    />
+    </>
   );
 }
 
