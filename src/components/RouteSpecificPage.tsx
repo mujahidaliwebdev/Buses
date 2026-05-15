@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Bus as BusIcon, Clock, Phone, MapPin, Tag, ArrowLeft, Share2, Info, Navigation, ShieldCheck } from 'lucide-react';
-import { Bus } from '../types';
+import { Bus, Company } from '../types';
 import { MOCK_BUSES } from '../data/mockBuses';
+import { MOCK_COMPANIES } from '../data/mockCompanies';
 import { busService } from '../lib/firestoreService';
+import BusDetails from './BusDetails';
+import CompanyProfile from './CompanyProfile';
 
 export default function RouteSpecificPage() {
   const { slug } = useParams();
@@ -12,6 +15,8 @@ export default function RouteSpecificPage() {
   const [loading, setLoading] = useState(true);
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
+  const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -49,6 +54,13 @@ export default function RouteSpecificPage() {
       });
     }
   }, [slug]);
+
+  const handleSelectCompany = (companyName: string) => {
+    const company = MOCK_COMPANIES.find(c => c.name === companyName);
+    if (company) {
+      setSelectedCompany(company);
+    }
+  };
 
   if (loading) {
     return (
@@ -144,7 +156,8 @@ export default function RouteSpecificPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all group"
+                  onClick={() => setSelectedBus(bus)}
+                  className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all group cursor-pointer"
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
@@ -179,6 +192,7 @@ export default function RouteSpecificPage() {
                     <div className="flex md:flex-col gap-3">
                       <a 
                         href={`tel:${bus.contactNumber}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all"
                       >
                         <Phone className="w-4 h-4" /> Call Now
@@ -240,6 +254,25 @@ export default function RouteSpecificPage() {
           </aside>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedBus && (
+          <BusDetails 
+            bus={selectedBus} 
+            onClose={() => setSelectedBus(null)} 
+            onSelectCompany={handleSelectCompany}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedCompany && (
+          <CompanyProfile 
+            company={selectedCompany} 
+            onClose={() => setSelectedCompany(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
