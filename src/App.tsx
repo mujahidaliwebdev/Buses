@@ -13,6 +13,7 @@ import Hero from './components/Hero';
 import PopularRoutes from './components/PopularRoutes';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
+import BlogSection from './components/BlogSection';
 import Footer from './components/Footer';
 import SearchResults from './components/SearchResults';
 import BusDetails from './components/BusDetails';
@@ -162,6 +163,7 @@ function AppContent() {
                    </button>
                 </div>
                 <PopularRoutes onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} onViewAllClick={() => navigate('/schedules')} />
+                <BlogSection />
                 <Features />
                 <HowItWorks />
                 

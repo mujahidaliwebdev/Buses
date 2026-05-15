@@ -1,38 +1,6 @@
 import { motion } from 'motion/react';
 import { BookOpen, Calendar, Clock, User, ArrowRight, Tag } from 'lucide-react';
-
-const BLOG_POSTS = [
-  {
-    id: 1,
-    title: "Best non-AC Buses in Pakistan: A Budget Traveler's Guide",
-    excerpt: "Discover the most reliable and affordable non-AC bus services connecting major cities in Pakistan. We review seating comfort, punctuality, and pricing.",
-    date: "May 12, 2026",
-    author: "AsaanBus Team",
-    readTime: "6 min read",
-    category: "Travel Guide",
-    slug: "best-non-ac-buses-pakistan"
-  },
-  {
-    id: 2,
-    title: "Lahore to Faisalabad: Best Routes and Timings for 2026",
-    excerpt: "Planning a trip from Lahore to Faisalabad? Here is everything you need to know about the fastest routes, latest ticket prices, and bus schedules.",
-    date: "May 10, 2026",
-    author: "Safar Specialist",
-    readTime: "8 min read",
-    category: "Route Guide",
-    slug: "lahore-to-faisalabad-guide"
-  },
-  {
-    id: 3,
-    title: "How to Find Cheap Bus Routes in Pakistan",
-    excerpt: "Learn the secrets to finding the lowest fares for inter-city travel. Save money on your next journey without compromising on safety or reliability.",
-    date: "May 05, 2026",
-    author: "Local Explorer",
-    readTime: "5 min read",
-    category: "Tips & Tricks",
-    slug: "cheap-bus-routes-pakistan"
-  }
-];
+import { MOCK_BLOGS } from '../data/mockBlogs';
 
 export default function Blog() {
   return (
@@ -59,10 +27,10 @@ export default function Blog() {
       </section>
 
       {/* Blog Grid */}
-      <section className="py-20">
+      <section className="py-20 text-start">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {BLOG_POSTS.map((post, i) => (
+            {MOCK_BLOGS.map((post, i) => (
               <motion.article 
                 key={post.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -70,9 +38,14 @@ export default function Blog() {
                 transition={{ delay: i * 0.1 }}
                 className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300"
               >
-                {/* Image Placeholder */}
+                {/* Image */}
                 <div className="h-48 bg-slate-100 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-emerald-900/5 group-hover:bg-transparent transition-colors" />
+                  <img 
+                    src={post.image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-transparent transition-colors" />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-white text-emerald-700 text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-widest">
                       {post.category}
