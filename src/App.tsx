@@ -31,6 +31,7 @@ import Schedules from './components/Schedules';
 import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
 import FeedbackSystem from './components/FeedbackSystem';
+import NoticePopup from './components/NoticePopup';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
@@ -249,6 +250,7 @@ function AppContent() {
       </AnimatePresence>
 
       <FeedbackSystem />
+      <NoticePopup />
     </div>
   );
 }
