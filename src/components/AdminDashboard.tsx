@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { busService } from '../lib/firestoreService';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
+import { calculateDuration } from '../lib/timeUtils';
 import Papa from 'papaparse';
 
 interface AdminDashboardProps {
@@ -37,7 +38,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Form State
   const [formData, setFormData] = useState<Partial<Bus>>({
     companyName: '',
@@ -54,7 +55,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     type: 'Standard',
     isAC: true
   });
-  
+
   // Auto-calculate duration
   React.useEffect(() => {
     if (formData.departureTime && formData.arrivalTime) {
@@ -64,7 +65,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       }
     }
   }, [formData.departureTime, formData.arrivalTime, formData.duration]);
-  
+
   const filteredBuses = buses.filter(bus => 
     bus.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     bus.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -423,10 +424,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             <motion.div 
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
             >
-              <form onSubmit={handleSubmit} className="p-10 md:p-14">
-                 <div className="flex justify-between items-center mb-10">
+              <form onSubmit={handleSubmit} className="p-10 md:p-14 overflow-y-auto custom-scrollbar">
+                 <div className="flex justify-between items-center mb-10 sticky top-0 bg-white z-10 pb-4 border-b border-slate-50">
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight">
                       {editingId ? 'Edit Route' : 'Add New Route'}
                     </h2>
