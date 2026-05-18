@@ -33,6 +33,16 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
     note: ''
   });
 
+    // Auto-calculate duration
+  useEffect(() => {
+    if (formData.departureTime && formData.arrivalTime) {
+      const duration = calculateDuration(formData.departureTime, formData.arrivalTime);
+      if (duration && duration !== formData.duration) {
+        setFormData(prev => ({ ...prev, duration }));
+      }
+    }
+  }, [formData.departureTime, formData.arrivalTime, formData.duration]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
