@@ -54,7 +54,17 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     type: 'Standard',
     isAC: true
   });
-
+  
+  // Auto-calculate duration
+  React.useEffect(() => {
+    if (formData.departureTime && formData.arrivalTime) {
+      const duration = calculateDuration(formData.departureTime, formData.arrivalTime);
+      if (duration && duration !== formData.duration) {
+        setFormData(prev => ({ ...prev, duration }));
+      }
+    }
+  }, [formData.departureTime, formData.arrivalTime, formData.duration]);
+  
   const filteredBuses = buses.filter(bus => 
     bus.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     bus.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -487,6 +497,15 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         onChange={(e) => setFormData({...formData, arrivalTime: e.target.value})}
                         className="admin-input" 
                         placeholder="e.g. 12:30 PM"
+                      />
+                    </InputGroup>
+
+                    <InputGroup label="Auto-Duration" icon={<Clock className="w-4 h-4 text-emerald-500" />}>
+                      <input 
+                        readOnly
+                        value={formData.duration}
+                        className="admin-input bg-emerald-50/30 text-emerald-600 border-none px-2 rounded-lg" 
+                        placeholder="Automatic Calculation"
                       />
                     </InputGroup>
 
