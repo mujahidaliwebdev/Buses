@@ -17,10 +17,13 @@ import {
   Tag,
   Upload,
   Download,
-  FileSpreadsheet
+  FileSpreadsheet,
+  AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService } from '../lib/firestoreService';
+import { busService, reportService } from '../lib/firestoreService';
+import { db } from '../lib/firebase';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { calculateDuration } from '../lib/timeUtils';
 import Papa from 'papaparse';
@@ -35,10 +38,37 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isAdding, setIsAdding] = useState(false);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [isBulkUpdatingFare, setIsBulkUpdatingFare] = useState(false);
+  const [isViewingReports, setIsViewingReports] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reports collection real-time subscription
+  const [reports, setReports] = useState<any[]>([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'reports'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedReports: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetchedReports.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // Sort in-memory by createdAt descending
+      fetchedReports.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setReports(fetchedReports);
+      setLoadingReports(false);
+    }, (error) => {
+      console.error("Error subscribing to reports: ", error);
+      setLoadingReports(false);
+    });
+    return unsubscribe;
+  }, []);
 
   // Bulk fare update state
   const [bulkFareData, setBulkFareData] = useState({
@@ -105,6 +135,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     setIsAdding(false);
     setIsBulkUploading(false);
     setIsBulkUpdatingFare(false);
+    setIsViewingReports(false);
     setIsSaving(false);
     setUploadProgress(null);
   };
@@ -276,7 +307,19 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button 
+              onClick={() => setIsViewingReports(true)}
+              className="relative bg-white hover:bg-slate-50 text-rose-700 border border-rose-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <AlertTriangle className="w-5 h-5 text-rose-500" /> 
+              <span>Passenger Reports</span>
+              {reports.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-rose-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                  {reports.length}
+                </span>
+              )}
+            </button>
             <button 
               onClick={() => setIsBulkUpdatingFare(true)}
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
@@ -552,6 +595,120 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Passenger Reports Modal */}
+      <AnimatePresence>
+        {isViewingReports && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-3xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] p-10 md:p-14"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 shrink-0">
+                    <AlertTriangle className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Passenger Reports</h2>
+                    <p className="text-xs text-rose-600 font-extrabold uppercase tracking-widest">غلط معلومات کی شکایات ({reports.length})</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  These issues were reported directly by passengers clicking the <span className="font-bold text-slate-900">"Report Incorrect Information"</span> option. Use this to contact bus operators, verify timetables, and keep data accurate.
+                </p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                {loadingReports ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-rose-500/20 border-t-rose-500 rounded-full animate-spin mb-4" />
+                    <p className="text-xs text-slate-500 font-medium">Checking complaints list...</p>
+                  </div>
+                ) : reports.length === 0 ? (
+                  <div className="text-center py-16 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                    <p className="text-slate-400 font-bold text-sm mb-1">Excellent! No active issues have been reported.</p>
+                    <p className="text-slate-300 text-xs">مسافروں کی طرف سے کوئی شکایت وصول نہیں ہوئی ہے۔</p>
+                  </div>
+                ) : (
+                  reports.map((report) => (
+                    <div 
+                      key={report.id} 
+                      className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                    >
+                      <div className="space-y-3 flex-1">
+                        <div className="flex items-center gap-3">
+                          <span className="px-3 py-1 bg-rose-50 text-rose-700 text-[10px] font-black uppercase tracking-wider rounded-xl">
+                            Reported Bus
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-bold">
+                            {report.createdAt?.seconds 
+                              ? new Date(report.createdAt.seconds * 1000).toLocaleString() 
+                              : 'Just Now'}
+                          </span>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-black text-slate-900 text-lg leading-snug">{report.busName}</h4>
+                          <p className="text-xs text-slate-400 font-bold">Bus Identifiers/Route ID: <span className="font-mono text-[10.5px] bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded text-slate-600">{report.busId}</span></p>
+                        </div>
+
+                        {/* Reported Issues Badges */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {Array.isArray(report.issues) && report.issues.map((i: string) => (
+                            <span key={i} className="bg-rose-50 text-rose-600 text-[10px] font-black px-2.5 py-1 rounded-lg">
+                              ⚠ {i}
+                            </span>
+                          ))}
+                        </div>
+
+                        {report.description ? (
+                          <div className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4">
+                            <p className="text-xs text-slate-400 font-black uppercase tracking-wider mb-1">Passenger Feedback Description:</p>
+                            <p className="text-slate-700 font-medium text-xs leading-relaxed italic">"{report.description}"</p>
+                          </div>
+                        ) : (
+                          <p className="text-slate-400 text-[10px] font-extrabold italic">No additional details written by reporter.</p>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={async () => {
+                          if (confirm('Mark this report as resolved? This will permanently delete the report. \n\nKya aap is report ko hal shuda mark kar k delete karna chahte hain?')) {
+                            try {
+                              await reportService.deleteReport(report.id);
+                            } catch (error) {
+                              alert('Error deleting report');
+                            }
+                          }
+                        }}
+                        className="w-full md:w-auto px-6 py-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl text-xs uppercase tracking-widest transition-all shrink-0 text-center"
+                      >
+                        ✓ Mark Resolved
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
             </motion.div>
           </div>
         )}
