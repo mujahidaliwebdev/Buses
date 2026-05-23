@@ -4,21 +4,24 @@ export const PAKISTAN_CITIES = [
   // Popular Cities
   "Lahore", "Islamabad", "Karachi", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Peshawar", "Quetta",
   // All Other Cities
-  "Raiwind", "Kasur", "Chunian", "Pattoki", "Kot Radha Kishan", "Okara", "Depalpur", "Renala Khurd", "Sahiwal", 
-  "Chichawatni", "Pakpattan", "Arifwala", "Chak Jhumra", "Jaranwala", "Sammundri", "Tandlianwala", "Toba Tek Singh", 
-  "Gojra", "Kamalia", "Pir Mahal", "Jhang", "Ahmedpur Sial", "Shorkot", "18 Hazari", "Chiniot", "Lalian", "Bhowana", 
-  "Sheikhupura", "Ferozewala", "Muridke", "Safdarabad", "Sharaqpur", "Nankana Sahib", "Shahkot", "Sangla Hill", 
-  "Kamoke", "Wazirabad", "Nowshera Virkan", "Hafizabad", "Pindi Bhattian", "Gujrat", "Kharian", "Sarai Alamgir", 
-  "Mandi Bahauddin", "Phalia", "Malakwal", "Daska", "Pasrur", "Sambrial", "Narowal", "Shakargarh", "Zafarwal", 
-  "Gujar Khan", "Kahuta", "Kotli Sattian", "Murree", "Taxila", "Attock", "Fateh Jang", "Hasan Abdal", "Hazro", 
-  "Jand", "Pindi Gheb", "Chakwal", "Talagang", "Choa Saidan Shah", "Kallar Kahar", "Lawa", "Jhelum", "Dina", 
-  "Pind Dadan Khan", "Sohawa", "Sargodha", "Bhalwal", "Kot Momin", "Shahpur", "Sillanwali", "Bhera", "Khushab", 
-  "Noorpur Thal", "Quaidabad", "Mianwali", "Isa Khel", "Piplan", "Bhakkar", "Darya Khan", "Kalur Kot", "Mankera", 
-  "Jalalpur Pirwala", "Shujabad", "Khanewal", "Kabirwala", "Jahanian", "Mian Channu", "Vehari", "Burewala", 
-  "Mailsi", "Lodhran", "Dunyapur", "Kahror Pacca", "Bahawalpur", "Ahmadpur East", "Hasilpur", "Khairpur Tamewali", 
-  "Yazman", "Bahawalnagar", "Chishtian", "Fort Abbas", "Haroonabad", "Minchinabad", "Rahim Yar Khan", "Khanpur", 
-  "Liaquatpur", "Sadiqabad", "Dera Ghazi Khan", "Kot Chutta", "Taunsa", "Muzaffargarh", "Alipur", "Jatoi", 
-  "Kot Addu", "Layyah", "Chaubara", "Karor Lal Esan", "Rajanpur", "Jampur", "Rojhan", "Sukkar", "Larkana"
+  "18 Hazari", "Ahmadpur East", "Ahmedpur Sial", "Alipur", "Arifwala", "Attock",
+  "Bahawalnagar", "Bahawalpur", "Bhakkar", "Bhalwal", "Bhera", "Bhowana", "Burewala",
+  "Chak Jhumra", "Chakwal", "Chaubara", "Chichawatni", "Chiniot", "Chishtian", "Choa Saidan Shah", "Chowk Azam", "Chunian",
+  "Darya Khan", "Daska", "Depalpur", "Dera Ghazi Khan", "Dina", "Dunyapur",
+  "Fateh Jang", "Fatehpur", "Feroze Wattwan", "Ferozewala", "Fort Abbas",
+  "Garh Moor", "Gojra", "Gujar Khan", "Gujrat",
+  "Hafizabad", "Haroonabad", "Hasan Abdal", "Hasilpur", "Hazro",
+  "Isa Khel", "Jahanian", "Jalalpur Pirwala", "Jampur", "Jand", "Jaranwala", "Jatoi", "Jhang", "Jhelum",
+  "Kabirwala", "Kahror Pacca", "Kahuta", "Kallar Kahar", "Kalur Kot", "Kamalia", "Kamoke", "Karor", "Kasur", "Khairpur Tamewali", "Khanewal",
+  "Khanpur", "Kharian", "Khurrianwala", "Khushab", "Kot Addu", "Kot Chutta", "Kot Momin", "Kot Radha Kishan", "Kotli Sattian",
+  "Lalian", "Larkana", "Lawa", "Layyah", "Liaquatpur", "Lodhran",
+  "Mailsi", "Malakwal", "Manawala", "Mandi Bahauddin", "Mankera", "Mian Channu", "Mianwali", "Minchinabad", "Muridke", "Murree", "Muzaffargarh",
+  "Nankana Sahib", "Narowal", "Noorpur Thal", "Nowshera Virkan", "Okara",
+  "Pakpattan", "Pasrur", "Pattoki", "Phalia", "Pind Dadan Khan", "Pindi Bhattian", "Pindi Gheb", "Piplan", "Pir Mahal",
+  "Quaidabad", "Rahim Yar Khan", "Raiwind", "Rajanpur", "Renala Khurd", "Rojhan",
+  "Sadiqabad", "Safdarabad", "Sahiwal", "Sahiwal", "Sambrial", "Sammundri", "Sangla Hill", "Sarai Alamgir", "Sargodha", "Shahkot", "Shahpur",
+  "Shakargarh", "Sharaqpur", "Sheikhupura", "Shorkot", "Shujabad", "Sillanwali", "Sohawa", "Sukkar",
+  "Talagang", "Tandlianwala", "Taunsa", "Taxila", "Toba Tek Singh", "Vehari", "Wazirabad", "Yazman", "Zafarwal"
 ];
 
 export const BUS_COMPANIES = [
