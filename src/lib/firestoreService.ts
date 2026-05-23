@@ -176,6 +176,16 @@ export const contributionService = {
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
+  },
+
+  deleteContribution: async (contribId: string) => {
+    const path = `contributions/${contribId}`;
+    try {
+      await deleteDoc(doc(db, 'contributions', contribId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
+      throw error;
+    }
   }
 };
 
