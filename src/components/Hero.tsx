@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, MapPin, Calendar } from 'lucide-react';
+import { Search, MapPin, ArrowRightLeft, Calendar } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { SearchFilters } from '../types';
 
@@ -17,7 +17,14 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
   const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
   const [showDestSuggestions, setShowDestSuggestions] = useState(false);
 
-  // Jab search button click ho to filters submit karein
+  const filteredOrigins = PAKISTAN_CITIES.filter(city => 
+    city.toLowerCase().includes(origin.toLowerCase()) && city !== origin
+  ).slice(0, 5);
+
+  const filteredDestinations = PAKISTAN_CITIES.filter(city => 
+    city.toLowerCase().includes(destination.toLowerCase()) && city !== destination
+  ).slice(0, 5);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (origin && destination) {
@@ -25,21 +32,24 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
     }
   };
 
+  const swapCities = () => {
+    setOrigin(destination);
+    setDestination(origin);
+  };
+
   return (
-    <section id="hero" className="relative min-h-[75vh] flex flex-col items-center justify-center pt-20 pb-0 overflow-hidden bg-emerald-950">
+    <section id="hero" className="relative min-h-[75vh] flex flex-col items-center justify-center pt-20 pb-0 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
           src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80" 
           alt="Bus Background" 
-          className="w-full h-full object-cover opacity-70"
-          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-transparent to-emerald-900/90" />
+        <div className="absolute inset-0 bg-slate-950/20" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-center">
-        {/* Topic Badges & Headings */}
         <motion.div
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
@@ -48,7 +58,7 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
           <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-widest uppercase">
             Pakistan's #1 Non-AC Bus Platform
           </div>
-          <h1 className="text-xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase">
+          <h1 className="text-2xl md:text-4xl font-black text-white leading-tight tracking-tight">
             Verified Non-AC Bus Timings & Fares
           </h1>
           <p className="text-sm text-emerald-50/70 max-w-xl mx-auto font-medium">
@@ -56,139 +66,135 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
           </p>
         </motion.div>
 
-        {/* Search Engine Card Form */}
         <motion.div
            initial={{ opacity: 0, y: 30 }}
            animate={{ opacity: 1, y: 0 }}
            transition={{ delay: 0.2 }}
-           className="bg-white p-6 rounded-[2.5rem] shadow-2xl max-w-2xl mx-auto border-4 border-white/20 backdrop-blur-sm"
+           className="bg-white p-5 rounded-[2.5rem] shadow-2xl max-w-4xl mx-auto"
         >
-          <form onSubmit={handleSearch} className="flex flex-col gap-5 px-1">
-            <div className="flex flex-col md:flex-row gap-3 w-full">
-              
-              {/* Origin Section (Likha bhi jaye ga aur Dropdown list bhi show hogi) */}
-              <div className="flex-1 text-left relative">
-                <label className="block text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">From (Origin)</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <input 
-                    type="text" 
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    onFocus={() => setShowOriginSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
-                    placeholder="Search Origin City"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 font-extrabold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-400 text-sm shadow-sm"
-                  />
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-end gap-3 px-1">
+            {/* Origin */}
+            <div className="flex-1 text-left relative w-full mb-3 md:mb-0">
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Origin City</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
+                  <MapPin className="w-4 h-4" />
                 </div>
-
-                {/* Dynamic Suggestion Dropdown */}
-                <AnimatePresence>
-                  {showOriginSuggestions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[100] overflow-hidden max-h-64 overflow-y-auto custom-scrollbar"
-                    >
-                      {PAKISTAN_CITIES
-                        .filter(c => c.toLowerCase().includes(origin.toLowerCase()))
-                        .map((city) => (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => {
-                            setOrigin(city);
-                            setShowOriginSuggestions(false);
-                          }}
-                          className={`w-full text-left px-4 py-3.5 hover:bg-emerald-50 text-slate-800 font-bold text-xs transition-colors flex items-center gap-3 border-b border-slate-50 last:border-0 ${city === origin ? 'bg-emerald-50' : ''}`}
-                        >
-                          <MapPin className={`w-4 h-4 ${city === origin ? 'text-emerald-600' : 'text-emerald-400'}`} />
-                          {city}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <input 
+                  type="text" 
+                  value={origin}
+                  onChange={(e) => setOrigin(e.target.value)}
+                  onFocus={() => setShowOriginSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)}
+                  placeholder="Select Origin City"
+                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-300 text-xs md:text-sm shadow-sm"
+                />
               </div>
 
-              {/* Destination Section (Likha bhi jaye ga aur Dropdown list bhi show hogi) */}
-              <div className="flex-1 text-left relative">
-                <label className="block text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">To (Destination)</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <input 
-                    type="text" 
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    onFocus={() => setShowDestSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
-                    placeholder="Search Destination"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 font-extrabold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-400 text-sm shadow-sm"
-                  />
-                </div>
+              {/* Suggestions */}
+              <AnimatePresence>
+                {showOriginSuggestions && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden max-h-64 overflow-y-auto"
+                  >
+                    {PAKISTAN_CITIES
+                      .filter(c => c.toLowerCase().includes(origin.toLowerCase()) && c !== origin)
+                      .slice(0, 15)
+                      .map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => {
+                          setOrigin(city);
+                          setShowOriginSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-emerald-50 text-slate-700 font-bold text-xs transition-colors flex items-center gap-3 border-b border-slate-50 last:border-0"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                        {city}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                {/* Dynamic Suggestion Dropdown */}
-                <AnimatePresence>
-                  {showDestSuggestions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[100] overflow-hidden max-h-64 overflow-y-auto custom-scrollbar"
-                    >
-                      {PAKISTAN_CITIES
-                        .filter(c => c.toLowerCase().includes(destination.toLowerCase()))
-                        .map((city) => (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => {
-                            setDestination(city);
-                            setShowDestSuggestions(false);
-                          }}
-                          className={`w-full text-left px-4 py-3.5 hover:bg-emerald-50 text-slate-800 font-bold text-xs transition-colors flex items-center gap-3 border-b border-slate-50 last:border-0 ${city === destination ? 'bg-emerald-50' : ''}`}
-                        >
-                          <MapPin className={`w-4 h-4 ${city === destination ? 'text-emerald-600' : 'text-emerald-400'}`} />
-                          {city}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+            {/* Destination */}
+            <div className="flex-1 text-left relative w-full mb-3 md:mb-0">
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Destination</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <input 
+                  type="text" 
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  onFocus={() => setShowDestSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowDestSuggestions(false), 200)}
+                  placeholder="Select Destination"
+                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-300 text-xs md:text-sm shadow-sm"
+                />
+              </div>
+
+              {/* Suggestions */}
+              <AnimatePresence>
+                {showDestSuggestions && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden max-h-64 overflow-y-auto"
+                  >
+                    {PAKISTAN_CITIES
+                      .filter(c => c.toLowerCase().includes(destination.toLowerCase()) && c !== destination)
+                      .slice(0, 15)
+                      .map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => {
+                          setDestination(city);
+                          setShowDestSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-emerald-50 text-slate-700 font-bold text-xs transition-colors flex items-center gap-3 border-b border-slate-50 last:border-0"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                        {city}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Date */}
+            <div className="flex-1 text-left w-full mb-3 md:mb-0">
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Travel Date</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <input 
+                  type="date" 
+                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-xs md:text-sm shadow-sm"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-3 w-full">
-              {/* Date */}
-              <div className="flex-1 text-left">
-                <label className="block text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 ml-1">Travel Date</label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 pointer-events-none">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <input 
-                    type="date" 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 font-extrabold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-sm shadow-sm cursor-pointer"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Search Button */}
-              <div className="flex-1">
-                <button 
-                  type="submit"
-                  className="w-full bg-emerald-600 text-white font-black px-8 py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 uppercase text-xs tracking-widest h-full min-h-[58px]"
-                >
-                  <Search className="w-5 h-5" /> SEARCH BUSES
-                </button>
-              </div>
+            {/* Search Button */}
+            <div className="w-full md:w-auto">
+              <button 
+                type="submit"
+                className="w-full bg-emerald-600 text-white font-black px-8 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 uppercase text-[11px] tracking-widest h-[52px] min-w-[160px]"
+              >
+                <Search className="w-4 h-4" /> SEARCH
+              </button>
             </div>
           </form>
         </motion.div>
@@ -218,7 +224,7 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
           </div>
         </div>
 
-        {/* Missing Route Button (Do not remove: Important logic flow) */}
+        {/* Missing Route Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
