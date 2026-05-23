@@ -34,10 +34,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [isBulkUpdatingFare, setIsBulkUpdatingFare] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk fare update state
+  const [bulkFareData, setBulkFareData] = useState({
+    origin: '',
+    destination: '',
+    fare: 0
+  });
 
   // Form State
   const [formData, setFormData] = useState<Partial<Bus>>({
@@ -88,11 +96,46 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       type: 'Standard',
       isAC: true
     });
+    setBulkFareData({
+      origin: '',
+      destination: '',
+      fare: 0
+    });
     setEditingId(null);
     setIsAdding(false);
     setIsBulkUploading(false);
+    setIsBulkUpdatingFare(false);
     setIsSaving(false);
     setUploadProgress(null);
+  };
+
+  const handleBulkFareUpdateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkFareData.origin || !bulkFareData.destination || bulkFareData.fare <= 0) {
+      alert('Please select both Origin and Destination, and enter a valid fare (greater than 0). / Baraye meharbani Origin, Destination aur durust Fare enter karain.');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to update the fare of ALL routes from ${bulkFareData.origin} to ${bulkFareData.destination} to Rs. ${bulkFareData.fare}? \n\nKya aap waqai ${bulkFareData.origin} se ${bulkFareData.destination} k tamam buses ka fare Rs. ${bulkFareData.fare} karna chahte hain?`)) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const count = await busService.bulkUpdateFares(
+        bulkFareData.origin,
+        bulkFareData.destination,
+        bulkFareData.fare
+      );
+      
+      alert(`Success! Updated ${count} routes from ${bulkFareData.origin} to ${bulkFareData.destination} to Rs. ${bulkFareData.fare}. / Kamiyabi! Block k under majood ${count} routes ka fare tabdeel kar diya gya ha.`);
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update fares. Check console for details. / Fare tabdeel karne me masla pesh aya.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEdit = (bus: Bus) => {
@@ -234,6 +277,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           </div>
 
           <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsBulkUpdatingFare(true)}
+              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <Tag className="w-5 h-5 text-amber-500" /> bulk fare update
+            </button>
             <button 
               onClick={() => setIsBulkUploading(true)}
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
@@ -405,6 +454,104 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   <p className="text-xs text-slate-500 mt-1">Please do not close this window</p>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Bulk Fare Update Modal */}
+      <AnimatePresence>
+        {isBulkUpdatingFare && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-10 md:p-14"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 bg-amber-50 rounded-[2rem] flex items-center justify-center text-amber-600 mx-auto mb-6">
+                  <Tag className="w-10 h-10" />
+                </div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Bulk Fare Update</h2>
+                <p className="text-xs text-amber-600 font-extrabold uppercase tracking-widest">یک کلک سے کرایہ تبدیل کریں</p>
+                <p className="text-slate-500 mt-3 text-sm leading-relaxed">
+                  Select key cities and enter the new fare. This will update the ticket price for <span className="font-bold text-slate-900">all buses matching this route</span> simultaneously.
+                </p>
+              </div>
+
+              <form onSubmit={handleBulkFareUpdateSubmit} className="space-y-6">
+                <InputGroup label="Origin City" icon={<MapPin className="w-4 h-4" />}>
+                  <select 
+                    required
+                    value={bulkFareData.origin}
+                    onChange={(e) => setBulkFareData({ ...bulkFareData, origin: e.target.value })}
+                    className="admin-input bg-slate-50 px-2"
+                  >
+                    <option value="">Select Origin</option>
+                    {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                  </select>
+                </InputGroup>
+
+                <InputGroup label="Destination City" icon={<MapPin className="w-4 h-4" />}>
+                  <select 
+                    required
+                    value={bulkFareData.destination}
+                    onChange={(e) => setBulkFareData({ ...bulkFareData, destination: e.target.value })}
+                    className="admin-input bg-slate-50 px-2"
+                  >
+                    <option value="">Select Destination</option>
+                    {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                  </select>
+                </InputGroup>
+
+                <InputGroup label="New Ticket Fare (RS)" icon={<ArrowLeft className="w-4 h-4 rotate-90" />}>
+                  <input 
+                    required
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 1500"
+                    value={bulkFareData.fare || ''}
+                    onChange={(e) => setBulkFareData({ ...bulkFareData, fare: parseInt(e.target.value) || 0 })}
+                    className="admin-input" 
+                  />
+                </InputGroup>
+
+                <div className="flex gap-4 pt-4">
+                  <button 
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold transition-all text-xs uppercase tracking-widest"
+                  >
+                    Cancel / منسوخ
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black transition-all shadow-xl shadow-emerald-600/20 text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Save className="w-5 h-5" /> 
+                    )}
+                    {isSaving ? 'Processing...' : 'Update All / تبدیل کریں'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
