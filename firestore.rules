@@ -75,6 +75,13 @@ service cloud.firestore {
               (!('comment' in data) || (data.comment is string && data.comment.size() <= 1000));
     }
 
+    function isValidReport(data) {
+       return data.keys().hasAll(['busId', 'busName', 'issues']) &&
+              data.busId is string &&
+              data.busName is string &&
+              data.issues is list;
+    }
+
     // 1. Users Collection
     match /users/{userId} {
       allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
@@ -102,9 +109,17 @@ service cloud.firestore {
     }
 
     // 4. Feedback, Complaints, Reports (Admin only read)
-    match /{collection}/{docId} {
-      allow create: if (collection in ['feedback', 'complaints', 'reports']) && isValidFeedback(incoming());
-      allow read, delete: if (collection in ['feedback', 'complaints', 'reports']) && isAdmin();
+    match /feedback/{docId} {
+      allow create: if isValidFeedback(incoming());
+      allow read, delete: if isAdmin();
+    }
+    match /complaints/{docId} {
+      allow create: if isValidFeedback(incoming());
+      allow read, delete: if isAdmin();
+    }
+    match /reports/{docId} {
+      allow create: if isValidReport(incoming());
+      allow read, delete: if isAdmin();
     }
 
     // 5. Ratings
