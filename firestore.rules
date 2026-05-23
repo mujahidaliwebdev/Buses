@@ -7,7 +7,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Phase 3: Primitives
+    // Phase 3: Primitives & Global Helpers
     function isSignedIn() {
       return request.auth != null;
     }
@@ -35,10 +35,10 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Entity Validations
+    // Entity Validation Blueprints
     function isValidUser(data) {
       return data.keys().hasAll(['uid', 'email']) &&
-             data.uid is string && data.uid.size() <= 128 &&
+             data.uid is string && data.uid == request.auth.uid &&
              data.email is string && data.email.size() <= 256;
     }
 
@@ -51,25 +51,43 @@ service cloud.firestore {
     }
 
     function isValidContribution(data) {
-      return data.keys().hasAll(['companyName', 'origin', 'destination', 'departureTime']) &&
+      return data.keys().hasAll(['companyName', 'origin', 'destination', 'departureTime', 'userId']) &&
+             data.userId == request.auth.uid &&
              data.companyName is string && data.companyName.size() <= 128 &&
              data.origin is string && data.origin.size() <= 64 &&
              data.destination is string && data.destination.size() <= 64 &&
-             (!('note' in data) || (data.note is string && data.note.size() <= 2000));
+             (!('note' in data) || (data.note is string && data.note.size() <= 2000)) &&
+             (!('submittedAt' in data) || (data.submittedAt is string));
+    }
+
+    function isValidFeedback(data) {
+       return data.keys().hasAll(['name', 'mobile', 'message']) &&
+              data.name is string && data.name.size() <= 64 &&
+              data.mobile is string && data.mobile.size() <= 20 &&
+              data.message is string && data.message.size() <= 2000;
+    }
+
+    function isValidRating(data) {
+       return data.keys().hasAll(['busId', 'stars']) &&
+              data.busId is string && data.busId.size() <= 128 &&
+              data.stars is number && data.stars >= 1 && data.stars <= 5 &&
+              (!('userName' in data) || (data.userName is string && data.userName.size() <= 128)) &&
+              (!('comment' in data) || (data.comment is string && data.comment.size() <= 1000));
     }
 
     // 1. Users Collection
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
       allow list: if isAdmin();
       allow create: if isOwner(userId) && isValidUser(incoming());
       allow update: if isOwner(userId) && isValidUser(incoming()) && 
-                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL']);
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt']);
     }
 
     // 2. Buses Collection
     match /buses/{busId} {
-      allow read: if true;
+      allow get: if isValidId(busId);
+      allow list: if true;
       allow create: if isAdmin() && isValidBus(incoming());
       allow update: if isAdmin() && isValidBus(incoming());
       allow delete: if isAdmin();
@@ -77,15 +95,31 @@ service cloud.firestore {
 
     // 3. Contributions Collection
     match /contributions/{contribId} {
-      allow read: if isAdmin();
+      allow get: if isValidId(contribId) && isAdmin();
+      allow list: if isAdmin();
       allow create: if isSignedIn() && isValidContribution(incoming());
       allow delete: if isAdmin();
     }
 
-    // 4. Admins Collection
+    // 4. Feedback, Complaints, Reports (Admin only read)
+    match /{collection}/{docId} {
+      allow create: if (collection in ['feedback', 'complaints', 'reports']) && isValidFeedback(incoming());
+      allow read, delete: if (collection in ['feedback', 'complaints', 'reports']) && isAdmin();
+    }
+
+    // 5. Ratings
+    match /ratings/{ratingId} {
+      allow get: if isValidId(ratingId);
+      allow list: if true;
+      allow create: if isSignedIn() && isValidRating(incoming());
+      allow update: if false; // Ratings are immutable for now
+      allow delete: if isAdmin();
+    }
+
+    // 6. Admins Collection
     match /admins/{adminId} {
       allow read: if isSignedIn();
-      allow write: if false; // Managed via console/backend
+      allow write: if false; // Strictly managed via backend/console
     }
   }
 }
