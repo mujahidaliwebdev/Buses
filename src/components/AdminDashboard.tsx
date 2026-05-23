@@ -21,7 +21,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService, reportService } from '../lib/firestoreService';
+import { busService, reportService, contributionService } from '../lib/firestoreService';
 import { db } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
@@ -39,6 +39,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [isBulkUpdatingFare, setIsBulkUpdatingFare] = useState(false);
   const [isViewingReports, setIsViewingReports] = useState(false);
+  const [isViewingProposals, setIsViewingProposals] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
@@ -66,6 +67,32 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }, (error) => {
       console.error("Error subscribing to reports: ", error);
       setLoadingReports(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  // User contributions collection real-time subscription
+  const [contributions, setContributions] = useState<any[]>([]);
+  const [loadingContributions, setLoadingContributions] = useState(true);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'contributions'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedContribs: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetchedContribs.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // Sort by submittedAt descending
+      fetchedContribs.sort((a, b) => {
+        const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+        const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+        return timeB - timeA;
+      });
+      setContributions(fetchedContribs);
+      setLoadingContributions(false);
+    }, (error) => {
+      console.error("Error subscribing to contributions: ", error);
+      setLoadingContributions(false);
     });
     return unsubscribe;
   }, []);
@@ -136,6 +163,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     setIsBulkUploading(false);
     setIsBulkUpdatingFare(false);
     setIsViewingReports(false);
+    setIsViewingProposals(false);
     setIsSaving(false);
     setUploadProgress(null);
   };
@@ -308,6 +336,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <button 
+              onClick={() => setIsViewingProposals(true)}
+              className="relative bg-white hover:bg-slate-50 text-emerald-700 border border-emerald-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <BusIcon className="w-5 h-5 text-emerald-500" /> 
+              <span>Proposed Routes</span>
+              {contributions.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                  {contributions.length}
+                </span>
+              )}
+            </button>
             <button 
               onClick={() => setIsViewingReports(true)}
               className="relative bg-white hover:bg-slate-50 text-rose-700 border border-rose-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
@@ -705,6 +745,180 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       >
                         ✓ Mark Resolved
                       </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Proposed Routes Modal */}
+      <AnimatePresence>
+        {isViewingProposals && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] p-10 md:p-14"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
+                    <BusIcon className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Proposed Schedules</h2>
+                    <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest">مسافروں کی طرف سے تجویز کردہ روٹس ({contributions.length})</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  These routes were suggested by users through the website contribution system. Review, edit if needed, and click <span className="font-bold text-emerald-600">"Approve to Database"</span> to make them live on the app.
+                </p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                {loadingContributions ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4" />
+                    <p className="text-xs text-slate-500 font-medium">Checking suggested routes...</p>
+                  </div>
+                ) : contributions.length === 0 ? (
+                  <div className="text-center py-16 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                    <p className="text-slate-400 font-bold text-sm mb-1">No user-contributed routes right now.</p>
+                    <p className="text-slate-300 text-xs">مسافروں کی طرف سے تجویز کردہ کوئی روٹ نہیں ہے۔</p>
+                  </div>
+                ) : (
+                  contributions.map((contrib) => (
+                    <div 
+                      key={contrib.id} 
+                      className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                    >
+                      <div className="space-y-3 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-black uppercase tracking-wider rounded-lg">
+                            User Proposal
+                          </span>
+                          <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-lg">
+                            {contrib.type || 'Non-AC'}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-bold ml-auto md:ml-0">
+                            {contrib.submittedAt 
+                              ? new Date(contrib.submittedAt).toLocaleString() 
+                              : 'Recent'}
+                          </span>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-black text-slate-900 text-xl tracking-tight leading-snug">
+                            {contrib.companyName}
+                          </h4>
+                          <p className="text-emerald-600 font-extrabold text-sm flex items-center gap-2.5 mt-1">
+                            <span>{contrib.origin}</span>
+                            <span className="text-slate-350 font-normal">➔</span>
+                            <span>{contrib.destination}</span>
+                          </p>
+                        </div>
+
+                        {/* Detailed information row */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/50 p-4 rounded-2xl text-[11px] font-bold text-slate-600">
+                          <div>
+                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Departure</span>
+                            <span className="text-slate-800">{contrib.departureTime}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Arrival</span>
+                            <span className="text-slate-800">{contrib.arrivalTime || 'N/A'}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Duration</span>
+                            <span className="text-slate-800">{contrib.duration || 'N/A'}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Price</span>
+                            <span className="text-emerald-700 font-black">Rs. {contrib.fare}</span>
+                          </div>
+                        </div>
+
+                        {/* Additional identifiers */}
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-slate-500 font-medium">
+                          {contrib.busNumber && (
+                            <div>
+                              <span>Reg/Bus #: </span>
+                              <span className="font-bold text-slate-700">{contrib.busNumber}</span>
+                            </div>
+                          )}
+                          {contrib.contactNumber && (
+                            <div>
+                              <span>Contact Operator: </span>
+                              <span className="font-bold text-slate-700">{contrib.contactNumber}</span>
+                            </div>
+                          )}
+                          {contrib.terminalLocation && (
+                            <div className="w-full">
+                              <span>Terminal: </span>
+                              <span className="font-bold text-slate-700">{contrib.terminalLocation} {contrib.standNumber ? `(Stand ${contrib.standNumber})` : ''}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Control buttons */}
+                      <div className="flex md:flex-col gap-2 w-full md:w-auto shrink-0">
+                        <button
+                          onClick={async () => {
+                            if (confirm('Approve this suggested route? This will make it LIVE on the database. \n\nKya aap is route ko approve kar k database me shamil karna chahte hain?')) {
+                              try {
+                                const { id, submittedAt, userId, ...busData } = contrib;
+                                // Force accurate dynamic defaults
+                                const verifiedBusData = {
+                                  ...busData,
+                                  status: 'On Schedule',
+                                  isAC: busData.isAC ?? (busData.type !== 'Non-AC')
+                                };
+                                await busService.addBus(verifiedBusData);
+                                await contributionService.deleteContribution(id);
+                                alert('Route has been approved and is now live!');
+                              } catch (error) {
+                                console.error(error);
+                                alert('Failed to approve route.');
+                              }
+                            }
+                          }}
+                          className="flex-1 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap shadow-md shadow-emerald-500/10 active:scale-95"
+                        >
+                          ✓ Approve Route
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm('Reject and delete this route suggestion? This action is permanent.')) {
+                              try {
+                                await contributionService.deleteContribution(contrib.id);
+                              } catch (error) {
+                                alert('Failed to reject route.');
+                              }
+                            }
+                          }}
+                          className="px-4 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold rounded-2xl text-xs uppercase tracking-wider transition-all text-center active:scale-95"
+                        >
+                          Reject
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
