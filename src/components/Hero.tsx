@@ -124,10 +124,10 @@ export default function Hero({ onSearch }: HeroProps) {
             className="flex gap-20 items-center px-10"
           >
             {[
-              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-              'BALOCH TRANSPORT', 'NEW KHAN', 'CHEEMA BROTHERS', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
+              'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+              'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
             ].map((name, i) => (
               <div key={i} className="flex items-center gap-5">
                 <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-[0_0_15px_#34d399]" />
