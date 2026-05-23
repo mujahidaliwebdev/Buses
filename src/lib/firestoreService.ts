@@ -12,7 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { Bus, Company } from '../types';
+import { Bus } from '../types';
 
 enum OperationType {
   CREATE = 'create',
@@ -111,6 +111,30 @@ export const busService = {
       await updateDoc(doc(db, 'buses', busId), busData);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
+    }
+  },
+
+  bulkUpdateFares: async (origin: string, destination: string, newFare: number) => {
+    const path = 'buses';
+    try {
+      const q = query(
+        collection(db, path), 
+        where('origin', '==', origin),
+        where('destination', '==', destination)
+      );
+      const snapshot = await getDocs(q);
+      const count = snapshot.size;
+      if (count === 0) return 0;
+
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(docSnap => {
+        batch.update(docSnap.ref, { fare: newFare });
+      });
+      await batch.commit();
+      return count;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+      throw error;
     }
   },
 
