@@ -178,3 +178,15 @@ export const contributionService = {
     }
   }
 };
+
+export const reportService = {
+  deleteReport: async (reportId: string) => {
+    const path = `reports/${reportId}`;
+    try {
+      await deleteDoc(doc(db, 'reports', reportId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
+      throw error;
+    }
+  }
+};
