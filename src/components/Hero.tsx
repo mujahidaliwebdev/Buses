@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react'; // 
 import { MapPin, Calendar, Search } from 'lucide-react';
-import { motion } from 'motion/react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { SearchFilters } from '../types';
 
@@ -8,15 +8,17 @@ interface HeroProps {
   onSearch: (filters: SearchFilters) => void;
 }
 
-export default function Hero({ onSearch }: HeroProps) {
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const today = new Date().toISOString().split('T')[0];
+  const [date, setDate] = useState(today);
+  const [showOriginSuggestions, setShowOriginSuggestions] = useState(false);
+  const [showDestSuggestions, setShowDestSuggestions] = useState(false);
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    onSearch({
-      origin: formData.get('origin') as string,
-      destination: formData.get('destination') as string,
-      date: formData.get('date') as string,
-    });
+    if (origin && destination) {
+      onSearch({ origin, destination, date });
+    }
   };
 
   return (
@@ -72,10 +74,43 @@ export default function Hero({ onSearch }: HeroProps) {
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Origin City</label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
-              <select name="origin" required className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer">
-                <option value="">Select Origin City</option>
-                {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
-              </select>
+                         <input 
+              type="text" 
+              value={origin}
+              onChange={(e) => setOrigin(e.target.value)}
+              onFocus={() => setShowOriginSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowOriginSuggestions(false), 200)} // delay dropdown select click register hone k liye
+              placeholder="Search Origin City"
+              className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-slate-900 font-extrabold focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-sm shadow-sm"
+            />
+            
+            {/* Live search list box jo automatic filter hota ha */}
+            <AnimatePresence>
+              {showOriginSuggestions && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[100] overflow-hidden max-h-64 overflow-y-auto"
+                >
+                  {PAKISTAN_CITIES
+                    .filter(c => c.toLowerCase().includes(origin.toLowerCase()))
+                    .map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => {
+                          setOrigin(city);
+                          setShowOriginSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-3.5 hover:bg-emerald-50 text-slate-800 font-bold text-xs"
+                      >
+                        {city}
+                      </button>
+                    ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
             </div>
           </div>
 
