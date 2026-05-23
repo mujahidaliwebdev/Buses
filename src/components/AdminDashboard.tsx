@@ -35,6 +35,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [isBulkUpdatingFare, setIsBulkUpdatingFare] = useState(false);
@@ -136,6 +137,106 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     bus.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
     bus.destination.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const entriesPerPage = 20;
+  const totalPages = Math.ceil(filteredBuses.length / entriesPerPage);
+  const indexOfLastEntry = currentPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentEntries = filteredBuses.slice(indexOfFirstEntry, indexOfLastEntry);
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxNeighbours = 1; // Number of pages to show before and after current
+    
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      
+      const start = Math.max(2, currentPage - maxNeighbours);
+      const end = Math.min(totalPages - 1, currentPage + maxNeighbours);
+      
+      if (start > 2) {
+        pages.push('...');
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (end < totalPages - 1) {
+        pages.push('...');
+      }
+      
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
+  const renderPagination = (isTop: boolean) => {
+    if (totalPages <= 1) return null;
+    const pageNumbers = getPageNumbers();
+    
+    return (
+      <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-4 bg-slate-50/75 ${isTop ? 'border-b' : 'border-t'} border-slate-100`}>
+        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+          Showing <span className="text-slate-800 font-extrabold">{indexOfFirstEntry + 1}-{Math.min(indexOfLastEntry, filteredBuses.length)}</span> of <span className="text-slate-800 font-extrabold">{filteredBuses.length}</span> routes
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1">
+          <button
+            onClick={() => {
+              setCurrentPage(prev => Math.max(prev - 1, 1));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={currentPage === 1}
+            className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
+          >
+            Prev / پیچھے
+          </button>
+          {pageNumbers.map((page, idx) => {
+            if (page === '...') {
+              return (
+                <span key={`dots-${isTop ? 'top' : 'bottom'}-${idx}`} className="px-2 text-slate-400 font-bold col-span-1 text-center select-none">
+                  ...
+                </span>
+              );
+            }
+            const isCurrent = page === currentPage;
+            return (
+              <button
+                key={`page-${isTop ? 'top' : 'bottom'}-${page}`}
+                onClick={() => {
+                  setCurrentPage(page as number);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`w-9 h-9 text-xs font-black rounded-xl transition-all duration-150 flex items-center justify-center shrink-0 ${
+                  isCurrent
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => {
+              setCurrentPage(prev => Math.min(prev + 1, totalPages));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={currentPage === totalPages}
+            className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
+          >
+            Next / آگے
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const resetForm = () => {
     setFormData({
@@ -395,6 +496,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
 
         {/* Table/List */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+          {renderPagination(true)}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -407,7 +509,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredBuses.map((bus) => (
+                {currentEntries.map((bus) => (
                   <tr key={bus.id} className="group hover:bg-slate-50/30 transition-colors">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
@@ -461,6 +563,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </tbody>
             </table>
           </div>
+          {renderPagination(false)}
         </div>
       </div>
 
