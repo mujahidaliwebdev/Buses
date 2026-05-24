@@ -5,7 +5,7 @@ export const PAKISTAN_CITIES = [
   "Lahore", "Islamabad", "Karachi", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Peshawar", "Quetta",
   // All Other Cities
   "18 Hazari", "Ahmadpur East", "Ahmedpur Sial", "Alipur", "Arifwala", "Attock", "Bahawalnagar", "Bahawalpur", "Bhakkar", "Bhalwal", "Bhera", "Bhowana", "Burewala",
-  "Chak Jhumra", "Chakwal", "Chaubara", "Chichawatni", "Chiniot", "Chishtian", "Choa Saidan Shah", "Chowk Azam", "Chunian",
+  "Chak Jhumra", "Chakwal", "Chaubara", "Chichawatni", "Chiniot", "Chishtian", "Choa Saidan Shah", "Chowk Azam", "Chowk Munda", "Chunian",
   "Darya Khan", "Daska", "Depalpur", "Dera Ghazi Khan", "Dina", "Dunyapur", "Fateh Jang", "Fatehpur", "Feroze Wattwan", "Ferozewala", "Fort Abbas",
   "Garh Moor", "Gojra", "Gujar Khan", "Gujrat", "Hafizabad", "Haroonabad", "Hasan Abdal", "Hasilpur", "Hazro",
   "Isa Khel", "Jahanian", "Jalalpur Pirwala", "Jampur", "Jand", "Jaranwala", "Jatoi", "Jhang", "Jhelum",
@@ -14,10 +14,10 @@ export const PAKISTAN_CITIES = [
   "Lalian", "Larkana", "Lawa", "Layyah", "Liaquatpur", "Lodhran", "Mailsi", "Malakwal", "Manawala", "Mandi Bahauddin", "Mankera",
   "Mian Channu", "Mianwali", "Minchinabad", "Muridke", "Murree", "Muzaffargarh", "Nankana Sahib", "Narowal", "Noorpur Thal", "Nowshera Virkan", "Okara",
   "Pakpattan", "Pasrur", "Pattoki", "Phalia", "Pind Dadan Khan", "Pindi Bhattian", "Pindi Gheb", "Piplan", "Pir Mahal",
-  "Quaidabad", "Rahim Yar Khan", "Raiwind", "Rajanpur", "Renala Khurd", "Rojhan",
-  "Sadiqabad", "Safdarabad", "Sahiwal", "Sahiwal", "Sambrial", "Sammundri", "Sangla Hill", "Sarai Alamgir", "Sargodha", "Shahkot", "Shahpur",
+  "Quaidabad", "Rahim Yar Khan", "Raiwind", "Rajanpur", "Rang Pur", "Renala Khurd", "Rojhan",
+  "Sadiqabad", "Safdarabad", "Sahiwal", "Sahiwal", "Sambrial", "Sammundri", "Sanawan", "Sangla Hill", "Sarai Alamgir", "Sargodha", "Shahkot", "Shahpur",
   "Shakargarh", "Sharaqpur", "Sheikhupura", "Shorkot", "Shujabad", "Sillanwali", "Sohawa", "Sukkar",
-  "Talagang", "Tandlianwala", "Taunsa", "Taxila", "Toba Tek Singh", "Vehari", "Wazirabad", "Yazman", "Zafarwal"
+  "Talagang", "Tandlianwala", "Taunsa", "Taxila", "Toba Tek Singh", "Vehari", "Vehova", "Wazirabad", "Yazman", "Zafarwal"
 ];
 
 export const BUS_COMPANIES = [
