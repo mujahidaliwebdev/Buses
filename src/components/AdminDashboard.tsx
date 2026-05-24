@@ -18,7 +18,8 @@ import {
   Upload,
   Download,
   FileSpreadsheet,
-  AlertTriangle
+  AlertTriangle,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService } from '../lib/firestoreService';
@@ -41,10 +42,62 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isBulkUpdatingFare, setIsBulkUpdatingFare] = useState(false);
   const [isViewingReports, setIsViewingReports] = useState(false);
   const [isViewingProposals, setIsViewingProposals] = useState(false);
+  const [isViewingFeedbacks, setIsViewingFeedbacks] = useState(false);
+  const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Feedbacks and Complaints real-time subscription
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+  const [complaints, setComplaints] = useState<any[]>([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(true);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'feedback'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetched.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // Sort desc
+      fetched.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setFeedbacks(fetched);
+      setLoadingFeedbacks(false);
+    }, (error) => {
+      console.error("Error subscribing to feedback: ", error);
+      setLoadingFeedbacks(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'complaints'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetched.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // Sort desc
+      fetched.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setComplaints(fetched);
+      setLoadingComplaints(false);
+    }, (error) => {
+      console.error("Error subscribing to complaints: ", error);
+      setLoadingComplaints(false);
+    });
+    return unsubscribe;
+  }, []);
 
   // Reports collection real-time subscription
   const [reports, setReports] = useState<any[]>([]);
@@ -265,6 +318,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     setIsBulkUpdatingFare(false);
     setIsViewingReports(false);
     setIsViewingProposals(false);
+    setIsViewingFeedbacks(false);
     setIsSaving(false);
     setUploadProgress(null);
   };
@@ -458,6 +512,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               {reports.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-rose-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
                   {reports.length}
+                </span>
+              )}
+            </button>
+            <button 
+              onClick={() => setIsViewingFeedbacks(true)}
+              className="relative bg-white hover:bg-slate-50 text-sky-700 border border-sky-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <MessageSquare className="w-5 h-5 text-sky-500" /> 
+              <span>Feedback & Complaints</span>
+              {(feedbacks.length + complaints.length) > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-sky-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                  {feedbacks.length + complaints.length}
                 </span>
               )}
             </button>
@@ -850,6 +916,212 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       </button>
                     </div>
                   ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Passenger Feedback & Complaints Modal */}
+      <AnimatePresence>
+        {isViewingFeedbacks && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] p-10 md:p-14"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600 shrink-0">
+                    <MessageSquare className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Passenger Feedbacks & Complaints</h2>
+                    <p className="text-xs text-sky-600 font-extrabold uppercase tracking-widest">مسافروں کی آراء اور شکایات</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  These inputs were submitted directly by passengers using the floating <span className="font-bold text-sky-600">Feedback</span> tab. Use this to review user satisfaction or resolve service issues.
+                </p>
+              </div>
+
+              {/* Sub tabs in Modal */}
+              <div className="flex border-b border-slate-100 mb-6 shrink-0">
+                <button
+                  onClick={() => setActiveFeedbackTab('feedback')}
+                  className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-all border-b-2 ${
+                    activeFeedbackTab === 'feedback' 
+                      ? 'text-emerald-700 border-emerald-500 bg-emerald-50/20' 
+                      : 'text-slate-400 border-transparent hover:text-slate-650 hover:bg-slate-50/50'
+                  }`}
+                >
+                  Feedback / رائے ({feedbacks.length})
+                </button>
+                <button
+                  onClick={() => setActiveFeedbackTab('complaint')}
+                  className={`flex-1 py-4 text-xs font-black uppercase tracking-wider transition-all border-b-2 ${
+                    activeFeedbackTab === 'complaint' 
+                      ? 'text-rose-700 border-rose-500 bg-rose-50/20' 
+                      : 'text-slate-400 border-transparent hover:text-slate-650 hover:bg-slate-50/50'
+                  }`}
+                >
+                  Complaints / شکایات ({complaints.length})
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+                {activeFeedbackTab === 'feedback' ? (
+                  loadingFeedbacks ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4" />
+                      <p className="text-xs text-slate-500 font-medium">Loading feedbacks...</p>
+                    </div>
+                  ) : feedbacks.length === 0 ? (
+                    <div className="text-center py-16 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                      <p className="text-slate-400 font-bold text-sm mb-1">No feedback received yet.</p>
+                      <p className="text-slate-300 text-xs">مسافروں کی طرف سے اب تک کوئی رائے نہیں ملی۔</p>
+                    </div>
+                  ) : (
+                    feedbacks.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className="bg-white border border-slate-105 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                      >
+                        <div className="space-y-3 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-black uppercase tracking-wider rounded-lg">
+                              Feedback
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-bold">
+                              {item.createdAt?.seconds 
+                                ? new Date(item.createdAt.seconds * 1000).toLocaleString() 
+                                : 'Recent'}
+                            </span>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-black text-slate-900 text-lg leading-none">
+                              {item.name}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-slate-500 font-semibold">
+                              <span>Mobile: <strong className="text-slate-700">{item.mobile}</strong></span>
+                              {item.email && (
+                                <span>Email: <strong className="text-slate-700">{item.email}</strong></span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4">
+                            <p className="text-slate-700 font-medium text-xs leading-relaxed italic">
+                              "{item.message}"
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={async () => {
+                            if (confirm('Are you sure you want to delete this feedback entry? \n\nKya aap is feedback ko delete karna chahte hain?')) {
+                              try {
+                                const { deleteDoc, doc } = await import('firebase/firestore');
+                                await deleteDoc(doc(db, 'feedback', item.id));
+                              } catch (error) {
+                                console.error(error);
+                                alert('Failed to delete feedback.');
+                              }
+                            }
+                          }}
+                          className="w-full md:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-rose-700 font-extrabold rounded-2xl text-xs uppercase tracking-wider transition-all text-center shrink-0"
+                        >
+                          Delete / ختم کریں
+                        </button>
+                      </div>
+                    ))
+                  )
+                ) : (
+                  loadingComplaints ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <div className="w-10 h-10 border-4 border-rose-500/20 border-t-rose-500 rounded-full animate-spin mb-4" />
+                      <p className="text-xs text-slate-500 font-medium">Loading complaints...</p>
+                    </div>
+                  ) : complaints.length === 0 ? (
+                    <div className="text-center py-16 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                      <p className="text-slate-400 font-bold text-sm mb-1">Excellent! No complaints received.</p>
+                      <p className="text-slate-300 text-xs">سب خیریت ہے! کوئی شکایت موصول نہیں ہوئی۔</p>
+                    </div>
+                  ) : (
+                    complaints.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className="bg-white border border-slate-105 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                      >
+                        <div className="space-y-3 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[9px] font-black uppercase tracking-wider rounded-lg">
+                              Complaint
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-bold">
+                              {item.createdAt?.seconds 
+                                ? new Date(item.createdAt.seconds * 1000).toLocaleString() 
+                                : 'Recent'}
+                            </span>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-black text-slate-900 text-lg leading-none">
+                              {item.name}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-slate-500 font-semibold">
+                              <span>Mobile: <strong className="text-rose-700">{item.mobile}</strong></span>
+                              {item.email && (
+                                <span>Email: <strong className="text-slate-705">{item.email}</strong></span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="bg-rose-50/20 border border-rose-100/30 rounded-2xl p-4 animate-pulse-subtle">
+                            <p className="text-slate-800 font-medium text-xs leading-relaxed italic">
+                              "{item.message}"
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex md:flex-col gap-2 w-full md:w-auto shrink-0">
+                          <button
+                            onClick={async () => {
+                              if (confirm('Mark this complaint as resolved and delete it? \n\nKya aap is shikayat ko resolved mark kar k delete karna chahte hain?')) {
+                                try {
+                                  const { deleteDoc, doc } = await import('firebase/firestore');
+                                  await deleteDoc(doc(db, 'complaints', item.id));
+                                } catch (error) {
+                                    console.error(error);
+                                    alert('Failed to resolve complaint.');
+                                }
+                              }
+                            }}
+                            className="flex-1 px-5 py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap shadow-md shadow-rose-500/10 active:scale-95"
+                          >
+                            ✓ Mark Resolved
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )
                 )}
               </div>
             </motion.div>
