@@ -79,7 +79,7 @@ export default function AboutUs() {
               ہمارے انتظامیہ اور بانی ارکان
             </p>
             <p className="text-slate-650 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-              AsaanBusSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Muhammad Arsalan</strong>.
+              AsaanBusSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Noman Ejaz</strong>.
             </p>
             <div className="pt-4">
               <button
