@@ -29,8 +29,8 @@ const TEAM_MEMBERS: TeamMember[] = [
     urduBio: 'مجاہد علی نے پاکستان کے غیر منظم ٹرانسپورٹ نیٹ ورکس کو ڈیجیٹلائزیشن کے زریعے جدید بنانے کے انقلابی وژن کے ساتھ آسان بس سفر کی بنیاد رکھی۔ ان کی قیادت میں، اس پلیٹ فارم نے ملک بھر کے ہزاروں دیہی اور شہری روٹس کی میپنگ کر کے کرایوں، اوقات کار اور اڈوں کی معلومات میں مکمل شفافیت کو یقینی بنایا ہے۔'
   },
   {
-    name: 'Muhammad Arsalan',
-    urduName: 'محمد ارسلان',
+    name: 'Noman Ejaz',
+    urduName: 'نعمان اعجاز',
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
