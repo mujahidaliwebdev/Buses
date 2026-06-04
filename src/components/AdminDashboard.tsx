@@ -19,7 +19,9 @@ import {
   Download,
   FileSpreadsheet,
   AlertTriangle,
-  MessageSquare
+  MessageSquare,
+  Briefcase,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService } from '../lib/firestoreService';
@@ -43,11 +45,38 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isViewingReports, setIsViewingReports] = useState(false);
   const [isViewingProposals, setIsViewingProposals] = useState(false);
   const [isViewingFeedbacks, setIsViewingFeedbacks] = useState(false);
+  const [isViewingCareers, setIsViewingCareers] = useState(false);
   const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Careers real-time subscription
+  const [careersList, setCareersList] = useState<any[]>([]);
+  const [loadingCareersList, setLoadingCareersList] = useState(true);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'careers'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetched.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // Sort in-memory by createdAt descending
+      fetched.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setCareersList(fetched);
+      setLoadingCareersList(false);
+    }, (error) => {
+      console.error("Error subscribing to careers in admin: ", error);
+      setLoadingCareersList(false);
+    });
+    return unsubscribe;
+  }, []);
 
   // Feedbacks and Complaints real-time subscription
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
@@ -528,6 +557,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               )}
             </button>
             <button 
+              onClick={() => setIsViewingCareers(true)}
+              className="relative bg-white hover:bg-slate-50 text-emerald-700 border border-emerald-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <Briefcase className="w-5 h-5 text-emerald-500" /> 
+              <span>Job Applications / CVs</span>
+              {careersList.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                  {careersList.length}
+                </span>
+              )}
+            </button>
+            <button 
               onClick={() => setIsBulkUpdatingFare(true)}
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
@@ -916,6 +957,158 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       </button>
                     </div>
                   ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Careers CV Modal */}
+      <AnimatePresence>
+        {isViewingCareers && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingCareers(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] p-10 md:p-14"
+            >
+              <button 
+                onClick={() => setIsViewingCareers(false)} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
+                    <Briefcase className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job Applications & CVs</h2>
+                    <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest">ملازمت کے لیے درخواستیں اور سی وی فائلیں</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  These candidate files were submitted directly using the <span className="font-bold text-emerald-600">Careers</span> footer link. You can view applicant details, work experience, and download their CV files directly to your device.
+                </p>
+              </div>
+
+              {/* Candidates List Container */}
+              <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                {loadingCareersList ? (
+                  <div className="text-center py-20 text-slate-400 font-semibold flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-slate-200 border-t-emerald-600 rounded-full animate-spin" />
+                    <span>Loading candidates...</span>
+                  </div>
+                ) : careersList.length === 0 ? (
+                  <div className="text-center py-20 bg-slate-50 rounded-[2rem] border border-slate-105 p-8">
+                    <Briefcase className="w-10 h-10 text-slate-350 mx-auto mb-4" />
+                    <p className="text-slate-500 font-black text-lg">No Applications Yet</p>
+                    <p className="text-slate-400 text-xs mt-1">Pending job applications/CVs will appear here.</p>
+                  </div>
+                ) : (
+                  careersList.map((app) => {
+                    // Function to handle raw base64 download of the CV
+                    const triggerCvDownload = () => {
+                      if (!app.cvData) {
+                        try {
+                          // Check if we saved the CV string locally in database
+                          alert("CV file binary data not loaded because document size exceeded limits. Please review email inbox at mujahidali.webdev@gmail.com! / سی وی فائل ڈیٹا دستیاب نہیں ہے۔");
+                        } catch (e) {}
+                        return;
+                      }
+                      
+                      try {
+                        const base64Data = app.cvData.includes('base64,') 
+                          ? app.cvData.split('base64,')[1] 
+                          : app.cvData;
+                          
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                          byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: app.cvType || 'application/octet-stream' });
+                        
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = app.cvName || 'CV_Application';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      } catch (err) {
+                        console.error("Failed to download file base64: ", err);
+                        alert("Could not process and download download file. / فائل ڈاؤن لوڈ کرنے میں ناکامی۔");
+                      }
+                    };
+
+                    return (
+                      <div key={app.id} className="p-6 md:p-8 bg-slate-50 hover:bg-slate-50/80 border border-slate-105 rounded-[2rem] transition-all space-y-6">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                          <div className="space-y-1">
+                            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg inline-block">
+                              {app.position || 'General Position'}
+                            </span>
+                            <h4 className="text-xl font-extrabold text-slate-800">{app.name}</h4>
+                            <p className="text-xs text-slate-400 font-semibold">
+                              Submitted: {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleString() : 'Just now'}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <a 
+                              href={`tel:${app.mobile}`}
+                              className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-black text-[11px] uppercase tracking-wider rounded-xl transition-all"
+                            >
+                              📞 Call
+                            </a>
+                            {app.email && (
+                              <a 
+                                href={`mailto:${app.email}`}
+                                className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-black text-[11px] uppercase tracking-wider rounded-xl transition-all"
+                              >
+                                ✉ Email
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Experience info */}
+                        <div className="bg-white border border-slate-100/50 p-5 rounded-2xl">
+                          <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 font-bold text-slate-400 font-black">Work Experience Description / تجربہ</h5>
+                          <p className="text-sm text-slate-700 font-semibold whitespace-pre-wrap leading-relaxed">{app.experience}</p>
+                        </div>
+
+                        {/* Attached CV actions */}
+                        <div className="flex items-center justify-between p-4 bg-emerald-50/40 border border-emerald-100/30 rounded-2xl">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                              <FileText className="w-5 h-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-800 tracking-tight truncate max-w-[200px] sm:max-w-xs">{app.cvName}</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={triggerCvDownload}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-md shadow-emerald-600/10"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Download CV File
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </motion.div>
