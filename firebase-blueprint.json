@@ -50,6 +50,22 @@
         "userId": { "type": "string" }
       },
       "required": ["companyName", "origin", "destination", "departureTime"]
+    },
+    "Career": {
+      "title": "Career",
+      "description": "Job application with CV submission",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "email": { "type": "string" },
+        "position": { "type": "string" },
+        "experience": { "type": "string" },
+        "cvName": { "type": "string" },
+        "cvType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "mobile", "position", "experience", "cvName", "cvType"]
     }
   },
   "firestore": {
@@ -128,6 +144,10 @@
     "admins/{adminId}": {
       "schema": { "type": "object", "properties": { "role": { "type": "string" } } },
       "description": "List of admin users"
+    },
+    "careers/{careerId}": {
+      "schema": "Career",
+      "description": "Passenger job applications with CV attachment details"
     }
   }
 }
