@@ -27,7 +27,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import Disclaimer from './components/Disclaimer';
 import Blog from './components/Blog';
-import BlogPost from './components/BlogPost';
+import BlogPostDetail from './components/BlogPostDetail';
 import Schedules from './components/Schedules';
 import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
@@ -185,7 +185,7 @@ function AppContent() {
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/blog/:slug" element={<BlogPostDetail />} />
           <Route path="/careers" element={<Careers />} />
           
           {/* SEO Routes */}
