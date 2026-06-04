@@ -1,8 +1,11 @@
 import { motion } from 'motion/react';
 import { BookOpen, Calendar, Clock, User, ArrowRight, Tag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MOCK_BLOGS } from '../data/mockBlogs';
 
 export default function Blog() {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white min-h-screen pt-20">
       {/* Hero Section */}
@@ -36,7 +39,8 @@ export default function Blog() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.1 }}
-                className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300"
+                className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/blog/${post.slug}`)}
               >
                 {/* Image */}
                 <div className="h-48 bg-slate-100 relative overflow-hidden">
@@ -81,7 +85,7 @@ export default function Blog() {
                       </div>
                       <span className="text-xs font-bold text-slate-600">{post.author}</span>
                     </div>
-                    <button className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                    <button className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
                       Read More <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
