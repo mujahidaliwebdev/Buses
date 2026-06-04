@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
 import { BusFront, Target, Users, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AboutUs() {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -60,6 +63,32 @@ export default function AboutUs() {
                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                />
                <div className="absolute inset-0 bg-emerald-900/20" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leadership Team Teaser Section */}
+      <section className="py-24 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto space-y-6">
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              Meet Our <span className="text-emerald-600">Leadership</span>
+            </h2>
+            <p className="text-slate-400 font-extrabold uppercase tracking-widest text-[11px]">
+              ہمارے انتظامیہ اور بانی ارکان
+            </p>
+            <p className="text-slate-650 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
+              AsaanBusSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Muhammad Arsalan</strong>.
+            </p>
+            <div className="pt-4">
+              <button
+                onClick={() => navigate('/team')}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-slate-950 hover:bg-emerald-600 text-white font-black rounded-2xl text-xs uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-slate-950/10 active:scale-95"
+              >
+                <Users className="w-5 h-5" />
+                <span>View Full Team & Bios / پورا عملہ دیکھیں</span>
+              </button>
             </div>
           </div>
         </div>
