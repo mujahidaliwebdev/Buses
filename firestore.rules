@@ -67,6 +67,18 @@ service cloud.firestore {
               data.message is string && data.message.size() <= 2000;
     }
 
+    function isValidCareer(data) {
+       return data.keys().hasAll(['name', 'mobile', 'position', 'experience', 'cvName', 'cvType']) &&
+              data.name is string && data.name.size() <= 128 &&
+              data.mobile is string && data.mobile.size() <= 32 &&
+              data.position is string && data.position.size() <= 128 &&
+              data.experience is string && data.experience.size() <= 4000 &&
+              data.cvName is string && data.cvName.size() <= 256 &&
+              data.cvType is string && data.cvType.size() <= 128 &&
+              (!('email' in data) || (data.email is string && data.email.size() <= 256)) &&
+              (!('createdAt' in data) || (data.createdAt is timestamp || data.createdAt is string));
+    }
+
     function isValidRating(data) {
        return data.keys().hasAll(['busId', 'stars']) &&
               data.busId is string && data.busId.size() <= 128 &&
@@ -119,6 +131,11 @@ service cloud.firestore {
     }
     match /reports/{docId} {
       allow create: if isValidReport(incoming());
+      allow read, delete: if isAdmin();
+    }
+
+    match /careers/{docId} {
+      allow create: if isValidCareer(incoming());
       allow read, delete: if isAdmin();
     }
 
