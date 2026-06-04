@@ -27,9 +27,11 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import Disclaimer from './components/Disclaimer';
 import Blog from './components/Blog';
+import BlogPost from './components/BlogPost';
 import Schedules from './components/Schedules';
 import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
+import Careers from './components/Careers';
 import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
 import { Bus, SearchFilters, Company } from './types';
@@ -129,7 +131,14 @@ function AppContent() {
       <Navbar 
         onLoginClick={() => setShowAuthModal(true)} 
         onAdminClick={() => navigate('/admin')}
-        onHomeClick={() => navigate('/')}
+        onHomeClick={() => {
+          if (location.pathname === '/') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setSearchResults(null);
+          } else {
+            navigate('/');
+          }
+        }}
         onPolicyClick={() => navigate('/policy')}
         onSearchClick={() => handleNavClick('hero')}
         onRoutesClick={() => handleNavClick('routes')}
@@ -155,31 +164,14 @@ function AppContent() {
               />
             ) : (
               <>
-                <Hero onSearch={handleSearch} />
-                <div className="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
-                   <button 
-                     onClick={handleContributionClick}
-                     className="w-full md:w-auto bg-emerald-950 text-emerald-400 py-4 px-8 rounded-2xl font-bold flex items-center justify-center gap-3 border border-emerald-800 shadow-xl hover:bg-emerald-900 transition-all active:scale-95 mx-auto"
-                   >
-                     <Plus className="w-5 h-5" /> Missing a route? Add it here
-                   </button>
-                </div>
+                <Hero 
+                  onSearch={handleSearch} 
+                  onAddRoute={handleContributionClick} 
+                />
                 <PopularRoutes onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} onViewAllClick={() => navigate('/schedules')} />
                 <BlogSection />
                 <Features />
                 <HowItWorks />
-                
-                {/* SEO Content */}
-                <section className="py-20 bg-white">
-                   <div className="max-w-4xl mx-auto px-4 text-center">
-                      <h2 className="text-2xl font-bold text-slate-800 mb-6 tracking-tight">The Future of Bus Travel in Pakistan</h2>
-                      <p className="text-slate-500 leading-relaxed text-sm">
-                        We are on a mission to digitize every terminal and bus operator in Pakistan. 
-                        From the bustling streets of Karachi to the scenic routes of Northern Pakistan, 
-                        our platform ensures you have the most accurate data at your fingertips.
-                      </p>
-                   </div>
-                </section>
               </>
             )
           } />
@@ -193,6 +185,8 @@ function AppContent() {
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/careers" element={<Careers />} />
           
           {/* SEO Routes */}
           <Route path="/:slug" element={<RouteSpecificPage />} />
@@ -200,7 +194,14 @@ function AppContent() {
       </main>
 
       <Footer 
-        onHomeClick={() => navigate('/')} 
+        onHomeClick={() => {
+          if (location.pathname === '/') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setSearchResults(null);
+          } else {
+            navigate('/');
+          }
+        }} 
         onAboutClick={() => navigate('/about')}
         onPolicyClick={() => navigate('/policy')} 
         onContactClick={() => navigate('/contact')}
@@ -211,6 +212,7 @@ function AppContent() {
         onSchedulesClick={() => navigate('/schedules')}
         onFeaturesClick={() => handleNavClick('features')}
         onRoutesClick={() => handleNavClick('routes')}
+        onCareersClick={() => navigate('/careers')}
       />
 
       <AnimatePresence>
