@@ -14,6 +14,7 @@ interface FooterProps {
   onFeaturesClick: () => void;
   onRoutesClick: () => void;
   onCareersClick: () => void;
+  onTeamClick: () => void;
 }
 
 export default function Footer({
@@ -28,7 +29,8 @@ export default function Footer({
   onSchedulesClick,
   onFeaturesClick,
   onRoutesClick,
-  onCareersClick
+  onCareersClick,
+  onTeamClick
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -41,6 +43,7 @@ export default function Footer({
         { label: 'Features', onClick: onFeaturesClick },
         { label: 'About Us', onClick: onAboutClick },
         { label: 'Careers', onClick: onCareersClick },
+        { label: 'Our Team', onClick: onTeamClick },
       ]
     },
     {
