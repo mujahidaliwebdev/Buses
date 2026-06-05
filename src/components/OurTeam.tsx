@@ -21,7 +21,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     urduName: 'مجاہد علی',
     role: 'CEO & Founder',
     urduRole: 'چیف ایگزیکٹو آفیسر اور بانی',
-    image: 'https://drive.google.com/uc?id=1zfizXkN-L_9Y4xzuLaJ_jyXL7MNXNmL5&export=view',
+    image: 'https://lh3.googleusercontent.com/d/1zfizXkN-L_9Y4xzuLaJ_jyXL7MNXNmL5',
     email: 'mujahidali.webdev@gmail.com',
     phone: '+92 300 0000000',
     specialization: 'Product Strategy & Technology Architecture',
