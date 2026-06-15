@@ -22,11 +22,15 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'CEO & Founder',
     urduRole: 'چیف ایگزیکٹو آفیسر اور بانی',
     image: 'https://lh3.googleusercontent.com/d/1zfizXkN-L_9Y4xzuLaJ_jyXL7MNXNmL5',
-    email: 'mujahidali.webdev@gmail.com',
-    phone: '+92 300 0000000',
+    email: 'ceo@asaanbussafar.com',
+    phone: '+92 300 8155443',
     specialization: 'Product Strategy & Technology Architecture',
-    bio: 'Mujahid Ali founded AsaanBusSafar with a revolutionary vision: to transform and digitize the highly unorganized Non-AC transport networks of Pakistan. Under his leadership, the platform has scaled to map thousands of rural and urban routes, ensuring direct transparency of fares, timings, and stand details for common passengers nationwide.',
-    urduBio: 'مجاہد علی نے پاکستان کے غیر منظم ٹرانسپورٹ نیٹ ورکس کو ڈیجیٹلائزیشن کے زریعے جدید بنانے کے انقلابی وژن کے ساتھ آسان بس سفر کی بنیاد رکھی۔ ان کی قیادت میں، اس پلیٹ فارم نے ملک بھر کے ہزاروں دیہی اور شہری روٹس کی میپنگ کر کے کرایوں، اوقات کار اور اڈوں کی معلومات میں مکمل شفافیت کو یقینی بنایا ہے۔'
+    bio: `Mujahid Ali is the Founder & CEO of AsaanBusSafar, a platform created with the goal of making bus travel across Pakistan easier, faster, and more convenient. With more than 12 years of experience in transportation, logistics, operations management, administration, and customer service, he has gained valuable insight into the challenges faced by both passengers and transport operators.
+
+Driven by a passion for improving the travel experience, Mujahid founded AsaanBusSafar to help travelers find reliable bus services, access accurate route information, and enjoy a smoother journey planning process. His vision is to use technology to simplify intercity travel and build a trusted platform that connects people with the transport services they need. Under his leadership, AsaanBusSafar is working towards becoming Pakistan's most reliable and customer-focused bus travel platform.`,
+    urduBio: `مجاہد علی آسان بس سفر (AsaanBusSafar) کے بانی اور چیف ایگزیکٹو آفیسر (CEO) ہیں۔ انہوں نے اس پلیٹ فارم کی بنیاد پاکستان بھر میں بس کے ذریعے سفر کو زیادہ آسان، تیز اور سہل بنانے کے مقصد سے رکھی۔ ٹرانسپورٹیشن، لاجسٹکس، آپریشنز مینجمنٹ، انتظامی امور اور کسٹمر سروس کے شعبوں میں 12 سال سے زائد تجربے کے باعث انہیں مسافروں اور ٹرانسپورٹ آپریٹرز دونوں کو درپیش مسائل اور ضروریات کی گہری سمجھ حاصل ہے۔
+
+سفر کے تجربے کو بہتر بنانے کے جذبے سے سرشار، مجاہد علی نے آسان بس سفر کا آغاز کیا تاکہ مسافروں کو قابلِ اعتماد بس سروسز تلاش کرنے، درست روٹ معلومات حاصل کرنے اور اپنے سفر کی منصوبہ بندی کو مزید آسان بنانے میں مدد مل سکے۔ ان کا وژن جدید ٹیکنالوجی کے ذریعے بین الاضلاعی سفر کو سادہ اور مؤثر بنانا ہے، اور ایک ایسا قابلِ اعتماد پلیٹ فارم فراہم کرنا ہے جو مسافروں کو بہترین ٹرانسپورٹ سہولیات سے جوڑے۔ ان کی قیادت میں آسان بس سفر پاکستان کا سب سے معتبر اور مسافر دوست بس ٹریول پلیٹ فارم بننے کی جانب گامزن ہے۔`
   },
   {
     name: 'Noman Ejaz',
