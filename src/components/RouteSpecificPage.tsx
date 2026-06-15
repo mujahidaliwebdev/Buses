@@ -8,6 +8,7 @@ import { MOCK_COMPANIES } from '../data/mockCompanies';
 import { busService } from '../lib/firestoreService';
 import BusDetails from './BusDetails';
 import CompanyProfile from './CompanyProfile';
+import ShareModal from './ShareModal';
 
 export default function RouteSpecificPage() {
   const { slug } = useParams();
@@ -17,6 +18,7 @@ export default function RouteSpecificPage() {
   const [destination, setDestination] = useState('');
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -271,6 +273,12 @@ export default function RouteSpecificPage() {
              </div>
           </aside>
         </div>
+        <ShareModal 
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        origin={origin}
+        destination={destination}
+      />
       </div>
 
       <AnimatePresence>
