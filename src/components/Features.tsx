@@ -1,122 +1,177 @@
-import { Zap, ShieldCheck, PhoneCall, Map, Search, Check, MessageCircle, Phone } from 'lucide-react';
-
-const WHY_US = [
-  {
-    title: "Verified Fares",
-    desc: "Latest rates for local Non-AC and economy bus operators."
-  },
-  {
-    title: "Real-time Timings",
-    desc: "Accurate departure and arrival schedules for 50+ cities."
-  },
-  {
-    title: "Direct Contact",
-    desc: "Instant access to terminal help desk phone numbers."
-  },
-  {
-    title: "Non-AC Platform",
-    desc: "Specifically built for affordable and local bus travel."
-  }
-];
+import { motion } from 'motion/react';
+import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink } from 'lucide-react';
 
 export default function Features() {
-  const supportNumber = "03014321122";
-  const displayMobile = "0301-432-1122";
-
   return (
-    <section id="features" className="py-20 bg-white">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-8 flex flex-col gap-8">
-             <div className="bg-emerald-50/50 p-8 rounded-3xl border border-emerald-100 relative overflow-hidden group">
-                <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-emerald-950 mb-4">Digitizing Pakistan's Roadways</h2>
-                  <p className="text-emerald-700/80 leading-relaxed max-w-2xl mb-8">
-                    AsaanBusSafar is on a mission to bring full transparency to Non-AC bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
-                  </p>
-                  <div className="grid grid-cols-2 gap-8">
-                     <div className="flex flex-col gap-1">
-                        <span className="text-4xl font-black text-emerald-700">50+</span>
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Cities Covered</span>
-                     </div>
-                     <div className="flex flex-col gap-1">
-                        <span className="text-4xl font-black text-emerald-700">1200+</span>
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Buses Daily</span>
-                     </div>
-                  </div>
+        {/* Bento Grid layout */}
+        <div className="grid lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Roadways and Hashtags */}
+          <div className="lg:col-span-8 space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-[#f0fdf4] rounded-[2.5rem] p-12 relative overflow-hidden"
+            >
+              <div className="absolute right-0 top-0 p-12 opacity-[0.03] pointer-events-none">
+                <Zap className="w-64 h-64 text-emerald-600" />
+              </div>
+              
+              <div className="max-w-2xl relative z-10">
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6 tracking-tight">Digitizing Pakistan’s Roadways</h2>
+                <p className="text-emerald-700/60 text-lg font-medium mb-12 leading-relaxed">
+                  AsaanBusSafar is on a mission to bring full transparency to Non-AC bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+                </p>
+                
+                <div className="grid sm:grid-cols-2 gap-12">
+                   <div>
+                     <span className="text-6xl font-black text-emerald-600 leading-none">50+</span>
+                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-3">Cities Covered</p>
+                   </div>
+                   <div>
+                     <span className="text-6xl font-black text-emerald-600 leading-none">1200+</span>
+                     <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-3">Buses Daily</p>
+                   </div>
                 </div>
-                <Zap className="absolute top-8 right-8 w-12 h-12 text-emerald-400/20 group-hover:scale-125 transition-transform" />
-             </div>
+              </div>
+            </motion.div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="h-64 bg-slate-100 rounded-2xl overflow-hidden relative group">
-                   <div className="absolute inset-0 bg-emerald-900/5 group-hover:bg-emerald-900/0 transition-colors" />
-                   <div className="absolute top-4 left-4 text-xs font-bold text-slate-400 lowercase tracking-widest">#modern_travel</div>
-                </div>
-                <div className="h-64 bg-emerald-100 rounded-2xl overflow-hidden relative group">
-                   <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-emerald-900/0 transition-colors" />
-                   <div className="absolute top-4 left-4 text-xs font-bold text-emerald-700/60 lowercase tracking-widest">#lahore_to_karachi</div>
-                </div>
-             </div>
+             <div className="grid sm:grid-cols-2 gap-6">
+               <motion.a
+                 href="https://drive.google.com/file/d/1Jy2LNsMeLXhtkdJgBSpzAbEyx5QrtnCj/view?usp=sharing"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.1 }}
+                 whileHover={{ y: -4 }}
+                 className="h-64 bg-slate-900 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between cursor-pointer border border-white/5 hover:border-emerald-500/30 transition-all duration-300"
+               >
+                 <img 
+                   src="https://lh3.googleusercontent.com/d/1Jy2LNsMeLXhtkdJgBSpzAbEyx5QrtnCj"
+                   alt="Lahore to Faisalabad" 
+                   className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
+                   referrerPolicy="no-referrer"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/95 via-neutral-950/40 to-transparent pointer-events-none" />
+                 
+                 <div className="absolute inset-0 p-8 flex flex-col justify-between">
+                   <div className="flex justify-between items-center w-full z-10">
+                     <span className="text-emerald-300 text-[10px] font-black bg-slate-900/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#lahore_to_faisalabad</span>
+                     <div className="w-8 h-8 rounded-full bg-emerald-600/80 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                       <ExternalLink className="w-4 h-4" />
+                     </div>
+                   </div>
+                   <div className="z-10 mt-auto text-left">
+                     <span className="text-white font-bold text-sm tracking-wide block mb-1">Lahore to Faisalabad details and timings card</span>
+                     <span className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5">
+                       View original photo <ExternalLink className="w-3 h-3 inline" />
+                     </span>
+                   </div>
+                 </div>
+               </motion.a>
+
+               <motion.a
+                 href="https://drive.google.com/file/d/1XHFIK_v264thK5fVVh6nePlK5hXfqndc/view?usp=sharing"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.2 }}
+                 whileHover={{ y: -4 }}
+                 className="h-64 bg-emerald-950 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between cursor-pointer border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300"
+               >
+                 <img 
+                   src="https://lh3.googleusercontent.com/d/1XHFIK_v264thK5fVVh6nePlK5hXfqndc"
+                   alt="Lahore to Karachi" 
+                   className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
+                   referrerPolicy="no-referrer"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/95 via-neutral-950/40 to-transparent pointer-events-none" />
+                 
+                 <div className="absolute inset-0 p-8 flex flex-col justify-between">
+                   <div className="flex justify-between items-center w-full z-10">
+                     <span className="text-emerald-300 text-[10px] font-black bg-emerald-950/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#lahore_to_karachi</span>
+                     <div className="w-8 h-8 rounded-full bg-emerald-600/80 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
+                       <ExternalLink className="w-4 h-4" />
+                     </div>
+                   </div>
+                   <div className="z-10 mt-auto">
+                     <span className="text-white font-bold text-sm tracking-wide block mb-1">Lahore to Karachi details and timings card</span>
+                     <span className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5">
+                       View original photo <ExternalLink className="w-3 h-3 inline" />
+                     </span>
+                   </div>
+                 </div>
+               </motion.a>
+            </div>
           </div>
 
-          <aside className="lg:col-span-4 flex flex-col gap-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-[0.2em] mb-6 border-b border-slate-100 pb-3">Why AsaanBusSafar?</h3>
-                <ul className="space-y-6">
-                   {WHY_US.map((item, idx) => (
-                     <li key={idx} className="flex gap-4">
-                        <div className="w-6 h-6 bg-emerald-100 text-emerald-600 rounded flex items-center justify-center shrink-0 mt-0.5">
-                           <Check className="w-4 h-4 stroke-[3px]" />
-                        </div>
-                        <div>
-                           <span className="block font-bold text-sm text-slate-800">{item.title}</span>
-                           <span className="text-xs text-slate-400 mt-1 block leading-relaxed">{item.desc}</span>
-                        </div>
-                     </li>
-                   ))}
-                </ul>
-            </div>
-            
-            <div className="bg-emerald-950 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
-               {/* Background Glow */}
-               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/10 blur-3xl rounded-full -mr-16 -mt-16" />
-               
-               <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-emerald-900/50 rounded-xl flex items-center justify-center border border-emerald-800/50">
-                      <PhoneCall className="w-5 h-5 text-emerald-400" />
+          {/* Right Column: Why and Support */}
+          <div className="lg:col-span-4 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-white p-10 border border-slate-100 rounded-[2.5rem] shadow-sm"
+            >
+              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">WHY ASAANBUSSAFAR?</h2>
+              <div className="space-y-8">
+                {[
+                  { title: 'Verified Fares', desc: 'Latest rates for local Non-AC and economy bus operators.' },
+                  { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 50+ cities.' },
+                  { title: 'Direct Contact', desc: 'Instant access to terminal help desk phone numbers.' },
+                  { title: 'Non-AC Platform', desc: 'Specifically built for affordable and local bus travel.' }
+                ].map((item) => (
+                  <div key={item.title} className="flex gap-4">
+                    <div className="mt-1 bg-emerald-50 w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
+                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-black text-emerald-500 tracking-widest leading-none block mb-1">Customer Support</span>
-                      <span className="text-lg font-black text-white">{displayMobile}</span>
+                      <h4 className="font-black text-slate-900 text-sm">{item.title}</h4>
+                      <p className="text-slate-400 text-xs mt-1 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
+                ))}
+              </div>
+            </motion.div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <a 
-                      href={`tel:${supportNumber}`}
-                      className="flex items-center justify-center gap-2 py-3 bg-white hover:bg-emerald-50 text-emerald-950 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-lg shadow-black/20"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      CALL NOW
-                    </a>
-                    <a 
-                      href={`https://wa.me/92${supportNumber.substring(1)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold text-xs transition-all active:scale-95 shadow-lg shadow-[#25D366]/20"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      WHATSAPP
-                    </a>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-[#022c22] rounded-[2.5rem] p-8 text-white relative overflow-hidden"
+            >
+               <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/30 to-transparent pointer-events-none" />
+               <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-10">
+                     <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shrink-0">
+                        <Phone className="w-6 h-6 text-emerald-400" />
+                     </div>
+                     <div>
+                        <p className="text-[10px] font-black text-emerald-400/50 uppercase tracking-[0.2em] mb-1">CUSTOMER SUPPORT</p>
+                        <p className="text-xl font-black tracking-tight">0301-432-1122</p>
+                     </div>
+                  </div>
+
+                  <div className="grid gap-3">
+                     <button className="w-full py-4 bg-white text-[#022c22] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-50 transition-all shadow-xl shadow-white/5">
+                        <Phone className="w-4 h-4" /> CALL NOW
+                     </button>
+                     <button className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10">
+                        <MessageSquare className="w-4 h-4" /> WHATSAPP
+                     </button>
                   </div>
                </div>
-            </div>
-          </aside>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
