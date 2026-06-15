@@ -8,6 +8,10 @@ import { MOCK_COMPANIES } from '../data/mockCompanies';
 import { busService } from '../lib/firestoreService';
 import BusDetails from './BusDetails';
 import CompanyProfile from './CompanyProfile';
+import { useState } from 'react';
+import { Share2 } from 'lucide-react'; // آئیکن لوڈ کرنے کے لیے
+import ShareModal from './ShareModal'; // شیئر ماڈل امپورٹ کیا
+
 
 export default function RouteSpecificPage() {
   const { slug } = useParams();
@@ -17,6 +21,8 @@ export default function RouteSpecificPage() {
   const [destination, setDestination] = useState('');
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  // پیج کے اندر سٹیٹ ایڈ کی گئی:
+const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -149,12 +155,19 @@ export default function RouteSpecificPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Available Bus Services</h2>
-              <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors uppercase tracking-widest">
-                <Share2 className="w-4 h-4" /> Share
-              </button>
-            </div>
+            <div className="flex items-center justify-between px-4 mb-2">
+   <h2 className="text-slate-900 font-black tracking-tight flex items-center gap-2 text-xl md:text-2xl">
+     <span className="w-1.5 h-6 bg-emerald-600 rounded-full" /> Available Bus Services
+   </h2>
+   
+   {/* یہ پورا بٹن یہاں شامل کیا گیا */}
+   <button
+     onClick={() => setIsShareOpen(true)}
+     className="flex items-center gap-2 text-xs font-black text-slate-500 hover:text-emerald-600 transition-all uppercase tracking-widest border border-slate-200 bg-white rounded-xl px-4 py-2 shadow-sm cursor-pointer active:scale-95 duration-100"
+   >
+     <Share2 className="w-3.5 h-3.5 text-slate-500" /> Share
+   </button>
+</div>
 
             {routeBuses.length === 0 ? (
               <div className="bg-white p-12 rounded-[2rem] border border-slate-100 text-center">
@@ -291,6 +304,15 @@ export default function RouteSpecificPage() {
           />
         )}
       </AnimatePresence>
+      {/* پیج کے آخر میں یہ کوڈ جوائن کیا گیا */}
+      <ShareModal 
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        origin={origin}
+        destination={destination}
+      />
+   </div>
+);
     </div>
   );
 }
