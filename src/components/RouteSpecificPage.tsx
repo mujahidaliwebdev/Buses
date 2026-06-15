@@ -313,6 +313,4 @@ const [isShareOpen, setIsShareOpen] = useState(false);
       />
    </div>
 );
-    </div>
-  );
 }
