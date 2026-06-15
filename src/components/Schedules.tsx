@@ -6,6 +6,10 @@ import { ArrowRight, Clock, MapPin, Search } from 'lucide-react';
 const ALL_SCHEDULE_ROUTES = [
   { from: "Lahore", to: "Faisalabad" },
   { from: "Faisalabad", to: "Lahore" },
+  { from: "Lahore", to: "Karachi" },
+  { from: "Karachi", to: "Lahore" },
+  { from: "Faisalabad", to: "Karachi" },
+  { from: "Karachi", to: "Faisalabad" },
   { from: "Lahore", to: "Multan" },
   { from: "Multan", to: "Lahore" },
   { from: "Lahore", to: "Islamabad" },
