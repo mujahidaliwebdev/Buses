@@ -1,14 +1,15 @@
 import React from 'react';
-import { MapPin, Calendar, Search } from 'lucide-react';
+import { MapPin, Calendar, Search, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { SearchFilters } from '../types';
 
 interface HeroProps {
   onSearch: (filters: SearchFilters) => void;
+  onAddRoute?: () => void;
 }
 
-export default function Hero({ onSearch }: HeroProps) {
+export default function Hero({ onSearch, onAddRoute }: HeroProps) {
   const handleSearchClick = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -112,6 +113,24 @@ export default function Hero({ onSearch }: HeroProps) {
             <span>SEARCH</span>
           </button>
         </motion.form>
+
+        {onAddRoute && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-12 flex flex-col sm:flex-row items-center gap-3 bg-emerald-950/40 backdrop-blur-sm px-6 py-2.5 rounded-full border border-emerald-800/40"
+          >
+            <span className="text-emerald-200/70 text-xs font-medium">Can't find your route? Help other travelers by contributing!</span>
+            <button
+              onClick={onAddRoute}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full text-[11px] font-bold tracking-wider uppercase transition-all shadow-md shadow-emerald-900/40 cursor-pointer active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Missing Route</span>
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {/* Company Marquee - Moved outside max-w-5xl and adjusted */}
