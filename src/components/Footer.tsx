@@ -59,7 +59,7 @@ export default function Footer({
     }
   ];
 
-  const serviceArea = ['LAHORE', 'KARACHI', 'MULTAN', 'FAISALABAD', 'PESHAWAR', 'QUETTA'];
+  const serviceArea = ['LAHORE', 'FAISALABAD', 'KARACHI', 'RAWALPINDI', 'MULTAN', 'LAYYAH', 'PESHAWAR', 'QUETTA'];
 
   return (
     <footer className="bg-white border-t border-slate-100 text-slate-500 py-20">
