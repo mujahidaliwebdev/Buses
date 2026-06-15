@@ -167,7 +167,7 @@ function AppContent() {
               <>
                 <Hero 
                   onSearch={handleSearch} 
-                  onAddRoute={handleContributionClick} 
+                  onAddRoute={handleContributionClick}
                 />
                 <PopularRoutes onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} onViewAllClick={() => navigate('/schedules')} />
                 <BlogSection />
