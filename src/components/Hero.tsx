@@ -119,7 +119,7 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-12 flex flex-col sm:flex-row items-center gap-3 bg-emerald-950/40 backdrop-blur-sm px-6 py-2.5 rounded-full border border-emerald-800/40"
+            className="mt-20 flex flex-col sm:flex-row items-center gap-3 bg-emerald-950/40 backdrop-blur-sm px-6 py-2.5 rounded-full border border-emerald-800/40"
           >
             <span className="text-emerald-200/70 text-xs font-medium">Can't find your route? Help other travelers by contributing!</span>
             <button
