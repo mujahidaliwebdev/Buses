@@ -74,7 +74,7 @@ export default function Footer({
                 <Bus className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-black tracking-tight text-slate-900 leading-none">
-                AsaanBus<span className="text-emerald-600">Safar</span>
+                Asaan<span className="text-emerald-600">Safar</span>
               </span>
             </div>
             
@@ -134,7 +134,7 @@ export default function Footer({
 
         <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-            © {currentYear} ASAANBUSSAFAR PK • BUILT FOR PAKISTAN 🇵🇰
+            © {currentYear} AsaanSAFAR PK • BUILT FOR PAKISTAN 🇵🇰
           </p>
           <div className="flex gap-8">
             <button className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 hover:text-emerald-600 transition-colors">
