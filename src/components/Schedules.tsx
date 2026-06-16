@@ -112,7 +112,8 @@ export default function Schedules({ onRouteClick }: SchedulesProps) {
         {/* Help Tip */}
         <div className="mt-20 p-8 bg-white border border-slate-100 rounded-3xl text-center shadow-lg shadow-slate-200/50">
           <p className="text-slate-500 font-medium">
-            Don't see your route? Try searching directly from the <button onClick={() => window.location.href = window.location.origin} className="text-emerald-600 font-bold hover:underline">homepage</button>.
+            Don't see your route? Try searching directly from the <Link to="/" className="text-emerald-600 font-bold hover:underline">homepage</Link>.
+
           </p>
         </div>
       </div>
