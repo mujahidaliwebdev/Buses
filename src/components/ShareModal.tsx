@@ -26,8 +26,8 @@ export default function ShareModal({ isOpen, onClose, origin, destination, custo
     }
   }, [isOpen, customUrl, origin, destination]);
 
-  const shareTextEnglish = `🚌 *AsaanBusSafar - Bus Timings & Fares*\nRoute: *${origin} to ${destination}*\n\nCheck out verified bus schedules, ticket prices, and terminal contact numbers here:\n🔗 ${shareUrl}`;
-  const shareTextUrdu = `🚌 *آسان بس سفر - بس اوقات اور کرایہ*\nروٹ: *${origin} سے ${destination}*\n\nتصدیق شدہ بس ٹائمنگز، ٹکٹ کی قیمتیں اور اڈے کے رابطہ نمبرز یہاں دیکھیں:\n🔗 ${shareUrl}`;
+  const shareTextEnglish = `🚌 *AsaanSafar - Bus Timings & Fares*\nRoute: *${origin} to ${destination}*\n\nCheck out verified bus schedules, ticket prices, and terminal contact numbers here:\n🔗 ${shareUrl}`;
+  const shareTextUrdu = `🚌 *آسان سفر - بس اوقات اور کرایہ*\nروٹ: *${origin} سے ${destination}*\n\nتصدیق شدہ بس ٹائمنگز، ٹکٹ کی قیمتیں اور اڈے کے رابطہ نمبرز یہاں دیکھیں:\n🔗 ${shareUrl}`;
 
   const shareTextCombined = `${shareTextEnglish}\n\n---\n\n${shareTextUrdu}`;
 
@@ -64,7 +64,7 @@ export default function ShareModal({ isOpen, onClose, origin, destination, custo
   };
 
   const handleTwitterX = () => {
-    const text = `Verified bus timings & fares for ${origin} to ${destination} on AsaanBusSafar! @AsaanBusSafar`;
+    const text = `Verified bus timings & fares for ${origin} to ${destination} on AsaanSafar! @AsaanSafar`;
     window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -72,8 +72,8 @@ export default function ShareModal({ isOpen, onClose, origin, destination, custo
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `AsaanBusSafar: ${origin} to ${destination}`,
-          text: `Check out verified bus timings & fares for ${origin} to ${destination} on AsaanBusSafar!`,
+          title: `AsaanSafar: ${origin} to ${destination}`,
+          text: `Check out verified bus timings & fares for ${origin} to ${destination} on AsaanSafar!`,
           url: shareUrl,
         });
       } catch (err) {
