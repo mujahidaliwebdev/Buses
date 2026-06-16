@@ -205,7 +205,7 @@ export default function Careers() {
             ہمارے ساتھ کام کریں اور پاکستان کی ٹرانسپورٹ کو بہتر بنائیں
           </p>
           <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            AsaanBusSafar is Pakistan's leading data-driven bus schedule network. We are always looking for passionate Heavy Bus Drivers, professional Managers, Terminal Agents, and Engineers to help build our platform nationwide. Apply below to submit your CV.
+            AsaanSafar is Pakistan's leading data-driven bus schedule network. We are always looking for passionate Heavy Bus Drivers, professional Managers, Terminal Agents, and Engineers to help build our platform nationwide. Apply below to submit your CV.
           </p>
         </div>
       </section>
