@@ -19,7 +19,7 @@ export default function ServicePolicy() {
               Our <span className="text-emerald-600">Service Policy</span>
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              How we ensure the reliability and accuracy of bus information on AsaanBusSafar.
+              How we ensure the reliability and accuracy of bus information on AsaanSafar.
             </p>
           </motion.div>
         </div>
@@ -30,7 +30,7 @@ export default function ServicePolicy() {
         <div className="max-w-4xl mx-auto px-6 lg:px-8">
           <div className="prose prose-slate lg:prose-lg">
             <p className="text-xl font-medium text-slate-800 mb-8 leading-relaxed">
-              AsaanBusSafar focuses only on verified non-AC bus services operating on fixed schedules across Pakistan.
+              AsaanSafar focuses only on verified non-AC bus services operating on fixed schedules across Pakistan.
             </p>
 
             <div className="bg-emerald-50 rounded-3xl p-8 border border-emerald-100 mb-12">
@@ -86,7 +86,7 @@ export default function ServicePolicy() {
                </div>
                <h3 className="text-2xl font-bold text-slate-900 mb-4">Verification Process</h3>
                <p className="text-slate-600 max-w-lg mx-auto">
-                 Every route and timing listed on AsaanBusSafar undergoes a verification check through our field data contributors and terminal operators to ensure you don't miss your ride.
+                 Every route and timing listed on AsaanSafar undergoes a verification check through our field data contributors and terminal operators to ensure you don't miss your ride.
                </p>
             </div>
           </div>
