@@ -114,17 +114,26 @@ function AppContent() {
 
   const isAdmin = user?.email === 'mujahidali.webdev@gmail.com';
 
-  const handleNavClick = (sectionId: string) => {
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) element.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
+// File: /src/App.tsx
+const handleNavClick = (sectionId: string) => {
+  if (location.pathname !== '/') {
+    navigate('/');
+    setTimeout(() => {
       const element = document.getElementById(sectionId);
       if (element) element.scrollIntoView({ behavior: 'smooth' });
-    }
+    }, 100);
+  } else if (searchResults) {
+    // Agar search results active hon to pehle reset karen
+    setSearchResults(null);
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  } else {
+    // Normal case (direct scroll)
+    const element = document.getElementById(sectionId);
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
+  }
   };
 
   return (
