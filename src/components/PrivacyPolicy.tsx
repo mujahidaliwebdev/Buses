@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
               Privacy <span className="text-indigo-600">Policy</span>
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              At AsaanBusSafar, we respect your privacy and are committed to protecting any information we collect.
+              At AsaanSafar, we respect your privacy and are committed to protecting any information we collect.
             </p>
           </motion.div>
         </div>
@@ -90,8 +90,8 @@ export default function PrivacyPolicy() {
                 <Mail className="w-8 h-8 text-indigo-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Privacy Concerns?</h4>
                 <p className="text-slate-400 mb-6 font-medium">For any questions regarding your data, contact us at:</p>
-                <a href="mailto:support@asaanbussafar.com" className="text-xl font-bold hover:text-indigo-400 transition-colors">
-                  support@asaanbussafar.com
+                <a href="mailto:support@Asaansafar.com" className="text-xl font-bold hover:text-indigo-400 transition-colors">
+                  support@Asaansafar.com
                 </a>
               </div>
             </div>
