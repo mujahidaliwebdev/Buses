@@ -28,7 +28,7 @@ export default function TermsConditions() {
               Terms & <span className="text-amber-600">Conditions</span>
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              By using AsaanBusSafar, you agree to the following terms and guidelines for using our platform.
+              By using AsaanSafar, you agree to the following terms and guidelines for using our platform.
             </p>
           </motion.div>
         </div>
@@ -48,7 +48,7 @@ export default function TermsConditions() {
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 mb-2">Our Agreement</h2>
                   <p className="text-slate-500 leading-relaxed">
-                    These terms govern your use of the AsaanBusSafar website and services. We aim to provide transparency in public transit information across Pakistan.
+                    These terms govern your use of the AsaanSafar website and services. We aim to provide transparency in public transit information across Pakistan.
                   </p>
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function TermsConditions() {
                 <h2 className="text-xl font-bold text-rose-950">Important Notice</h2>
               </div>
               <p className="text-rose-900/70 leading-relaxed">
-                AsaanBusSafar is an information aggregator. While we strive for 100% accuracy, we are not a transport operator. Always arrive at the terminal at least 30 minutes before the scheduled departure and verify details at the counter.
+                AsaanSafar is an information aggregator. While we strive for 100% accuracy, we are not a transport operator. Always arrive at the terminal at least 30 minutes before the scheduled departure and verify details at the counter.
               </p>
             </div>
 
