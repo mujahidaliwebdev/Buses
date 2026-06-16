@@ -160,12 +160,21 @@ export default function Features() {
                   </div>
 
                   <div className="grid gap-3">
-                     <button className="w-full py-4 bg-white text-[#022c22] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-50 transition-all shadow-xl shadow-white/5">
-                        <Phone className="w-4 h-4" /> CALL NOW
-                     </button>
-                     <button className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10">
-                        <MessageSquare className="w-4 h-4" /> WHATSAPP
-                     </button>
+                        <a 
+                           href="tel:+923014321122"
+                           className="w-full py-4 bg-white text-[#022c22] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-50 transition-all shadow-xl shadow-white/5 text-center"
+                        >
+                           <Phone className="w-4 h-4" /> CALL NOW
+                        </a>
+                        
+                        <a 
+                           href="https://wa.me/923014321122"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 text-center"
+                        >
+                           <MessageSquare className="w-4 h-4" /> WHATSAPP
+                        </a>
                   </div>
                </div>
             </motion.div>
