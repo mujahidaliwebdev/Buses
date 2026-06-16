@@ -27,7 +27,7 @@ export default function Features() {
                 
                 <div className="grid sm:grid-cols-2 gap-12">
                    <div>
-                     <span className="text-6xl font-black text-emerald-600 leading-none">50+</span>
+                     <span className="text-6xl font-black text-emerald-600 leading-none">250+</span>
                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-3">Cities Covered</p>
                    </div>
                    <div>
@@ -123,8 +123,8 @@ export default function Features() {
               <div className="space-y-8">
                 {[
                   { title: 'Verified Fares', desc: 'Latest rates for local Non-AC and economy bus operators.' },
-                  { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 50+ cities.' },
-                  { title: 'Direct Contact', desc: 'Instant access to terminal help desk phone numbers.' },
+                  { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 250+ cities.' },
+                  { title: 'Direct Contact', desc: 'Instant access to Bus phone numbers.' },
                   { title: 'Non-AC Platform', desc: 'Specifically built for affordable and local bus travel.' }
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4">
