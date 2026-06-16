@@ -20,7 +20,7 @@ export const MOCK_BLOGS: BlogPost[] = [
     image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
     slug: "best-non-ac-buses-pakistan",
     excerpt: "Discover the most reliable and affordable non-AC bus services connecting major cities in Pakistan. We review seating comfort, punctuality, and pricing.",
-    author: "AsaanBus Team",
+    author: "Asaan Team",
     readTime: "6 min read",
     category: "Travel Guide"
   },
