@@ -22,7 +22,7 @@ export default function Features() {
               <div className="max-w-2xl relative z-10">
                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6 tracking-tight">Digitizing Pakistan’s Roadways</h2>
                 <p className="text-emerald-700/60 text-lg font-medium mb-12 leading-relaxed">
-                  AsaanBusSafar is on a mission to bring full transparency to Non-AC bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+                  AsaanSafar is on a mission to bring full transparency to Non-AC bus travel. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
                 </p>
                 
                 <div className="grid sm:grid-cols-2 gap-12">
@@ -119,7 +119,7 @@ export default function Features() {
               viewport={{ once: true }}
               className="bg-white p-10 border border-slate-100 rounded-[2.5rem] shadow-sm"
             >
-              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">WHY ASAANBUSSAFAR?</h2>
+              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">WHY AsaanSAFAR?</h2>
               <div className="space-y-8">
                 {[
                   { title: 'Verified Fares', desc: 'Latest rates for local Non-AC and economy bus operators.' },
