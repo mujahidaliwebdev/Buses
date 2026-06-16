@@ -49,7 +49,7 @@ export default function Navbar({
               <BusFront className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-emerald-950">
-              AsaanBus<span className="text-emerald-600">Safar</span>
+              Asaan<span className="text-emerald-600">Safar</span>
             </span>
           </motion.button>
           
