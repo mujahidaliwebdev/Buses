@@ -40,7 +40,7 @@ export default function Disclaimer() {
                     We are an independent transportation information platform and are not officially affiliated with any bus company.
                   </p>
                   <p className="text-slate-500 leading-relaxed m-0">
-                    The information provided by AsaanBusSafar ("we," "us," or "our") on our website is for general informational purposes only. All information on the site is provided in good faith; however, we make no representation or warranty of any kind, express or implied, regarding the accuracy, adequacy, validity, reliability, availability, or completeness of any information on the site.
+                    The information provided by AsaanSafar ("we," "us," or "our") on our website is for general informational purposes only. All information on the site is provided in good faith; however, we make no representation or warranty of any kind, express or implied, regarding the accuracy, adequacy, validity, reliability, availability, or completeness of any information on the site.
                   </p>
                 </div>
               </div>
