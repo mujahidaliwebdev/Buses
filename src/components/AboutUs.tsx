@@ -23,7 +23,7 @@ export default function AboutUs() {
               Our Journey to <span className="text-emerald-400">Digitize</span> Pakistan's Non-AC Roadways
             </h1>
             <p className="text-lg leading-8 text-emerald-100/70">
-              AsaanBusSafar is Pakistan's first data-driven Non-AC bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
+              AsaanSafar is Pakistan's first data-driven Non-AC bus terminal information platform. We bridge the gap between rural terminals and smart commuters by providing high-quality, verified data.
             </p>
           </motion.div>
         </div>
@@ -79,7 +79,7 @@ export default function AboutUs() {
               ہمارے انتظامیہ اور بانی ارکان
             </p>
             <p className="text-slate-650 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-              AsaanBusSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Noman Ejaz</strong>.
+              AsaanSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Noman Ejaz</strong>.
             </p>
             <div className="pt-4">
               <button
