@@ -22,13 +22,13 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'CEO & Founder',
     urduRole: 'چیف ایگزیکٹو آفیسر اور بانی',
     image: 'https://lh3.googleusercontent.com/d/1zfizXkN-L_9Y4xzuLaJ_jyXL7MNXNmL5',
-    email: 'ceo@asaanbussafar.com',
+    email: 'ceo@Asaansafar.com',
     phone: '+92 300 8155443',
     specialization: 'Product Strategy & Technology Architecture',
-    bio: `Mujahid Ali is the Founder & CEO of AsaanBusSafar, a platform created with the goal of making bus travel across Pakistan easier, faster, and more convenient. With more than 12 years of experience in transportation, logistics, operations management, administration, and customer service, he has gained valuable insight into the challenges faced by both passengers and transport operators.
+    bio: `Mujahid Ali is the Founder & CEO of AsaanSafar, a platform created with the goal of making bus travel across Pakistan easier, faster, and more convenient. With more than 12 years of experience in transportation, logistics, operations management, administration, and customer service, he has gained valuable insight into the challenges faced by both passengers and transport operators.
 
-Driven by a passion for improving the travel experience, Mujahid founded AsaanBusSafar to help travelers find reliable bus services, access accurate route information, and enjoy a smoother journey planning process. His vision is to use technology to simplify intercity travel and build a trusted platform that connects people with the transport services they need. Under his leadership, AsaanBusSafar is working towards becoming Pakistan's most reliable and customer-focused bus travel platform.`,
-    urduBio: `مجاہد علی آسان بس سفر (AsaanBusSafar) کے بانی اور چیف ایگزیکٹو آفیسر (CEO) ہیں۔ انہوں نے اس پلیٹ فارم کی بنیاد پاکستان بھر میں بس کے ذریعے سفر کو زیادہ آسان، تیز اور سہل بنانے کے مقصد سے رکھی۔ ٹرانسپورٹیشن، لاجسٹکس، آپریشنز مینجمنٹ، انتظامی امور اور کسٹمر سروس کے شعبوں میں 12 سال سے زائد تجربے کے باعث انہیں مسافروں اور ٹرانسپورٹ آپریٹرز دونوں کو درپیش مسائل اور ضروریات کی گہری سمجھ حاصل ہے۔
+Driven by a passion for improving the travel experience, Mujahid founded AsaanSafar to help travelers find reliable bus services, access accurate route information, and enjoy a smoother journey planning process. His vision is to use technology to simplify intercity travel and build a trusted platform that connects people with the transport services they need. Under his leadership, AsaanSafar is working towards becoming Pakistan's most reliable and customer-focused bus travel platform.`,
+    urduBio: `مجاہد علی آسان بس سفر (AsaanSafar) کے بانی اور چیف ایگزیکٹو آفیسر (CEO) ہیں۔ انہوں نے اس پلیٹ فارم کی بنیاد پاکستان بھر میں بس کے ذریعے سفر کو زیادہ آسان، تیز اور سہل بنانے کے مقصد سے رکھی۔ ٹرانسپورٹیشن، لاجسٹکس، آپریشنز مینجمنٹ، انتظامی امور اور کسٹمر سروس کے شعبوں میں 12 سال سے زائد تجربے کے باعث انہیں مسافروں اور ٹرانسپورٹ آپریٹرز دونوں کو درپیش مسائل اور ضروریات کی گہری سمجھ حاصل ہے۔
 
 سفر کے تجربے کو بہتر بنانے کے جذبے سے سرشار، مجاہد علی نے آسان بس سفر کا آغاز کیا تاکہ مسافروں کو قابلِ اعتماد بس سروسز تلاش کرنے، درست روٹ معلومات حاصل کرنے اور اپنے سفر کی منصوبہ بندی کو مزید آسان بنانے میں مدد مل سکے۔ ان کا وژن جدید ٹیکنالوجی کے ذریعے بین الاضلاعی سفر کو سادہ اور مؤثر بنانا ہے، اور ایک ایسا قابلِ اعتماد پلیٹ فارم فراہم کرنا ہے جو مسافروں کو بہترین ٹرانسپورٹ سہولیات سے جوڑے۔ ان کی قیادت میں آسان بس سفر پاکستان کا سب سے معتبر اور مسافر دوست بس ٹریول پلیٹ فارم بننے کی جانب گامزن ہے۔`
   },
@@ -38,9 +38,9 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanBu
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
-    email: 'operations@asaanbussafar.com',
+    email: 'operations@Asaansafar.com',
     specialization: 'Liaison & Field Quality Management',
-    bio: 'Muhammad Arsalan leads the operational heartbeat of AsaanBusSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
+    bio: 'Muhammad Arsalan leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
     urduBio: 'محمد ارسلان آسان بس سفر کے آپریشنز کے نگران ہیں۔ وہ اڈہ مینیجرز، علاقائی ٹرانسپورٹ حکام اور فیلڈ ٹیموں کے ساتھ براہِ راست تال میل رکھتے ہیں تاکہ ڈیٹا بیس سو فیصد درست رہے۔ وہ لاجسٹکس اور فلیٹ آپریشنز کے شعبے میں وسیع تجربہ رکھتے ہیں۔'
   },
   {
@@ -49,7 +49,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanBu
     role: 'Head of Finance & Corporate Partnerships',
     urduRole: 'سربراہ برائے فنانس اور کارپوریٹ پارٹنرشپ',
     image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop',
-    email: 'partnerships@asaanbussafar.com',
+    email: 'partnerships@Asaansafar.com',
     specialization: 'Operator Tie-ups & Asset Allocation',
     bio: 'Aisha coordinates strategic integrations with major private bus companies and government authorities. She acts as the vital bridge to facilitate advertiser alignment on the platform, fostering win-win growth models for verified bus standard owners.',
     urduBio: 'عائشہ ملک نجی بس کمپنیوں اور حکومتی اداروں کے ساتھ اسٹریٹجک پارٹنرشپ کی نگران ہیں۔ وہ تصدیق شدہ بس اڈوں کے مالکان کے لیے ون-ون ترقی کے ماڈلز کو ڈیزائن اور فروغ دیتی ہیں۔'
@@ -60,7 +60,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanBu
     role: 'Drivers Liaison Officer',
     urduRole: 'مسؤل برائے ڈرائیور تعلقات',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop',
-    email: 'driver-support@asaanbussafar.com',
+    email: 'driver-support@Asaansafar.com',
     specialization: 'Union Management & Ground Coordination',
     bio: 'Sajid has spent over 15 years within major transport unions across Punjab and Sindh. He leads ground support, teaching regional heavy-bus operators, drivers, and conductors how to broadcast dynamic time alterations directly to the digital board.',
     urduBio: 'ساجد محمود پنجاب اور سندھ کی بڑی ٹرانسپورٹ یونینز میں 15 سال سے زائد کا تجربہ رکھتے ہیں۔ وہ ڈرائیورز، کنڈکٹرز اور ہیوی بس آپریٹرز کو براہِ راست ڈیجیٹل سسٹم سے جوڑنے کی زمینی فیلڈ کی قیادت کرتے ہیں۔'
@@ -177,7 +177,7 @@ export default function OurTeam() {
               </div>
               <div>
                 <p className="font-extrabold text-slate-900 text-lg leading-tight">Guaranteed Verification Protocol</p>
-                <p className="text-xs text-slate-400 font-semibold mt-0.5">Every data point published on AsaanBusSafar goes through our strictly audited GM oversight team.</p>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5">Every data point published on AsaanSafar goes through our strictly audited GM oversight team.</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-emerald-700 font-black text-xs uppercase tracking-wider">
