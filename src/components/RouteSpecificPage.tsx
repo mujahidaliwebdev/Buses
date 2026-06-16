@@ -8,8 +8,6 @@ import { MOCK_COMPANIES } from '../data/mockCompanies';
 import { busService } from '../lib/firestoreService';
 import BusDetails from './BusDetails';
 import CompanyProfile from './CompanyProfile';
-import { useState } from 'react';
-import { Share2 } from 'lucide-react'; // آئیکن لوڈ کرنے کے لیے
 import ShareModal from './ShareModal'; // شیئر ماڈل امپورٹ کیا
 
 
