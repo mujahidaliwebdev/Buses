@@ -1,9 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Bus } from '../types';
-import { Clock, Phone, Snowflake, Sun, ShieldCheck, ArrowRight, X, Filter, SlidersHorizontal, ChevronDown, ArrowUpDown, Plus } from 'lucide-react';
+import { Clock, Phone, Snowflake, Sun, ShieldCheck, ArrowRight, X, Filter, SlidersHorizontal, ChevronDown, ArrowUpDown, Plus, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import React, { useState, useMemo } from 'react';
-import { Share2 } from 'lucide-react';
 import ShareModal from './ShareModal';
 
 
