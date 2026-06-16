@@ -91,7 +91,7 @@ export default function FeedbackSystem() {
               {/* Header */}
               <div className="bg-emerald-600 p-6 text-white flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold">AsaanBusSafar Services</h2>
+                  <h2 className="text-xl font-bold">AsaanSafar Services</h2>
                   <p className="text-emerald-100 text-xs">We value your input for better commute.</p>
                 </div>
                 <button 
