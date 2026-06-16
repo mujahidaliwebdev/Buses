@@ -6,15 +6,15 @@ export default function ContactUs() {
     {
       icon: <Mail className="w-6 h-6" />,
       title: "Email Support",
-      value: "support@asaanbussafar.com",
-      link: "mailto:support@asaanbussafar.com",
+      value: "support@asaansafar.com",
+      link: "mailto:support@asaansafar.com",
       type: "link"
     },
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Official Website",
-      value: "www.asaanbussafar.com",
-      link: "https://www.asaanbussafar.com",
+      value: "www.asaansafar.com",
+      link: "https://www.asaansafar.com",
       type: "link"
     }
   ];
@@ -156,7 +156,7 @@ export default function ContactUs() {
                   </div>
                   <h2 className="text-3xl font-bold mb-6">Help Us Improve</h2>
                   <p className="text-slate-400 leading-relaxed mb-8">
-                    AsaanBusSafar is built for the community. If you are a terminal manager or a frequent traveler, your insights are invaluable. 
+                    AsaanSafar is built for the community. If you are a terminal manager or a frequent traveler, your insights are invaluable. 
                   </p>
                   
                   <div className="space-y-6">
