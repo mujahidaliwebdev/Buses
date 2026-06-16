@@ -89,7 +89,7 @@ export default function BlogPostDetail() {
                  <Tag className="w-6 h-6 text-emerald-600" /> Key Takeaway
                </h3>
                <p className="text-slate-600 m-0 leading-relaxed">
-                 Always verify your timings on platforms like AsaanBusSafar before heading to the terminal. In the non-AC sector, physical listings at terminals are the gold standard, and our team works hard to bring those lists to your screens.
+                 Always verify your timings on platforms like AsaanSafar before heading to the terminal. In the non-AC sector, physical listings at terminals are the gold standard, and our team works hard to bring those lists to your screens.
                </p>
             </div>
 
