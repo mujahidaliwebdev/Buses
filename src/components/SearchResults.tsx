@@ -100,7 +100,6 @@ export default function SearchResults({ buses, origin, destination, onClose, onS
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <div className="flex flex-wrap gap-3 w-full md:w-auto items-center">
   {/* یہ بٹن فلٹرز کے بغل میں امپلیمنٹ کیا گیا */}
   <button 
