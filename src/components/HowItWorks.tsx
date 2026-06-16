@@ -12,7 +12,7 @@ export default function HowItWorks() {
             {
               step: "01",
               title: "Enter Origin",
-              desc: "Select your starting city from our database of 50+ locations."
+              desc: "Select your starting city from our database of 250+ locations."
             },
             {
               step: "02",
@@ -22,7 +22,7 @@ export default function HowItWorks() {
             {
               step: "03",
               title: "View & Book",
-              desc: "Compare real-time timings, fares and get direct terminal contact."
+              desc: "Compare real-time timings, fares and get direct bus contact."
             }
           ].map((item, idx) => (
             <div key={idx} className="flex gap-5 items-start">
