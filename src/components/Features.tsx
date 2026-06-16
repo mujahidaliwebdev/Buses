@@ -3,7 +3,7 @@ import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink } from 'lucide-re
 
 export default function Features() {
   return (
-    <section className="py-24 bg-white">
+    <section id="features" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Bento Grid layout */}
         <div className="grid lg:grid-cols-12 gap-6 items-start">
