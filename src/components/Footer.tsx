@@ -82,16 +82,23 @@ export default function Footer({
               Pakistan's first data-driven Non-AC bus terminal information platform. Bringing transparency to your digital travel journey.
             </p>
 
-            <div className="flex gap-4">
-              {[Facebook, Instagram, Twitter].map((Icon, idx) => (
-                <button 
-                  key={idx}
-                  className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
-                >
-                  <Icon className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
+              <div className="flex gap-4">
+                {[
+                  { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
+                  { Icon: Instagram, url: "https://instagram.com/AsaanSafar" },
+                  { Icon: Twitter, url: "https://twitter.com/AsaanSafar" }
+                ].map((item, idx) => (
+                  <a 
+                    key={idx}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
+                  >
+                    <item.Icon className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
           </div>
 
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-12">
