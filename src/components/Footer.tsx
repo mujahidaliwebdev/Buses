@@ -85,7 +85,7 @@ export default function Footer({
               <div className="flex gap-4">
                 {[
                   { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
-                  { Icon: Instagram, url: "https://instagram.com/AsaanSafar" },
+                  { Icon: Instagram, url: "https://instagram.com/Asaan.Safar" },
                   { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
                   { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
                 ].map((item, idx) => (
