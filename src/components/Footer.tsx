@@ -41,7 +41,9 @@ export default function Footer({
         { label: 'Search Route', onClick: onHomeClick },
         { label: 'Bus Schedules', onClick: onSchedulesClick },
         { label: 'Features', onClick: onFeaturesClick },
-        { label: 'About Us', onClick: onAboutClick },
+        { label: 'About Us', onClick: () => onAboutClick('about') },
+        { label: 'Our Mission', onClick: () => onAboutClick('mission') },
+        { label: 'Our Vision', onClick: () => onAboutClick('vision') },
         { label: 'Careers', onClick: onCareersClick },
         { label: 'Our Team', onClick: onTeamClick },
       ]
