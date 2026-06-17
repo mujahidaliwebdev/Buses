@@ -1,4 +1,4 @@
-import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin } from 'lucide-react';
+import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface FooterProps {
@@ -86,7 +86,8 @@ export default function Footer({
                 {[
                   { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
                   { Icon: Instagram, url: "https://instagram.com/AsaanSafar" },
-                  { Icon: Twitter, url: "https://twitter.com/AsaanSafar" }
+                  { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
+                  { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
                 ].map((item, idx) => (
                   <a 
                     key={idx}
