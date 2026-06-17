@@ -213,7 +213,7 @@ const handleNavClick = (sectionId: string) => {
             navigate('/');
           }
         }} 
-        onAboutClick={() => navigate('/about')}
+        onAboutClick={(tab) => navigate(`/about${tab ? `?tab=${tab}` : ''}`)}
         onPolicyClick={() => navigate('/policy')} 
         onContactClick={() => navigate('/contact')}
         onPrivacyClick={() => navigate('/privacy')}
