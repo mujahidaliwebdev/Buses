@@ -439,7 +439,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
         isOpen={showReportModal} 
         onClose={() => setShowReportModal(false)} 
         busId={bus.id || `${bus.companyName}-${bus.busNumber}`}
-        busName={bus.companyName}
+        busInfo={bus.companyName}
       />
     </motion.div>
     </>
