@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -38,11 +39,23 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
     email: ''
   });
+
+  useEffect(() => {
+    setMounted(true);
+    if (isOpen) {
+      // Prevent parent page scrolling when the modal is active
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const toggleIssue = (issue: string) => {
     setSelectedIssues(prev => 
@@ -79,10 +92,13 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-hidden">
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -91,14 +107,15 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
           
+          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-[10000]"
           >
             {/* Header */}
-            <div className="bg-rose-600 p-6 text-white flex justify-between items-center">
+            <div className="bg-rose-600 p-6 text-white flex justify-between items-center shrink-0">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" /> Report Issue
@@ -113,7 +130,8 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
               </button>
             </div>
 
-            <div className="p-6">
+            {/* Scrollable body */}
+            <div className="p-6 overflow-y-auto">
               {showSuccess ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -145,14 +163,14 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
                               : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100'
                           }`}
                         >
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all shrink-0 ${
                             selectedIssues.includes(issue) 
                               ? 'bg-rose-600 border-rose-600 text-white' 
                               : 'bg-white border-slate-300'
                           }`}>
                             {selectedIssues.includes(issue) && <Send className="w-3 h-3" />}
                           </div>
-                          <span className="text-xs font-bold">{issue}</span>
+                          <span className="text-xs font-bold leading-tight">{issue}</span>
                         </button>
                       ))}
                     </div>
@@ -197,7 +215,7 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
                   <button
                     disabled={isSubmitting || selectedIssues.length === 0}
                     type="submit"
-                    className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-rose-600/20"
+                    className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-rose-600/20 shrink-0"
                   >
                     {isSubmitting ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -214,6 +232,7 @@ export default function ReportModal({ busId, busInfo, isOpen, onClose }: ReportM
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
