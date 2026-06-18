@@ -77,8 +77,8 @@ export default function Footer({
   return (
     <footer className="bg-white border-t border-slate-100 text-slate-500 py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-20">
-          <div className="lg:col-span-4 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
+          <div className="lg:col-span-3 space-y-8">
             <div 
               onClick={onHomeClick}
               className="flex items-center gap-3 cursor-pointer group"
@@ -115,7 +115,7 @@ export default function Footer({
               </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-12">
+          <div className="lg:col-span-9 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
             {footerSections.map((section) => (
               <div key={section.title} className="space-y-6">
                 <h3 className="text-slate-300 font-black uppercase tracking-[0.2em] text-[10px]">{section.title}</h3>
@@ -124,7 +124,7 @@ export default function Footer({
                     <li key={link.label}>
                       <button 
                         onClick={link.onClick}
-                        className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors text-left"
+                        className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors text-left cursor-pointer"
                       >
                         {link.label}
                       </button>
@@ -134,7 +134,7 @@ export default function Footer({
               </div>
             ))}
 
-            <div className="space-y-6">
+            <div className="space-y-6 col-span-2 md:col-span-1">
               <h3 className="text-slate-300 font-black uppercase tracking-[0.2em] text-[10px]">SERVICE AREA</h3>
               <div className="flex flex-wrap gap-2">
                 {serviceArea.map(city => (
