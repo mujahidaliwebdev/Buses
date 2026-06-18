@@ -15,6 +15,7 @@ interface FooterProps {
   onRoutesClick: () => void;
   onCareersClick: () => void;
   onTeamClick: () => void;
+  onFAQsClick: () => void;
 }
 
 export default function Footer({
@@ -30,37 +31,47 @@ export default function Footer({
   onFeaturesClick,
   onRoutesClick,
   onCareersClick,
-  onTeamClick
+  onTeamClick,
+  onFAQsClick
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const footerSections = [
     {
-      title: 'DISCOVERY',
+      title: 'Directory',
       links: [
         { label: 'Search Route', onClick: onHomeClick },
         { label: 'Bus Schedules', onClick: onSchedulesClick },
-        { label: 'Features', onClick: onFeaturesClick },
-        { label: 'About Us', onClick: () => onAboutClick('about') },
-        { label: 'Our Mission', onClick: () => onAboutClick('mission') },
-        { label: 'Our Vision', onClick: () => onAboutClick('vision') },
-        { label: 'Careers', onClick: onCareersClick },
-        { label: 'Our Team', onClick: onTeamClick },
       ]
     },
     {
-      title: 'LEGAL',
+      title: 'Company',
       links: [
-        { label: 'Service Policy', onClick: onPolicyClick },
-        { label: 'Contact Us', onClick: onContactClick },
-        { label: 'Privacy Policy', onClick: onPrivacyClick },
+        { label: 'About Us', onClick: () => onAboutClick('about') },
+        { label: 'Our Mission', onClick: () => onAboutClick('mission') },
+        { label: 'Our Vision', onClick: () => onAboutClick('vision') },
+        { label: 'Our Team', onClick: onTeamClick },
+        { label: 'Careers', onClick: onCareersClick },
+      ]
+    },
+    {
+      title: 'Resources',
+      links: [
         { label: 'Travel Blog', onClick: onBlogClick },
+        { label: 'FAQs', onClick: onFAQsClick },
+      ]
+    },
+    {
+      title: 'Support & Legal',
+      links: [
+        { label: 'Contact Us', onClick: onContactClick },
+        { label: 'Service Policy', onClick: onPolicyClick },
+        { label: 'Privacy Policy', onClick: onPrivacyClick },
         { label: 'Terms & Conditions', onClick: onTermsClick },
         { label: 'Disclaimer', onClick: onDisclaimerClick },
       ]
     }
   ];
-
   const serviceArea = ['LAHORE', 'FAISALABAD', 'KARACHI', 'RAWALPINDI', 'MULTAN', 'LAYYAH', 'PESHAWAR', 'QUETTA'];
 
   return (
