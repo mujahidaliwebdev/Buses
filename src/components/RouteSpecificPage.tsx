@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bus as BusIcon, Clock, Phone, MapPin, Tag, ArrowLeft, Share2, Info, Navigation, ShieldCheck } from 'lucide-react';
 import { Bus, Company } from '../types';
@@ -13,6 +13,7 @@ import ShareModal from './ShareModal'; // شیئر ماڈل امپورٹ کیا
 
 export default function RouteSpecificPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [routeBuses, setRouteBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(true);
   const [origin, setOrigin] = useState('');
@@ -100,6 +101,17 @@ const [isShareOpen, setIsShareOpen] = useState(false);
   return (
     <div className="bg-slate-50 min-h-screen pb-20 pt-8">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        
+        {/* Back to Search Button */}
+        <div className="mb-6">
+          <button 
+            onClick={() => navigate('/')} 
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-xs font-black uppercase tracking-widest cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Search
+          </button>
+        </div>
+
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs font-bold text-slate-400 mb-8 overflow-x-auto whitespace-nowrap">
           <Link to="/" className="hover:text-emerald-600 transition-colors uppercase tracking-widest">Home</Link>
