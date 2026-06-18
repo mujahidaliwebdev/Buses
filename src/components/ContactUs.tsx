@@ -1,20 +1,22 @@
 import { motion } from 'motion/react';
-import { Mail, Globe, Phone, MessageSquare, Send, MapPin, AlertCircle, MessageCircle } from 'lucide-react';
+import { Mail, Globe, Phone, MessageSquare, Send, MapPin, AlertCircle, MessageCircle, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ContactUs() {
+  const navigate = useNavigate();
   const contactMethods = [
     {
       icon: <Mail className="w-6 h-6" />,
       title: "Email Support",
-      value: "support@asaansafar.com",
-      link: "mailto:support@asaansafar.com",
+      value: "support@asaanbussafar.com",
+      link: "mailto:support@asaanbussafar.com",
       type: "link"
     },
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Official Website",
-      value: "www.asaansafar.com",
-      link: "https://www.asaansafar.com",
+      value: "www.asaanbussafar.com",
+      link: "https://www.asaanbussafar.com",
       type: "link"
     }
   ];
@@ -33,22 +35,32 @@ export default function ContactUs() {
   ];
 
   return (
-    <div className="bg-white min-h-screen pt-20">
-      {/* Header Section */}
-      <section className="bg-slate-50 py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div
+    <div className="bg-slate-50 min-h-screen pb-24">
+      {/* Premium Hero Section */}
+      <section className="relative overflow-hidden bg-emerald-950 py-28 sm:py-36 mb-12 animate-none">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            className="max-w-3xl space-y-4 text-left"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-              <MessageSquare className="w-4 h-4" /> Get In Touch
-            </div>
-            <h1 className="text-4xl font-black text-slate-900 sm:text-5xl mb-6">
-              Contact <span className="text-blue-600">Us</span>
+            <button 
+              onClick={() => navigate('/')} 
+              className="inline-flex items-center gap-2 text-emerald-300 hover:text-white transition-colors text-xs font-black uppercase tracking-widest mb-4 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" /> Go Back Home
+            </button>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Contact <span className="text-emerald-400">Us</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-emerald-100/70 font-semibold tracking-wide uppercase text-[11px] flex gap-2 items-center">
+              <span>GET IN TOUCH</span> • <span>ہم سے رابطہ کریں اور اپنی رائے کا اظہار کریں</span>
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-emerald-100/80 max-w-2xl">
               If you find incorrect information or want to suggest new routes, feel free to contact us. We aim to improve our platform by keeping transport information accurate and updated.
             </p>
           </motion.div>
@@ -76,7 +88,7 @@ export default function ContactUs() {
                       transition={{ delay: i * 0.1 }}
                       className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100"
                     >
-                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full" />
                       <span className="text-sm font-semibold text-slate-700">{topic}</span>
                     </motion.div>
                   ))}
@@ -90,9 +102,9 @@ export default function ContactUs() {
                     href={method.link}
                     target={method.type === 'link' && !method.link.startsWith('mailto') ? "_blank" : undefined}
                     rel={method.type === 'link' && !method.link.startsWith('mailto') ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-6 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-200 hover:shadow-md transition-all group"
+                    className="flex items-center gap-6 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group"
                   >
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                       {method.icon}
                     </div>
                     <div>
@@ -105,7 +117,7 @@ export default function ContactUs() {
                 {/* Phone Numbers with Call/WhatsApp toggle */}
                 <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
                   <div className="flex items-center gap-6 mb-6">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
@@ -121,7 +133,7 @@ export default function ContactUs() {
                         <div className="flex gap-2">
                           <a 
                             href={`tel:${phone.value}`}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 rounded-lg text-xs font-bold transition-all"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-600 rounded-lg text-xs font-bold transition-all"
                           >
                             <Phone className="w-3.5 h-3.5" />
                             CALL
@@ -147,11 +159,11 @@ export default function ContactUs() {
             <div className="lg:pl-8">
               <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden h-full flex flex-col justify-center">
                 {/* Decoration */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full -ml-32 -mb-32 blur-3xl" />
 
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-8">
+                  <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mb-8">
                     <Send className="w-8 h-8 text-white" />
                   </div>
                   <h2 className="text-3xl font-bold mb-6">Help Us Improve</h2>
@@ -161,7 +173,7 @@ export default function ContactUs() {
                   
                   <div className="space-y-6">
                     <div className="flex gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <AlertCircle className="w-6 h-6 text-blue-400 shrink-0" />
+                      <AlertCircle className="w-6 h-6 text-emerald-400 shrink-0" />
                       <div>
                         <h4 className="font-bold mb-1">Verify Data</h4>
                         <p className="text-sm text-slate-400">We cross-check all reports before updating the platform.</p>
