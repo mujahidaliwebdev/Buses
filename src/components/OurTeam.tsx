@@ -72,38 +72,35 @@ export default function OurTeam() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-24 pb-20">
-      {/* Hero Banner Header */}
-      <section className="bg-white border-b border-slate-100 py-16 mb-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <button 
-            onClick={() => navigate('/')} 
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-xs font-black uppercase tracking-widest mb-8 cursor-pointer"
+    <div className="bg-slate-50 min-h-screen pb-24">
+      {/* Premium Hero Section */}
+      <section className="relative overflow-hidden bg-emerald-950 py-28 sm:py-36 mb-16 animate-none">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl space-y-4"
           >
-            <ArrowLeft className="w-4 h-4" /> Go Back Home
-          </button>
-          
-          <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex justify-center mb-6"
+            <button 
+              onClick={() => navigate('/')} 
+              className="inline-flex items-center gap-2 text-emerald-300 hover:text-white transition-colors text-xs font-black uppercase tracking-widest mb-4 cursor-pointer"
             >
-              <div className="w-16 h-16 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-600 shadow-md shadow-emerald-600/5">
-                <Users className="w-8 h-8" />
-              </div>
-            </motion.div>
-            
-            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-4 sm:text-5xl">
-              Meet Our <span className="text-emerald-600">Management Team</span>
+              <ArrowLeft className="w-4 h-4" /> Go Back Home
+            </button>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Meet Our <span className="text-emerald-400">Management Team</span>
             </h1>
-            <p className="text-slate-400 font-extrabold uppercase tracking-widest text-xs mb-4">
-              انتظامیہ اور بانی عملے سے ملیں
+            <p className="text-emerald-100/70 font-semibold tracking-wide uppercase text-[11px] flex gap-2 items-center">
+              <span>MANAGEMENT & FOUNDERS</span> • <span>انتظامیہ اور بانی عملے سے ملیں</span>
             </p>
-            <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-              Behind the seamless digital timetables and accurate fair calculations is a team of passionate transport professionals, operators, and developers committed to modernizing commuting across Pakistan.
+            <p className="text-base sm:text-lg leading-relaxed text-emerald-100/80 max-w-2xl">
+              Behind the seamless digital timetables and accurate fare calculations is a team of passionate transport professionals, operators, and developers committed to modernizing commuting across Pakistan.
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
