@@ -33,6 +33,7 @@ import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
 import Careers from './components/Careers';
 import OurTeam from './components/OurTeam';
+import FAQs from './components/FAQs';
 import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
 import { Bus, SearchFilters, Company } from './types';
@@ -198,6 +199,7 @@ const handleNavClick = (sectionId: string) => {
           <Route path="/blog/:slug" element={<BlogPostDetail />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/team" element={<OurTeam />} />
+          <Route path="/faqs" element={<FAQs />} />
           
           {/* SEO Routes */}
           <Route path="/:slug" element={<RouteSpecificPage />} />
@@ -225,6 +227,7 @@ const handleNavClick = (sectionId: string) => {
         onRoutesClick={() => handleNavClick('routes')}
         onCareersClick={() => navigate('/careers')}
         onTeamClick={() => navigate('/team')}
+        onFAQsClick={() => navigate('/faqs')}
       />
 
       <AnimatePresence>
