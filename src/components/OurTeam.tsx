@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Users, ShieldCheck, Mail, Phone, Award, Building, Briefcase, Heart, CheckCircle2 } from 'lucide-react';
+import { Users, ShieldCheck, Mail, Phone, Award, Building, Briefcase, Heart, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface TeamMember {
   name: string;
@@ -22,15 +23,15 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'CEO & Founder',
     urduRole: 'چیف ایگزیکٹو آفیسر اور بانی',
     image: 'https://lh3.googleusercontent.com/d/1zfizXkN-L_9Y4xzuLaJ_jyXL7MNXNmL5',
-    email: 'ceo@Asaansafar.com',
-    phone: '+92 300 8155443',
+    email: 'ceo@asaansafar.com',
+    phone: '0300-8155443',
     specialization: 'Product Strategy & Technology Architecture',
     bio: `Mujahid Ali is the Founder & CEO of AsaanSafar, a platform created with the goal of making bus travel across Pakistan easier, faster, and more convenient. With more than 12 years of experience in transportation, logistics, operations management, administration, and customer service, he has gained valuable insight into the challenges faced by both passengers and transport operators.
 
 Driven by a passion for improving the travel experience, Mujahid founded AsaanSafar to help travelers find reliable bus services, access accurate route information, and enjoy a smoother journey planning process. His vision is to use technology to simplify intercity travel and build a trusted platform that connects people with the transport services they need. Under his leadership, AsaanSafar is working towards becoming Pakistan's most reliable and customer-focused bus travel platform.`,
-    urduBio: `مجاہد علی آسان بس سفر (AsaanSafar) کے بانی اور چیف ایگزیکٹو آفیسر (CEO) ہیں۔ انہوں نے اس پلیٹ فارم کی بنیاد پاکستان بھر میں بس کے ذریعے سفر کو زیادہ آسان، تیز اور سہل بنانے کے مقصد سے رکھی۔ ٹرانسپورٹیشن، لاجسٹکس، آپریشنز مینجمنٹ، انتظامی امور اور کسٹمر سروس کے شعبوں میں 12 سال سے زائد تجربے کے باعث انہیں مسافروں اور ٹرانسپورٹ آپریٹرز دونوں کو درپیش مسائل اور ضروریات کی گہری سمجھ حاصل ہے۔
+    urduBio: `مجاہد علی آسان سفر (AsaanSafar) کے بانی اور چیف ایگزیکٹو آفیسر (CEO) ہیں۔ انہوں نے اس پلیٹ فارم کی بنیاد پاکستان بھر میں بس کے ذریعے سفر کو زیادہ آسان، تیز اور سہل بنانے کے مقصد سے رکھی۔ ٹرانسپورٹیشن، لاجسٹکس، آپریشنز مینجمنٹ، انتظامی امور اور کسٹمر سروس کے شعبوں میں 12 سال سے زائد تجربے کے باعث انہیں مسافروں اور ٹرانسپورٹ آپریٹرز دونوں کو درپیش مسائل اور ضروریات کی گہری سمجھ حاصل ہے۔
 
-سفر کے تجربے کو بہتر بنانے کے جذبے سے سرشار، مجاہد علی نے آسان بس سفر کا آغاز کیا تاکہ مسافروں کو قابلِ اعتماد بس سروسز تلاش کرنے، درست روٹ معلومات حاصل کرنے اور اپنے سفر کی منصوبہ بندی کو مزید آسان بنانے میں مدد مل سکے۔ ان کا وژن جدید ٹیکنالوجی کے ذریعے بین الاضلاعی سفر کو سادہ اور مؤثر بنانا ہے، اور ایک ایسا قابلِ اعتماد پلیٹ فارم فراہم کرنا ہے جو مسافروں کو بہترین ٹرانسپورٹ سہولیات سے جوڑے۔ ان کی قیادت میں آسان بس سفر پاکستان کا سب سے معتبر اور مسافر دوست بس ٹریول پلیٹ فارم بننے کی جانب گامزن ہے۔`
+سفر کے تجربے کو بہتر بنانے کے جذبے سے سرشار، مجاہد علی نے آسان سفر کا آغاز کیا تاکہ مسافروں کو قابلِ اعتماد بس سروسز تلاش کرنے، درست روٹ معلومات حاصل کرنے اور اپنے سفر کی منصوبہ بندی کو مزید آسان بنانے میں مدد مل سکے۔ ان کا وژن جدید ٹیکنالوجی کے ذریعے بین الاضلاعی سفر کو سادہ اور مؤثر بنانا ہے، اور ایک ایسا قابلِ اعتماد پلیٹ فارم فراہم کرنا ہے جو مسافروں کو بہترین ٹرانسپورٹ سہولیات سے جوڑے۔ ان کی قیادت میں آسان سفر پاکستان کا سب سے معتبر اور مسافر دوست بس ٹریول پلیٹ فارم بننے کی جانب گامزن ہے۔`
   },
   {
     name: 'Noman Ejaz',
@@ -38,10 +39,10 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
-    email: 'operations@Asaansafar.com',
+    email: 'operations@asaanbussafar.com',
     specialization: 'Liaison & Field Quality Management',
-    bio: 'Muhammad Arsalan leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
-    urduBio: 'محمد ارسلان آسان بس سفر کے آپریشنز کے نگران ہیں۔ وہ اڈہ مینیجرز، علاقائی ٹرانسپورٹ حکام اور فیلڈ ٹیموں کے ساتھ براہِ راست تال میل رکھتے ہیں تاکہ ڈیٹا بیس سو فیصد درست رہے۔ وہ لاجسٹکس اور فلیٹ آپریشنز کے شعبے میں وسیع تجربہ رکھتے ہیں۔'
+    bio: 'Noman Ejaz leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
+    urduBio: 'نعمان اعجاز آسان سفر کے آپریشنز کے نگران ہیں۔ وہ اڈہ مینیجرز، علاقائی ٹرانسپورٹ حکام اور فیلڈ ٹیموں کے ساتھ براہِ راست تال میل رکھتے ہیں تاکہ ڈیٹا بیس سو فیصد درست رہے۔ وہ لاجسٹکس اور فلیٹ آپریشنز کے شعبے میں وسیع تجربہ رکھتے ہیں۔'
   },
   {
     name: 'Aisha Malik',
@@ -49,7 +50,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     role: 'Head of Finance & Corporate Partnerships',
     urduRole: 'سربراہ برائے فنانس اور کارپوریٹ پارٹنرشپ',
     image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop',
-    email: 'partnerships@Asaansafar.com',
+    email: 'partnerships@asaanbussafar.com',
     specialization: 'Operator Tie-ups & Asset Allocation',
     bio: 'Aisha coordinates strategic integrations with major private bus companies and government authorities. She acts as the vital bridge to facilitate advertiser alignment on the platform, fostering win-win growth models for verified bus standard owners.',
     urduBio: 'عائشہ ملک نجی بس کمپنیوں اور حکومتی اداروں کے ساتھ اسٹریٹجک پارٹنرشپ کی نگران ہیں۔ وہ تصدیق شدہ بس اڈوں کے مالکان کے لیے ون-ون ترقی کے ماڈلز کو ڈیزائن اور فروغ دیتی ہیں۔'
@@ -60,7 +61,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     role: 'Drivers Liaison Officer',
     urduRole: 'مسؤل برائے ڈرائیور تعلقات',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop',
-    email: 'driver-support@Asaansafar.com',
+    email: 'driver-support@asaanbussafar.com',
     specialization: 'Union Management & Ground Coordination',
     bio: 'Sajid has spent over 15 years within major transport unions across Punjab and Sindh. He leads ground support, teaching regional heavy-bus operators, drivers, and conductors how to broadcast dynamic time alterations directly to the digital board.',
     urduBio: 'ساجد محمود پنجاب اور سندھ کی بڑی ٹرانسپورٹ یونینز میں 15 سال سے زائد کا تجربہ رکھتے ہیں۔ وہ ڈرائیورز، کنڈکٹرز اور ہیوی بس آپریٹرز کو براہِ راست ڈیجیٹل سسٹم سے جوڑنے کی زمینی فیلڈ کی قیادت کرتے ہیں۔'
@@ -68,30 +69,41 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
 ];
 
 export default function OurTeam() {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-slate-50 min-h-screen pt-24 pb-20">
       {/* Hero Banner Header */}
       <section className="bg-white border-b border-slate-100 py-16 mb-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex justify-center mb-6"
+        <div className="max-w-7xl mx-auto px-6">
+          <button 
+            onClick={() => navigate('/')} 
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-xs font-black uppercase tracking-widest mb-8 cursor-pointer"
           >
-            <div className="w-16 h-16 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-600 shadow-md shadow-emerald-600/5">
-              <Users className="w-8 h-8" />
-            </div>
-          </motion.div>
+            <ArrowLeft className="w-4 h-4" /> Go Back Home
+          </button>
           
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-4 sm:text-5xl">
-            Meet Our <span className="text-emerald-600">Management Team</span>
-          </h1>
-          <p className="text-slate-400 font-extrabold uppercase tracking-widest text-xs mb-4">
-            انتظامیہ اور بانی عملے سے ملیں
-          </p>
-          <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-            Behind the seamless digital timetables and accurate fair calculations is a team of passionate transport professionals, operators, and developers committed to modernizing commuting across Pakistan.
-          </p>
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-center mb-6"
+            >
+              <div className="w-16 h-16 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-600 shadow-md shadow-emerald-600/5">
+                <Users className="w-8 h-8" />
+              </div>
+            </motion.div>
+            
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-4 sm:text-5xl">
+              Meet Our <span className="text-emerald-600">Management Team</span>
+            </h1>
+            <p className="text-slate-400 font-extrabold uppercase tracking-widest text-xs mb-4">
+              انتظامیہ اور بانی عملے سے ملیں
+            </p>
+            <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
+              Behind the seamless digital timetables and accurate fair calculations is a team of passionate transport professionals, operators, and developers committed to modernizing commuting across Pakistan.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -139,14 +151,14 @@ export default function OurTeam() {
 
                 {/* English Bio */}
                 <div className="space-y-2">
-                  <p className="text-slate-650 text-sm leading-relaxed">
+                  <p className="text-slate-650 text-sm leading-relaxed whitespace-pre-line">
                     {member.bio}
                   </p>
                 </div>
 
                 {/* Urdu Bio */}
                 <div className="bg-emerald-50/20 border border-emerald-100/20 rounded-2xl p-5" dir="rtl">
-                  <p className="text-slate-800 text-xs font-bold leading-relaxed text-right font-sans">
+                  <p className="text-slate-800 text-xs font-bold leading-relaxed text-right font-sans whitespace-pre-line">
                     {member.urduBio}
                   </p>
                 </div>
