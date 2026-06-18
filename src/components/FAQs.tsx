@@ -10,37 +10,72 @@ export default function FAQs() {
     {
       qEng: "What is AsaanSafar?",
       qUrdu: "آسان سفر کیا ہے؟",
-      aEng: "AsaanSafar is Pakistan's first verified non-AC bus database and timing directory. We focus on cataloging regular bus schedules, fares, and operator details to bring clarity and ease to the travel planning of general passengers.",
-      aUrdu: "آسان سفر پاکستان کا پہلا تصدیق شدہ نان اے سی بس ڈیٹا بیس اور ٹائمنگ گائیڈ ہے۔ ہمارا مقصد بسوں کے باقاعدہ نظام الاوقات، کرایوں اور آپریٹرز کی معلومات فراہم کرنا ہے تاکہ عام مسافروں کے لیے سفر کی منصوبہ بندی آسان بنائی جا سکے۔",
+      aEng: "AsaanSafar is a travel information platform that provides verified information about non-AC bus services across Pakistan, including routes, schedules, fares, contact numbers, and bus details.",
+      aUrdu: "آسان سفر ایک معلوماتی پلیٹ فارم ہے جو پاکستان میں نان اے سی بس سروسز کے روٹس، اوقات، کرایوں، رابطہ نمبرز اور دیگر سفری معلومات فراہم کرتا ہے۔",
       icon: Bus
     },
     {
-      qEng: "How is the travel information verified?",
-      qUrdu: "سفری معلومات کی تصدیق کیسے کی جاتی ہے؟",
-      aEng: "Our dedicated field teams regularly visit general transport terminals (like Lahore's Badami Bagh and other regional hubs) to collect manual schedule entries, current fare guides, and operator hotlines. Every route listed undergoes physical or dynamic verifying.",
-      aUrdu: "ہماری فیلڈ ٹیمیں باقاعدگی سے مختلف جنرل ٹرانسپورٹ ٹرمینلز (جیسے لاہور کا بادامی باغ لاری اڈا) کا دورہ کرتی ہیں اور مینوئل شیڈول، موجودہ کرایوں اور آپریٹرز کے فون نمبرز جمع کرتی ہیں۔ ہر روٹ کی معلومات تصدیق کے بعد ہی شائع کی جاتی ہیں۔",
+      qEng: "Is AsaanSafar a bus company?",
+      qUrdu: "کیا آسان سفر کوئی بس کمپنی ہے؟",
+      aEng: "No. AsaanSafar is an independent information platform. We do not operate buses, sell tickets, or provide transportation services.",
+      aUrdu: "نہیں۔ آسان سفر ایک آزاد معلوماتی پلیٹ فارم ہے۔ ہم نہ بسیں چلاتے ہیں اور نہ ہی ٹکٹ فروخت کرتے ہیں۔",
+      icon: Compass
+    },
+    {
+      qEng: "Is the information on AsaanSafar verified?",
+      qUrdu: "کیا آسان سفر پر موجود معلومات تصدیق شدہ ہوتی ہیں؟",
+      aEng: "Yes. We strive to collect and verify information before publishing it. However, travelers are advised to confirm important details with the respective bus operator before traveling.",
+      aUrdu: "ہم معلومات کو شائع کرنے سے پہلے حتی الامکان تصدیق کرنے کی کوشش کرتے ہیں، تاہم سفر سے پہلے متعلقہ بس آپریٹر سے معلومات کی تصدیق ضرور کر لیں۔",
       icon: ClipboardCheck
     },
     {
-      qEng: "Can I book seats or purchase bus tickets directly?",
-      qUrdu: "کیا میں براہِ راست سیٹیں یا بس ٹکٹ بک کر سکتا ہوں؟",
-      aEng: "No. AsaanSafar is an independent travel directory and resource. We do not own bus fleets, operate ticketing setups, or charge booking commissions. We provide accurate contact numbers and schedules so passengers can make their own booking arrangements directly.",
-      aUrdu: "جی نہیں، آسان سفر ایک خود مختار معلوماتی گائیڈ ہے۔ ہم بسوں کے مالک نہیں ہیں اور نہ ہی ٹکٹ بکنگ کا کوئی چارج لیتے ہیں۔ ہم صرف تصدیق شدہ اوقات اور رابطہ نمبرز فراہم کرتے ہیں تاکہ مسافر براہِ راست خود اپنی بکنگ کا انتظام کر سکیں۔",
+      qEng: "Does AsaanSafar provide ticket booking services?",
+      qUrdu: "کیا آسان سفر ٹکٹ بکنگ کی سہولت فراہم کرتا ہے؟",
+      aEng: "No. Currently, AsaanSafar only provides travel information and does not offer ticket booking services.",
+      aUrdu: "نہیں۔ فی الحال آسان سفر صرف معلومات فراہم کرتا ہے اور ٹکٹ بکنگ سروس فراہم نہیں کرتا۔",
       icon: Coins
     },
     {
-      qEng: "How can I report outdated data or suggest a route?",
-      qUrdu: "میں غلط معلومات کی رپورٹ یا نیا روٹ کیسے تجویز کروں؟",
-      aEng: "We welcome contributions! You can click the 'Submit Route' button in the menu, fill out our prompt interface, or drop us a voice/text update on our official Facebook or email channels. Our field team will review and publish it.",
-      aUrdu: "ہم آپ کی شرکت کا خیرمقدم کرتے ہیں! آپ مینو میں 'سفر تجویز کریں' کے بٹن پر کلک کر کے فارم پر کر سکتے ہیں، یا ہمارے آفیشل فیس بک پیج یا ای میل پر پیغام بھیج سکتے ہیں۔ ہماری ٹیم تفصیلات کا جائزہ لے کر اسے اپ ڈیٹ کر دے گی۔",
+      qEng: "How often is the information updated?",
+      qUrdu: "معلومات کتنی بار اپ ڈیٹ کی جاتی ہیں؟",
+      aEng: "Our team regularly reviews and updates bus schedules, fares, routes, and contact information to maintain accuracy.",
+      aUrdu: "ہماری ٹیم باقاعدگی سے بسوں کے اوقات، کرایوں، روٹس اور دیگر معلومات کا جائزہ لے کر انہیں اپ ڈیٹ کرتی ہے۔",
+      icon: RefreshCw
+    },
+    {
+      qEng: "Can bus schedules change?",
+      qUrdu: "کیا بسوں کے اوقات تبدیل ہو سکتے ہیں؟",
+      aEng: "Yes. Bus operators may change schedules, fares, routes, or contact details without prior notice. Always confirm important information before your journey.",
+      aUrdu: "جی ہاں۔ بس آپریٹرز کسی بھی وقت اوقات، کرایوں یا روٹس میں تبدیلی کر سکتے ہیں۔",
       icon: MessageSquare
     },
     {
-      qEng: "Is this platform free for commuters?",
-      qUrdu: "کیا یہ پلیٹ فارم مسافروں کے لیے مفت ہے؟",
-      aEng: "Absolutely. AsaanSafar's directory is, and always will be, 100% free of charge for passengers and travelers across Pakistan. Our aim is to democratize basic transport convenience.",
-      aUrdu: "جی ہاں، بالکل۔ آسان سفر کی معلوماتی ڈائریکٹری پاکستان بھر کے تمام مسافروں کے لیے ۱۰۰٪ مفت ہے اور ہمیشہ مفت رہے گی۔ ہمارا مقصد سفری معلومات تک آسان اور یکساں رسائی فراہم کرنا ہے۔",
+      qEng: "Is AsaanSafar free to use?",
+      qUrdu: "کیا آسان سفر استعمال کرنا مفت ہے؟",
+      aEng: "Yes. AsaanSafar is completely free for travelers.",
+      aUrdu: "جی ہاں۔ آسان سفر تمام مسافروں کے لیے مفت ہے۔",
+      icon: Coins
+    },
+    {
+      qEng: "How can I report incorrect information?",
+      qUrdu: "اگر کوئی معلومات غلط ہو تو میں کیا کروں؟",
+      aEng: "You can contact us through our Contact Us page or official social media channels to report outdated or incorrect information.",
+      aUrdu: "آپ Contact Us صفحے یا ہمارے سوشل میڈیا چینلز کے ذریعے ہمیں آگاہ کر سکتے ہیں۔",
+      icon: MessageSquare
+    },
+    {
+      qEng: "Which areas of Pakistan does AsaanSafar cover?",
+      qUrdu: "آسان سفر کن علاقوں کی معلومات فراہم کرتا ہے؟",
+      aEng: "Our goal is to provide verified bus information from all major cities and routes across Pakistan.",
+      aUrdu: "ہمارا مقصد پاکستان کے تمام بڑے شہروں اور اہم بس روٹس کی تصدیق شدہ معلومات فراہم کرنا ہے۔",
       icon: Compass
+    },
+    {
+      qEng: "Why should I use AsaanSafar?",
+      qUrdu: "آسان سفر استعمال کرنے کا فائدہ کیا ہے؟",
+      aEng: "AsaanSafar helps travelers save time by providing verified bus schedules, fares, routes, and contact information in one convenient platform.",
+      aUrdu: "آسان سفر آپ کا وقت بچاتا ہے اور ایک ہی جگہ پر بسوں کے اوقات، کرایوں، روٹس اور رابطہ معلومات فراہم کرتا ہے۔",
+      icon: HelpCircle
     }
   ];
 
