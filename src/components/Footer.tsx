@@ -92,7 +92,7 @@ export default function Footer({
             </div>
             
             <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-sm">
-              Pakistan's first data-driven Non-AC bus terminal information platform. Bringing transparency to your digital travel journey.
+              Verified non-AC bus schedules, fares, routes and travel information across Pakistan. Helping travelers save time with accurate and reliable transport data.
             </p>
 
               <div className="flex gap-4">
@@ -155,7 +155,7 @@ export default function Footer({
 
         <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-            © {currentYear} AsaanSAFAR PK • BUILT FOR PAKISTAN 🇵🇰
+            © {currentYear} AsaanSAFAR • All Rights Reserved Built for Pakistan 🇵🇰
           </p>
           <div className="flex gap-8">
             <button className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 hover:text-emerald-600 transition-colors">
