@@ -69,33 +69,84 @@ export default function BlogPostDetail() {
               {post.excerpt}
             </p>
             
-            <p className="text-slate-600 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            </p>
+            {post.sections && post.sections.length > 0 ? (
+              post.sections.map((section, idx) => {
+                if (section.type === 'paragraph') {
+                  return (
+                    <p key={idx} className="text-slate-600 leading-relaxed mb-6">
+                      {section.text}
+                    </p>
+                  );
+                } else if (section.type === 'heading') {
+                  return (
+                    <h2 key={idx} className="text-3xl font-black text-slate-900 mt-12 mb-6 font-display">
+                      {section.text}
+                    </h2>
+                  );
+                } else if (section.type === 'quote') {
+                  return (
+                    <blockquote key={idx} className="border-l-4 border-emerald-500 pl-6 italic text-slate-600 my-8">
+                      {section.text}
+                    </blockquote>
+                  );
+                } else if (section.type === 'list' && section.items) {
+                  return (
+                    <ul key={idx} className="list-disc pl-6 space-y-2 my-6 text-slate-600">
+                      {section.items.map((item, itemIdx) => (
+                        <li key={itemIdx} className="font-medium">{item}</li>
+                      ))}
+                    </ul>
+                  );
+                } else if (section.type === 'image' && section.src) {
+                  return (
+                    <img
+                      key={idx}
+                      src={section.src}
+                      alt={section.alt || ''}
+                      className="w-full h-[400px] object-cover rounded-[2.5rem] my-12 shadow-2xl"
+                    />
+                  );
+                }
+                return null;
+              })
+            ) : (
+              <>
+                <p className="text-slate-600 leading-relaxed">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                </p>
 
-            <img 
-              src={post.image} 
-              alt={post.title} 
-              className="w-full h-[400px] object-cover rounded-[2.5rem] my-12 shadow-2xl"
-            />
+                <img 
+                  src={post.image} 
+                  alt={post.title} 
+                  className="w-full h-[400px] object-cover rounded-[2.5rem] my-12 shadow-2xl"
+                />
 
-            <h2 className="text-3xl font-black text-slate-900 mt-12 mb-6">Why this matters for Pakistani Travelers</h2>
-            <p className="text-slate-600 leading-relaxed">
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-            </p>
+                <h2 className="text-3xl font-black text-slate-900 mt-12 mb-6">Why this matters for Pakistani Travelers</h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+                </p>
+              </>
+            )}
 
-            <div className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 my-16">
-               <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                 <Tag className="w-6 h-6 text-emerald-600" /> Key Takeaway
-               </h3>
-               <p className="text-slate-600 m-0 leading-relaxed">
-                 Always verify your timings on platforms like AsaanSafar before heading to the terminal. In the non-AC sector, physical listings at terminals are the gold standard, and our team works hard to bring those lists to your screens.
-               </p>
-            </div>
-
-            <p className="text-slate-600 leading-relaxed">
-              Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
-            </p>
+            {post.keyTakeaway ? (
+              <div className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 my-16">
+                 <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                   <Tag className="w-6 h-6 text-emerald-600" /> Key Takeaway
+                 </h3>
+                 <p className="text-slate-600 m-0 leading-relaxed">
+                   {post.keyTakeaway}
+                 </p>
+              </div>
+            ) : !post.sections && (
+              <div className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 my-16">
+                 <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                   <Tag className="w-6 h-6 text-emerald-600" /> Key Takeaway
+                 </h3>
+                 <p className="text-slate-600 m-0 leading-relaxed">
+                   Always verify your timings on platforms like AsaanSafar before heading to the terminal. In the non-AC sector, physical listings at terminals are the gold standard, and our team works hard to bring those lists to your screens.
+                 </p>
+              </div>
+            )}
          </article>
 
          {/* Share & Footer */}
@@ -113,7 +164,7 @@ export default function BlogPostDetail() {
             
             <button 
               onClick={() => navigate('/blog')}
-              className="flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all"
+              className="flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all cursor-pointer font-display"
             >
               Check Other Stories
             </button>
