@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { BookOpen, Calendar, Clock, User, ArrowRight, Tag } from 'lucide-react';
+import { BookOpen, Calendar, Clock, User, ArrowRight, Tag, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_BLOGS } from '../data/mockBlogs';
 
@@ -7,23 +7,33 @@ export default function Blog() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white min-h-screen pt-20">
-      {/* Hero Section */}
-      <section className="bg-emerald-50 py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="bg-slate-50 min-h-screen pb-24">
+      {/* Premium Hero Section */}
+      <section className="relative overflow-hidden bg-emerald-950 py-28 sm:py-36">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            className="max-w-3xl space-y-4"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
-              <BookOpen className="w-4 h-4" /> Travel Blog
-            </div>
-            <h1 className="text-4xl font-black text-slate-900 sm:text-5xl mb-6">
-              Safar <span className="text-emerald-600">Ki Kahaniyan</span>
+            <button 
+              onClick={() => navigate('/')} 
+              className="inline-flex items-center gap-2 text-emerald-300 hover:text-white transition-colors text-xs font-black uppercase tracking-widest mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" /> Go Back Home
+            </button>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Safar Ki <span className="text-emerald-400">Kahaniyan</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Expert guides, travel tips, and the latest news about bus travel in Pakistan. Helping you travel smarter and cheaper.
+            <p className="text-emerald-100/70 font-semibold tracking-wide uppercase text-[11px] flex gap-2 items-center">
+              <span>TRAVEL BLOGS & GUIDES</span> • <span>سفر کی کہانیاں اور تفصیلی رہنمائی</span>
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-emerald-100/80 max-w-2xl">
+              Expert guides, travel tips, and the latest news about bus travel in Pakistan. Learn how to travel smarter, safer, and more affordably.
             </p>
           </motion.div>
         </div>
