@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_BLOGS } from '../data/mockBlogs';
-import { ArrowRight } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight } from 'lucide-react';
 
 export default function BlogSection() {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function BlogSection() {
     <section className="py-20 bg-slate-50/50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4 text-start">
           <div>
             <h2 className="text-3xl font-bold text-[#1e293b] mb-2 tracking-tight">
               Travel Smarter with Our Blogs
@@ -21,7 +21,7 @@ export default function BlogSection() {
           </div>
           <button 
             onClick={() => navigate('/blog')}
-            className="text-[#104a91] font-semibold text-sm hover:underline flex items-center gap-1 group"
+            className="text-[#104a91] font-semibold text-sm hover:underline flex items-center gap-1 group cursor-pointer"
           >
             View All
           </button>
@@ -42,41 +42,66 @@ export default function BlogSection() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-start">
             {MOCK_BLOGS.map((post, i) => (
-              <motion.div 
+              <motion.article 
                 key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer"
                 onClick={() => navigate(`/blog/${post.slug}`)}
-                className="group cursor-pointer flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all h-full"
               >
-                {/* Image Container */}
-                <div className="relative h-48 sm:h-52 overflow-hidden">
+                {/* Image */}
+                <div className="h-48 bg-slate-100 relative overflow-hidden">
                   <img 
                     src={post.image} 
-                    alt={post.title}
+                    alt={post.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
-                    <h3 className="text-white font-bold text-sm sm:text-base leading-tight uppercase">
-                      {post.imageOverlayText}
-                    </h3>
+                  <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 bg-white text-emerald-700 text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-widest">
+                      {post.category}
+                    </span>
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-5 flex flex-col h-full bg-white">
-                  <span className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">
-                    {post.date}
-                  </span>
-                  <h4 className="text-[#1e293b] font-bold leading-snug group-hover:text-emerald-600 transition-colors">
+                <div className="flex-1 p-8 flex flex-col">
+                  {/* Meta */}
+                  <div className="flex items-center gap-4 text-xs font-bold text-slate-400 mb-4 uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {post.date}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {post.readTime}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
                     {post.title}
-                  </h4>
+                  </h3>
+
+                  <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1">
+                    {post.excerpt}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-600">{post.author}</span>
+                    </div>
+                    <button className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
+                      Read More <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </div>
         )}
