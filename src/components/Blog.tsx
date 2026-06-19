@@ -32,67 +32,77 @@ export default function Blog() {
       {/* Blog Grid */}
       <section className="py-20 text-start">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {MOCK_BLOGS.map((post, i) => (
-              <motion.article 
-                key={post.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer"
-                onClick={() => navigate(`/blog/${post.slug}`)}
-              >
-                {/* Image */}
-                <div className="h-48 bg-slate-100 relative overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-transparent transition-colors" />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-white text-emerald-700 text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-widest">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex-1 p-8 flex flex-col">
-                  {/* Meta */}
-                  <div className="flex items-center gap-4 text-xs font-bold text-slate-400 mb-4 uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {post.date}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      {post.readTime}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
-                    {post.title}
-                  </h3>
-
-                  <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1">
-                    {post.excerpt}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
-                        <User className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs font-bold text-slate-600">{post.author}</span>
+          {MOCK_BLOGS.length === 0 ? (
+            <div className="text-center py-20 bg-slate-50 border border-dashed border-slate-200 rounded-[2.5rem]">
+              <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-6 animate-pulse" />
+              <h3 className="text-2xl font-black text-slate-800 mb-2 font-display">New Commuter Stories & Guides Coming Soon!</h3>
+              <p className="text-slate-500 max-w-sm mx-auto font-medium">
+                We are currently crafting high-quality travel hacks, terminal guides, and operator profiles. Our first custom blogs will be posted very soon!
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {MOCK_BLOGS.map((post, i) => (
+                <motion.article 
+                  key={post.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group flex flex-col bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/blog/${post.slug}`)}
+                >
+                  {/* Image */}
+                  <div className="h-48 bg-slate-100 relative overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-transparent transition-colors" />
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3 py-1 bg-white text-emerald-700 text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-widest">
+                        {post.category}
+                      </span>
                     </div>
-                    <button className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
-                      Read More <ArrowRight className="w-4 h-4" />
-                    </button>
                   </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+
+                  <div className="flex-1 p-8 flex flex-col">
+                    {/* Meta */}
+                    <div className="flex items-center gap-4 text-xs font-bold text-slate-400 mb-4 uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {post.date}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {post.readTime}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
+                      {post.title}
+                    </h3>
+
+                    <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1">
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-600">{post.author}</span>
+                      </div>
+                      <button className="text-emerald-600 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
+                        Read More <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
 
           {/* Newsletter / CTA Section */}
           <div className="mt-20 p-12 bg-slate-900 rounded-[3rem] relative overflow-hidden text-center">
