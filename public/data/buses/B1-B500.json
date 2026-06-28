@@ -1,29 +1,29 @@
 [
   {
     "busId": "B1",
-    "company": "New Khan (Wahla Brothers)",
+    "company": "New Khan (Wahla Bros)",
     "number": "BSE-011",
     "contact": "0345-6816188",
     "serviceType": "Standard",
     "climateControl": "Normal Ventilation",
-    "stops": "S1, S2, S3, S4, S5, S8, S15",
-    "terminal": "Badami Bagh, Sheikhupura Bypass, Ferozwattwan Bypass, Manawala Bypass, Shahkot Bypass, Main Stop, Faisalabad Bus Stand",
-    "stand": "9, 0, 0, 0, 0, 0, 22",
-    "arrivalTime": "10:30, 11:15, 11:45, 12:20, 13:00, 13:45, 14:30",
-    "departureTime": "10:30, 11:15, 11:45, 12:20, 13:00, 13:45, 14:30"
+    "stops": "S1, S2, S5, S7, S9, S10, S11, S13, S14, S50, S22, S18, S19, S20",
+    "terminal": "Badami Bagh, Bypass, Main Stop, Main Stop, Main Stop, Main Stop, General Bus Stand, Interchange, Interchange, Main Stop, Main Stop, Main Stop, Main Stop, Bus Stand",
+    "stand": "9, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 0, ?",
+    "arrivalTime": "10:15, 14:30, 15:00, 15:10, 15:30, 15:45, 16:15, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 22:30",
+    "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30"
   },
   {
     "busId": "B2",
-    "company": "Waraich Express",
-    "number": "LES-9911",
-    "contact": "0300-1234567",
+    "company": "New Khan (Wahla Bros)",
+    "number": "BSE-011",
+    "contact": "0345-6816188",
     "serviceType": "Standard",
     "climateControl": "Normal Ventilation",
-    "stops": "S1, S5, S15",
-    "terminal": "Kalma Chowk Terminal, Shahkot Bypass, Faisalabad Stand",
-    "stand": "4, 0, 12",
-    "arrivalTime": "08:00, 09:30, 10:15",
-    "departureTime": "08:15, 09:30, 10:15"
+    "stops": "S20, S19, S18, S22, S50, S14, S13, S11, S10, S9, S7, S5, S2, S1",
+    "terminal": "Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Interchange, Interchange, General Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Bypass, Badami Bagh",
+    "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
+    "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
+    "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
   },
   {
     "busId": "B3",
@@ -32,8 +32,8 @@
     "contact": "0311-5555555",
     "serviceType": "Standard",
     "climateControl": "Normal Ventilation",
-    "stops": "S1, S2, S15",
-    "terminal": "Badami Bagh, Sheikhupura Bypass, Faisalabad Terminal",
+    "stops": "S1, S2, S11",
+    "terminal": "Badami Bagh, Bypass, General Bus Stand",
     "stand": "2, 0, 5",
     "arrivalTime": "16:00, 16:45, 18:00",
     "departureTime": "16:15, 16:45, 18:00"
