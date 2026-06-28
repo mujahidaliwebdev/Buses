@@ -1,0 +1,41 @@
+[
+  {
+    "busId": "B1",
+    "company": "New Khan (Wahla Brothers)",
+    "number": "BSE-011",
+    "contact": "0345-6816188",
+    "serviceType": "Standard",
+    "climateControl": "Normal Ventilation",
+    "stops": "S1, S2, S3, S4, S5, S8, S15",
+    "terminal": "Badami Bagh, Sheikhupura Bypass, Ferozwattwan Bypass, Manawala Bypass, Shahkot Bypass, Main Stop, Faisalabad Bus Stand",
+    "stand": "9, 0, 0, 0, 0, 0, 22",
+    "arrivalTime": "10:30, 11:15, 11:45, 12:20, 13:00, 13:45, 14:30",
+    "departureTime": "10:30, 11:15, 11:45, 12:20, 13:00, 13:45, 14:30"
+  },
+  {
+    "busId": "B2",
+    "company": "Waraich Express",
+    "number": "LES-9911",
+    "contact": "0300-1234567",
+    "serviceType": "Standard",
+    "climateControl": "Normal Ventilation",
+    "stops": "S1, S5, S15",
+    "terminal": "Kalma Chowk Terminal, Shahkot Bypass, Faisalabad Stand",
+    "stand": "4, 0, 12",
+    "arrivalTime": "08:00, 09:30, 10:15",
+    "departureTime": "08:15, 09:30, 10:15"
+  },
+  {
+    "busId": "B3",
+    "company": "Bilal Travels",
+    "number": "FSD-4455",
+    "contact": "0311-5555555",
+    "serviceType": "Standard",
+    "climateControl": "Normal Ventilation",
+    "stops": "S1, S2, S15",
+    "terminal": "Badami Bagh, Sheikhupura Bypass, Faisalabad Terminal",
+    "stand": "2, 0, 5",
+    "arrivalTime": "16:00, 16:45, 18:00",
+    "departureTime": "16:15, 16:45, 18:00"
+  }
+]
