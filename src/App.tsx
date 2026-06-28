@@ -31,6 +31,7 @@ import BlogPostDetail from './components/BlogPostDetail';
 import Schedules from './components/Schedules';
 import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
+import Sitemap from './components/Sitemap';
 import Careers from './components/Careers';
 import OurTeam from './components/OurTeam';
 import FAQs from './components/FAQs';
@@ -115,26 +116,23 @@ function AppContent() {
 
   const isAdmin = user?.email === 'mujahidali.webdev@gmail.com';
 
-// File: /src/App.tsx
-const handleNavClick = (sectionId: string) => {
-  if (location.pathname !== '/') {
-    navigate('/');
-    setTimeout(() => {
+  const handleNavClick = (sectionId: string) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else if (searchResults) {
+      setSearchResults(null);
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
       const element = document.getElementById(sectionId);
       if (element) element.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  } else if (searchResults) {
-    // Agar search results active hon to pehle reset karen
-    setSearchResults(null);
-    setTimeout(() => {
-      const element = document.getElementById(sectionId);
-      if (element) element.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  } else {
-    // Normal case (direct scroll)
-    const element = document.getElementById(sectionId);
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
-  }
+    }
   };
 
   return (
@@ -201,6 +199,8 @@ const handleNavClick = (sectionId: string) => {
           <Route path="/team" element={<OurTeam />} />
           <Route path="/faqs" element={<FAQs />} />
           
+          <Route path="/sitemap" element={<Sitemap />} />
+          
           {/* SEO Routes */}
           <Route path="/:slug" element={<RouteSpecificPage />} />
         </Routes>
@@ -228,6 +228,7 @@ const handleNavClick = (sectionId: string) => {
         onCareersClick={() => navigate('/careers')}
         onTeamClick={() => navigate('/team')}
         onFAQsClick={() => navigate('/faqs')}
+        onSitemapClick={() => navigate('/sitemap')}
       />
 
       <AnimatePresence>
