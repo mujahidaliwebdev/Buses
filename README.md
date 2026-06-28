@@ -1,4 +1,4 @@
-# AsaanBusSafar Pakistan 🇵🇰
+# AsaanSafar Pakistan 🇵🇰
 
 A modern, fast, and responsive bus transportation platform built for Pakistan. Users can search for AC and Non-AC bus timings, fares, and route details across 50+ cities.
 
