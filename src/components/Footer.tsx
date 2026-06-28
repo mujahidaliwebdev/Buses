@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 
 interface FooterProps {
   onHomeClick: () => void;
-  onAboutClick: () => void;
+  onAboutClick: (tab?: string) => void;
   onPolicyClick: () => void;
   onContactClick: () => void;
   onPrivacyClick: () => void;
@@ -16,6 +16,7 @@ interface FooterProps {
   onCareersClick: () => void;
   onTeamClick: () => void;
   onFAQsClick: () => void;
+  onSitemapClick: () => void;
 }
 
 export default function Footer({
@@ -32,7 +33,8 @@ export default function Footer({
   onRoutesClick,
   onCareersClick,
   onTeamClick,
-  onFAQsClick
+  onFAQsClick,
+  onSitemapClick
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -42,6 +44,7 @@ export default function Footer({
       links: [
         { label: 'Search Route', onClick: onHomeClick },
         { label: 'Bus Schedules', onClick: onSchedulesClick },
+        { label: 'Sitemap (سائٹ میپ)', onClick: onSitemapClick },
       ]
     },
     {
