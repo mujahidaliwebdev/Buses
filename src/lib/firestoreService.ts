@@ -41,6 +41,23 @@ interface FirestoreErrorInfo {
 }
 
 function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  // Check if it's a connection / offline / unavailable error
+  if (error && typeof error === 'object') {
+    const err = error as any;
+    if (
+      err.code === 'unavailable' || 
+      err.code === 'deadline-exceeded' || 
+      (err.message && (
+        err.message.toLowerCase().includes('offline') || 
+        err.message.toLowerCase().includes('could not reach') || 
+        err.message.toLowerCase().includes('failed to connect')
+      ))
+    ) {
+      console.warn(`Firestore is currently offline or unreachable (${err.code || 'unknown'}). Operating in offline/fallback mode.`);
+      return;
+    }
+  }
+
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -68,7 +85,13 @@ export const busService = {
       const buses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bus));
       callback(buses);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
+      try {
+        handleFirestoreError(error, OperationType.GET, path);
+      } catch (e) {
+        console.error("Subscription failed:", e);
+      }
+      // Pass an empty array so the app falls back to mock buses and stops loading infinitely
+      callback([]);
     });
   },
 
