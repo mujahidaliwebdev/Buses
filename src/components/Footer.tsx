@@ -86,8 +86,13 @@ export default function Footer({
               onClick={onHomeClick}
               className="flex items-center gap-3 cursor-pointer group"
             >
-              <div className="bg-emerald-600 p-2 rounded-xl group-hover:rotate-12 transition-transform shadow-lg shadow-emerald-600/20">
-                <Bus className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-600/10 group-hover:rotate-6 transition-transform border border-slate-100 flex items-center justify-center">
+                <img 
+                  src="/logo.jpg" 
+                  alt="AsaanSafar Logo" 
+                  className="w-full h-full object-cover" 
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <span className="text-2xl font-black tracking-tight text-slate-900 leading-none">
                 Asaan<span className="text-emerald-600">Safar</span>
