@@ -45,64 +45,59 @@ export default function Navbar({
             onClick={onHomeClick}
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity outline-none"
           >
-            <div className="w-10 h-10 bg-emerald-700 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-700/20">
-              <BusFront className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-emerald-700/10 border border-slate-100">
+              <img 
+                src="/logo.jpg" 
+                alt="AsaanSafar Logo" 
+                className="w-full h-full object-cover" 
+                referrerPolicy="no-referrer"
+              />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-emerald-950">
+            <span className="text-2xl font-bold tracking-tight text-slate-900">
               Asaan<span className="text-emerald-600">Safar</span>
             </span>
           </motion.button>
           
-          <div className="hidden md:flex items-center gap-10 text-sm font-semibold text-slate-600">
+          <div className="hidden md:flex items-center gap-8 text-xs font-black uppercase tracking-widest text-slate-500">
             <button 
               onClick={onHomeClick} 
-              className={`${activeTab === 'home' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-800'} transition-all cursor-pointer outline-none`}
+              className={`${activeTab === 'home' ? 'text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl' : 'hover:text-emerald-700'} transition-all cursor-pointer outline-none`}
             >
               Home
             </button>
             <button 
               onClick={onRoutesClick} 
-              className={`${activeTab === 'routes' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+              className={`${activeTab === 'routes' ? 'text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
             >
               Popular Routes
             </button>
-            {isAdmin && (
-              <button 
-                onClick={onAdminClick}
-                className={`${activeTab === 'admin' ? 'text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg' : 'text-emerald-600 hover:text-emerald-800'} transition-all font-bold flex items-center gap-1 outline-none`}
-              >
-                Admin Panel
-              </button>
-            )}
+            <button 
+              onClick={onAdminClick}
+              className={`${activeTab === 'admin' ? 'text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+            >
+              Admin Panel
+            </button>
           </div>
 
           <div className="flex items-center gap-6">
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-1">Welcome</span>
-                  <span className="text-sm font-bold text-slate-700 leading-none">{user.displayName?.split(' ')[0]}</span>
+                  <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em] leading-none mb-1">Welcome</span>
+                  <span className="text-sm font-black text-slate-900 leading-none">{user.displayName?.split(' ')[0] || 'Mujahid'}</span>
                 </div>
                 <div className="relative group">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full border-2 border-emerald-100 cursor-pointer" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-100 cursor-pointer">
-                      <User className="w-5 h-5 text-emerald-600" />
-                    </div>
-                  )}
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 py-2">
-                    {isAdmin && (
-                      <button 
-                        onClick={onAdminClick}
-                        className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-bold text-emerald-600 flex items-center gap-2 border-b border-slate-50 mb-1"
-                      >
-                        <BusFront className="w-4 h-4" /> Admin Console
-                      </button>
+                  <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-black text-lg border-2 border-emerald-50 cursor-pointer shadow-lg shadow-emerald-600/20">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      <span>{user.displayName?.[0] || 'M'}</span>
                     )}
+                  </div>
+                  <div className="absolute top-full right-0 mt-3 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 py-2 overflow-hidden">
                     <button 
                       onClick={() => logout()}
-                      className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-medium text-red-600 flex items-center gap-2"
+                      className="w-full text-left px-5 py-3 hover:bg-rose-50 text-xs font-black uppercase tracking-widest text-rose-600 flex items-center gap-2"
                     >
                       <LogOut className="w-4 h-4" /> Sign Out
                     </button>
@@ -112,7 +107,7 @@ export default function Navbar({
             ) : (
               <button 
                 onClick={onLoginClick}
-                className="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-700/20 transition-all active:scale-95 flex items-center gap-2"
+                className="bg-emerald-950 text-white px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-800 shadow-xl shadow-emerald-950/20 transition-all active:scale-95 flex items-center gap-3"
               >
                 <User className="w-4 h-4" /> Sign In
               </button>
