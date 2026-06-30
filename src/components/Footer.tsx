@@ -19,6 +19,17 @@ interface FooterProps {
   onSitemapClick: () => void;
 }
 
+// Helper to get the correct path to the logo in any hosting environment
+const getLogoPath = () => {
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('.github.io')) {
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    if (segments.length > 0) {
+      return `/${segments[0]}/logo.jpg`;
+    }
+  }
+  return '/logo.jpg';
+};
+
 export default function Footer({
   onHomeClick,
   onAboutClick,
@@ -88,7 +99,7 @@ export default function Footer({
             >
               <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-600/10 group-hover:rotate-6 transition-transform border border-slate-100 flex items-center justify-center">
                 <img 
-                  src={window.location.hostname.endsWith('.github.io') ? '/Buses/logo.jpg' : '/logo.jpg'} 
+                  src={getLogoPath()} 
                   alt="AsaanSafar Logo" 
                   className="w-full h-full object-cover" 
                   referrerPolicy="no-referrer"
