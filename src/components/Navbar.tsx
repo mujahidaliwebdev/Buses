@@ -47,7 +47,7 @@ export default function Navbar({
           >
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-emerald-700/10 border border-slate-100">
               <img 
-                src="/logo.jpg" 
+                src={window.location.hostname.endsWith('.github.io') ? '/Buses/logo.jpg' : '/logo.jpg'} 
                 alt="AsaanSafar Logo" 
                 className="w-full h-full object-cover" 
                 referrerPolicy="no-referrer"
