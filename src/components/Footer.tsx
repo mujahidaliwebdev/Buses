@@ -21,13 +21,7 @@ interface FooterProps {
 
 // Helper to get the correct path to the logo in any hosting environment
 const getLogoPath = () => {
-  if (typeof window !== 'undefined' && window.location.hostname.endsWith('.github.io')) {
-    const segments = window.location.pathname.split('/').filter(Boolean);
-    if (segments.length > 0) {
-      return `/${segments[0]}/logo.jpg`;
-    }
-  }
-  return '/logo.jpg';
+  return 'https://lh3.googleusercontent.com/d/1UPQLOT36JqVoCfmWfj7g9b3THwPvT21R';
 };
 
 export default function Footer({
