@@ -274,7 +274,15 @@ function AppContent() {
 }
 
 export default function App() {
-  const basename = window.location.hostname.endsWith('.github.io') ? '/Buses' : '/';
+  let basename = '/';
+  if (window.location.hostname.endsWith('.github.io')) {
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts[1] && pathParts[1].toLowerCase() === 'buses') {
+      basename = '/' + pathParts[1];
+    } else {
+      basename = '/Buses';
+    }
+  }
   return (
     <BrowserRouter basename={basename}>
       <AppContent />
