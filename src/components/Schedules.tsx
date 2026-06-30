@@ -6,10 +6,6 @@ import { ArrowRight, Clock, MapPin, Search } from 'lucide-react';
 const ALL_SCHEDULE_ROUTES = [
   { from: "Lahore", to: "Faisalabad" },
   { from: "Faisalabad", to: "Lahore" },
-  { from: "Lahore", to: "Karachi" },
-  { from: "Karachi", to: "Lahore" },
-  { from: "Faisalabad", to: "Karachi" },
-  { from: "Karachi", to: "Faisalabad" },
   { from: "Lahore", to: "Multan" },
   { from: "Multan", to: "Lahore" },
   { from: "Lahore", to: "Islamabad" },
@@ -18,14 +14,14 @@ const ALL_SCHEDULE_ROUTES = [
   { from: "Layyah", to: "Lahore" },
   { from: "Lahore", to: "Kot Addu" },
   { from: "Kot Addu", to: "Lahore" },
-  { from: "Lahore", to: "Karor" },
-  { from: "Karor", to: "Lahore" },
+  { from: "Lahore", to: "Karor Lal Esan" },
+  { from: "Karor Lal Esan", to: "Lahore" },
   { from: "Faisalabad", to: "Layyah" },
   { from: "Layyah", to: "Faisalabad" },
   { from: "Faisalabad", to: "Kot Addu" },
   { from: "Kot Addu", to: "Faisalabad" },
-  { from: "Faisalabad", to: "Karor" },
-  { from: "Karor", to: "Faisalabad" },
+  { from: "Faisalabad", to: "Karor Lal Esan" },
+  { from: "Karor Lal Esan", to: "Faisalabad" },
   { from: "Lahore", to: "Taunsa" },
   { from: "Taunsa", to: "Lahore" },
 ];
@@ -36,23 +32,39 @@ interface SchedulesProps {
 
 export default function Schedules({ onRouteClick }: SchedulesProps) {
   return (
-    <div className="bg-slate-50 min-h-screen pt-20 pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20">
+      {/* Premium Hero Section */}
+      <section className="relative overflow-hidden bg-emerald-950 py-28 sm:py-36 mb-12">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--color-emerald-700),_transparent_70%)]" />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto text-center space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-900/50 text-emerald-300 border border-emerald-800/30 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Clock className="w-4 h-4" /> Full Timetable
+            </div>
+            
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Bus <span className="text-emerald-400">Schedules</span>
+            </h1>
+            
+            <p className="text-emerald-100/70 font-semibold tracking-wide uppercase text-[11px] flex gap-2 items-center justify-center">
+              <span>DESIGNED FOR TRANSPARENCY</span> • <span>پاکستان کا پہلا معلومات یافتہ پلیٹ فارم</span>
+            </p>
+            
+            <p className="text-base sm:text-lg leading-relaxed text-emerald-100/80 max-w-2xl mx-auto">
+              Find complete bus timings and schedules for major routes across Pakistan. Select a route to see all available buses.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12 text-center"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
-            <Clock className="w-4 h-4" /> Full Timetable
-          </div>
-          <h1 className="text-4xl font-black text-slate-900 sm:text-5xl mb-6 tracking-tight">
-            Bus <span className="text-emerald-600">Schedules</span>
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Find complete bus timings and schedules for major routes across Pakistan. Select a route to see all available buses.
-          </p>
-        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {ALL_SCHEDULE_ROUTES.map((route, i) => (
@@ -113,7 +125,6 @@ export default function Schedules({ onRouteClick }: SchedulesProps) {
         <div className="mt-20 p-8 bg-white border border-slate-100 rounded-3xl text-center shadow-lg shadow-slate-200/50">
           <p className="text-slate-500 font-medium">
             Don't see your route? Try searching directly from the <Link to="/" className="text-emerald-600 font-bold hover:underline">homepage</Link>.
-
           </p>
         </div>
       </div>
