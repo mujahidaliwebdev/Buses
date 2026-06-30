@@ -5,7 +5,7 @@
 
 // Pakistan's #1 Data-Driven Non-AC Bus Information Platform
 import { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Bus as BusIcon, Plus } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -275,8 +275,8 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AppContent />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
