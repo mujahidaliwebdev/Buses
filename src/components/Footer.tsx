@@ -88,7 +88,7 @@ export default function Footer({
             >
               <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-600/10 group-hover:rotate-6 transition-transform border border-slate-100 flex items-center justify-center">
                 <img 
-                  src="/logo.jpg" 
+                  src={window.location.hostname.endsWith('.github.io') ? '/Buses/logo.jpg' : '/logo.jpg'} 
                   alt="AsaanSafar Logo" 
                   className="w-full h-full object-cover" 
                   referrerPolicy="no-referrer"
