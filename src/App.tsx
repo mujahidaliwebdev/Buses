@@ -274,8 +274,9 @@ function AppContent() {
 }
 
 export default function App() {
+  const basename = window.location.hostname.endsWith('.github.io') ? '/Buses' : '/';
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <AppContent />
     </BrowserRouter>
   );
