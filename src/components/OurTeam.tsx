@@ -38,7 +38,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     urduName: 'نعمان اعجاز',
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
+    image: 'https://lh3.googleusercontent.com/d/125-AWlBTRcMMtSiLob69Z3PtcXYCeS00',
     email: 'operations@asaanbussafar.com',
     specialization: 'Liaison & Field Quality Management',
     bio: 'Noman Ejaz leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
