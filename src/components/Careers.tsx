@@ -141,37 +141,19 @@ export default function Careers() {
     };
 
     try {
-      // Step A: Save metadata to Firebase Firestore careers collection first
+      // Save full application with CV data directly to Firebase Firestore careers collection
       const collectionPath = 'careers';
       await addDoc(collection(db, collectionPath), {
         ...submissionData,
+        cvData: fileBase64, // Store the base64 file data directly in Firestore
         createdAt: serverTimestamp()
       });
 
-      // Step B: Send full application with CV data to SMTP email route on our Express Backend
-      const apiResponse = await fetch('/api/careers/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...submissionData,
-          cvData: fileBase64
-        })
-      });
-
-      const result = await apiResponse.json();
-
-      if (result.success) {
-        setSubmitSuccess(true);
-        setEmailStatus(result.emailSent);
-        setFormData({ name: '', mobile: '', email: '', position: '', experience: '' });
-        setFile(null);
-        setFileBase64('');
-      } else {
-        // Even if email API fails, if it was stored in Firestore we mark success but warn or show the error
-        setSubmitError(result.message || 'Server failed to send CV. Please contact support. / سرور کی طرف سے خرابی۔');
-      }
+      setSubmitSuccess(true);
+      setEmailStatus(false); // No email dispatch needed, saved securely to Firestore
+      setFormData({ name: '', mobile: '', email: '', position: '', experience: '' });
+      setFile(null);
+      setFileBase64('');
     } catch (err: any) {
       console.error('Job application submission failure: ', err);
       // Catch Firestore permission errors
