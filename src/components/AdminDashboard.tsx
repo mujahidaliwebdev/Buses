@@ -1022,7 +1022,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       if (!app.cvData) {
                         try {
                           // Check if we saved the CV string locally in database
-                          alert("CV file binary data not loaded because document size exceeded limits. Please review email inbox at mujahidali.webdev@gmail.com! / سی وی فائل ڈیٹا دستیاب نہیں ہے۔");
+                          alert("CV file binary data not loaded because document size exceeded limits. Please review the registered email inbox! / سی وی فائل ڈیٹا دستیاب نہیں ہے۔");
                         } catch (e) {}
                         return;
                       }
