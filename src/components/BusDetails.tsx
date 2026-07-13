@@ -34,8 +34,9 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
   const [isRatingSent, setIsRatingSent] = useState(false);
 
   // Dynamic reviews states
+  const [showReviews, setShowReviews] = useState(false);
   const [dbRatings, setDbRatings] = useState<any[]>([]);
-  const [loadingRatings, setLoadingRatings] = useState(true);
+  const [loadingRatings, setLoadingRatings] = useState(false);
   const [reviewText, setReviewText] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [isRatingSubmitting, setIsRatingSubmitting] = useState(false);
@@ -52,6 +53,12 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
   }, []);
 
   useEffect(() => {
+    if (!showReviews) {
+      setLoadingRatings(false);
+      return;
+    }
+
+    setLoadingRatings(true);
     const busId = bus.id || `${bus.companyName}-${bus.busNumber}`;
     const q = query(collection(db, 'ratings'), where('busId', '==', busId));
     
@@ -74,7 +81,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
     });
     
     return unsubscribe;
-  }, [bus]);
+  }, [bus, showReviews]);
 
   const handleRatingClick = (stars: number) => {
     setRating(stars);
@@ -99,6 +106,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
       ratingObj.userName = finalName;
       
       await addDoc(collection(db, 'ratings'), ratingObj);
+      setShowReviews(true); // Automatically enable review loading to show the newly submitted review
       setIsRatingSent(true);
       setReviewText('');
       setRating(0);
@@ -386,20 +394,42 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
           </div>
 
           {/* Real-time Passenger Reviews & Testimonials section */}
-          <div className="mt-12 border-t border-slate-100 pt-10">
+          <div className="mt-12 border-t border-slate-100 pt-10" id="passenger-reviews-section">
             <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
-              <Star className="w-4 h-4 text-emerald-500 fill-emerald-500" /> Passenger Reviews / مسافروں کی رائے ({dbRatings.length})
+              <Star className="w-4 h-4 text-emerald-500 fill-emerald-500" /> Passenger Reviews / مسافروں کی رائے {showReviews && `(${dbRatings.length})`}
             </h3>
             
-            {dbRatings.length === 0 ? (
-              <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-150 border-dashed text-center">
-                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">No user comments yet. Be the first to leave a feedback on this bus!</p>
+            {!showReviews ? (
+              <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-200 border-dashed text-center flex flex-col items-center" id="reviews-placeholder-box">
+                <p className="text-slate-600 text-xs font-bold uppercase tracking-wider mb-2">
+                  Reviews are loaded on-demand to optimize data usage
+                </p>
+                <p className="text-slate-400 text-[10px] mb-4">
+                  مسافروں کے تبصرے اور ریٹنگز دیکھنے کے لیے نیچے بٹن دبائیں۔
+                </p>
+                <button
+                  id="btn-load-reviews"
+                  onClick={() => setShowReviews(true)}
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-wider rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2 cursor-pointer outline-none"
+                >
+                  <Star className="w-3.5 h-3.5 text-amber-300 fill-amber-300 animate-pulse" />
+                  Load Reviews / تبصرے لوڈ کریں
+                </button>
+              </div>
+            ) : loadingRatings ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-3" id="reviews-loader">
+                <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Loading reviews...</p>
+              </div>
+            ) : dbRatings.length === 0 ? (
+              <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-150 border-dashed text-center" id="reviews-empty-state">
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">No user comments yet. Be the first to leave feedback on this bus!</p>
                 <p className="text-slate-350 text-[10px]">اس بس کے بارے میں ابھی کوئی تبصرہ نہیں ہے۔ پہلی رائے دینے والے بنیں۔</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" id="reviews-grid">
                 {dbRatings.map((item) => (
-                  <div key={item.id} className="bg-slate-50/30 rounded-2xl p-5 border border-slate-100 flex flex-col justify-between">
+                  <div key={item.id} className="bg-slate-50/30 rounded-2xl p-5 border border-slate-100 flex flex-col justify-between" id={`review-card-${item.id}`}>
                     <div>
                       <div className="flex items-center justify-between gap-4 mb-2.5">
                         <p className="text-xs font-black text-slate-800 truncate">{item.userName || 'Passenger'}</p>
@@ -408,6 +438,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
                             <Star 
                               key={star} 
                               className={`w-3 h-3 ${star <= item.stars ? 'text-amber-400 fill-amber-400' : 'text-slate-100'}`} 
+                              id={`star-${item.id}-${star}`}
                             />
                           ))}
                         </div>
