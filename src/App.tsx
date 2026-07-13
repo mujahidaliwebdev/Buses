@@ -114,7 +114,7 @@ function AppContent() {
     }
   };
 
-  const isAdmin = user?.email === 'mujahidali.webdev@gmail.com';
+  const isAdmin = user?.email === 'mujahidali.webdev@gmail.com' || user?.email === 'mujahidali.stf@gmail.com';
 
   const handleNavClick = (sectionId: string) => {
     if (location.pathname !== '/') {
