@@ -35,7 +35,7 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-transparent to-emerald-900/90" />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
+        <div className="relative z-30 max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
