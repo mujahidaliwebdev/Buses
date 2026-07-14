@@ -24,18 +24,5 @@
     "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
     "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
     "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
-  },
-  {
-    "busId": "B3",
-    "company": "Bilal Travels",
-    "number": "FSD-4455",
-    "contact": "0311-5555555",
-    "serviceType": "Standard",
-    "climateControl": "Normal Ventilation",
-    "stops": "S1, S2, S11",
-    "terminal": "Badami Bagh, Bypass, General Bus Stand",
-    "stand": "2, 0, 5",
-    "arrivalTime": "16:00, 16:45, 18:00",
-    "departureTime": "16:15, 16:45, 18:00"
   }
 ]
