@@ -3,6 +3,7 @@ import { MapPin, Calendar, Search, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { SearchFilters } from '../types';
+import SearchableDropdown from './SearchableDropdown';
 
 interface HeroProps {
   onSearch: (filters: SearchFilters) => void;
@@ -72,24 +73,22 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
           >
             <div className="flex-1 w-full text-left">
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Origin City</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
-                <select name="origin" required className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer">
-                  <option value="">Select Origin City</option>
-                  {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
-                </select>
-              </div>
+              <SearchableDropdown
+                name="origin"
+                placeholder="Select Origin City"
+                options={PAKISTAN_CITIES}
+                required
+              />
             </div>
 
             <div className="flex-1 w-full text-left">
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2 ml-1 tracking-widest text-left">Destination</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
-                <select name="destination" required className="w-full h-14 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer">
-                  <option value="">Select Destination</option>
-                  {PAKISTAN_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
-                </select>
-              </div>
+              <SearchableDropdown
+                name="destination"
+                placeholder="Select Destination"
+                options={PAKISTAN_CITIES}
+                required
+              />
             </div>
 
             <div className="w-full md:w-52 text-left">
