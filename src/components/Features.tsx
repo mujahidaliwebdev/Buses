@@ -1,7 +1,11 @@
 import { motion } from 'motion/react';
-import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink } from 'lucide-react';
+import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink, Search } from 'lucide-react';
 
-export default function Features() {
+interface FeaturesProps {
+  onRouteClick?: (origin: string, destination: string) => void;
+}
+
+export default function Features({ onRouteClick }: FeaturesProps) {
   return (
     <section id="features" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -39,10 +43,8 @@ export default function Features() {
             </motion.div>
 
              <div className="grid sm:grid-cols-2 gap-6">
-               <motion.a
-                 href="https://drive.google.com/file/d/1-BrzJ33nF1RGGd1TqVidrwz8sV7S3mPU/view?usp=sharing"
-                 target="_blank"
-                 rel="noopener noreferrer"
+               <motion.div
+                 onClick={() => onRouteClick?.('Lahore', 'Faisalabad')}
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
@@ -62,22 +64,32 @@ export default function Features() {
                    <div className="flex justify-between items-center w-full z-10">
                      <span className="text-emerald-300 text-[10px] font-black bg-slate-900/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#lahore_to_faisalabad</span>
                      <div className="w-8 h-8 rounded-full bg-emerald-600/80 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
-                       <ExternalLink className="w-4 h-4" />
+                       <Search className="w-4 h-4" />
                      </div>
                    </div>
                    <div className="z-10 mt-auto text-left">
                      <span className="text-white font-bold text-sm tracking-wide block mb-1">Lahore to Faisalabad details and timings card</span>
-                     <span className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5">
-                       View original photo <ExternalLink className="w-3 h-3 inline" />
-                     </span>
+                     <div className="flex items-center gap-3">
+                       <span className="text-emerald-400 text-xs font-bold hover:underline flex items-center gap-1">
+                         <Search className="w-3 h-3 animate-pulse" /> Search Route
+                       </span>
+                       <span className="text-slate-400 text-xs">|</span>
+                       <a 
+                         href="https://drive.google.com/file/d/1-BrzJ33nF1RGGd1TqVidrwz8sV7S3mPU/view?usp=sharing"
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         onClick={(e) => e.stopPropagation()}
+                         className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5 hover:text-white transition-colors"
+                       >
+                         Original photo <ExternalLink className="w-3 h-3 inline" />
+                       </a>
+                     </div>
                    </div>
                  </div>
-               </motion.a>
+               </motion.div>
 
-               <motion.a
-                 href="https://drive.google.com/file/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0/view?usp=sharing"
-                 target="_blank"
-                 rel="noopener noreferrer"
+               <motion.div
+                 onClick={() => onRouteClick?.('Lahore', 'Karachi')}
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
@@ -97,18 +109,30 @@ export default function Features() {
                    <div className="flex justify-between items-center w-full z-10">
                      <span className="text-emerald-300 text-[10px] font-black bg-emerald-950/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#lahore_to_karachi</span>
                      <div className="w-8 h-8 rounded-full bg-emerald-600/80 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
-                       <ExternalLink className="w-4 h-4" />
+                       <Search className="w-4 h-4" />
                      </div>
                    </div>
-                   <div className="z-10 mt-auto">
+                   <div className="z-10 mt-auto text-left">
                      <span className="text-white font-bold text-sm tracking-wide block mb-1">Lahore to Karachi details and timings card</span>
-                     <span className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5">
-                       View original photo <ExternalLink className="w-3 h-3 inline" />
-                     </span>
+                     <div className="flex items-center gap-3">
+                       <span className="text-emerald-400 text-xs font-bold hover:underline flex items-center gap-1">
+                         <Search className="w-3 h-3 animate-pulse" /> Search Route
+                       </span>
+                       <span className="text-slate-400 text-xs">|</span>
+                       <a 
+                         href="https://drive.google.com/file/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0/view?usp=sharing"
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         onClick={(e) => e.stopPropagation()}
+                         className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5 hover:text-white transition-colors"
+                       >
+                         Original photo <ExternalLink className="w-3 h-3 inline" />
+                       </a>
+                     </div>
                    </div>
                  </div>
-               </motion.a>
-            </div>
+               </motion.div>
+             </div>
           </div>
 
           {/* Right Column: Why and Support */}
