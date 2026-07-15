@@ -78,10 +78,10 @@ function AppContent() {
     };
   }, []);
 
-  // Sync scroll on route change
+  // Sync scroll on route change or when search results are updated
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+  }, [location.pathname, searchResults]);
 
   const handleSearch = (filters: SearchFilters) => {
     setIsSearching(true);
