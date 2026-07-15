@@ -27,7 +27,7 @@ export default function Features() {
                 
                 <div className="grid sm:grid-cols-2 gap-12">
                    <div>
-                     <span className="text-6xl font-black text-emerald-600 leading-none">250+</span>
+                     <span className="text-6xl font-black text-emerald-600 leading-none">50+</span>
                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mt-3">Cities Covered</p>
                    </div>
                    <div>
@@ -40,7 +40,7 @@ export default function Features() {
 
              <div className="grid sm:grid-cols-2 gap-6">
                <motion.a
-                 href="https://drive.google.com/file/d/1Jy2LNsMeLXhtkdJgBSpzAbEyx5QrtnCj/view?usp=sharing"
+                 href="https://drive.google.com/file/d/1-BrzJ33nF1RGGd1TqVidrwz8sV7S3mPU/view?usp=sharing"
                  target="_blank"
                  rel="noopener noreferrer"
                  initial={{ opacity: 0, y: 20 }}
@@ -51,7 +51,7 @@ export default function Features() {
                  className="h-64 bg-slate-900 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between cursor-pointer border border-white/5 hover:border-emerald-500/30 transition-all duration-300"
                >
                  <img 
-                   src="https://lh3.googleusercontent.com/d/1Jy2LNsMeLXhtkdJgBSpzAbEyx5QrtnCj"
+                   src="https://lh3.googleusercontent.com/d/1-BrzJ33nF1RGGd1TqVidrwz8sV7S3mPU"
                    alt="Lahore to Faisalabad" 
                    className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
                    referrerPolicy="no-referrer"
@@ -75,7 +75,7 @@ export default function Features() {
                </motion.a>
 
                <motion.a
-                 href="https://drive.google.com/file/d/1XHFIK_v264thK5fVVh6nePlK5hXfqndc/view?usp=sharing"
+                 href="https://drive.google.com/file/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0/view?usp=sharing"
                  target="_blank"
                  rel="noopener noreferrer"
                  initial={{ opacity: 0, y: 20 }}
@@ -86,7 +86,7 @@ export default function Features() {
                  className="h-64 bg-emerald-950 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between cursor-pointer border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300"
                >
                  <img 
-                   src="https://lh3.googleusercontent.com/d/1XHFIK_v264thK5fVVh6nePlK5hXfqndc"
+                   src="https://lh3.googleusercontent.com/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0"
                    alt="Lahore to Karachi" 
                    className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
                    referrerPolicy="no-referrer"
@@ -119,12 +119,12 @@ export default function Features() {
               viewport={{ once: true }}
               className="bg-white p-10 border border-slate-100 rounded-[2.5rem] shadow-sm"
             >
-              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">WHY AsaanSAFAR?</h2>
+              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-8">WHY ASAANSAFAR?</h2>
               <div className="space-y-8">
                 {[
                   { title: 'Verified Fares', desc: 'Latest rates for local Non-AC and economy bus operators.' },
-                  { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 250+ cities.' },
-                  { title: 'Direct Contact', desc: 'Instant access to Bus phone numbers.' },
+                  { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 50+ cities.' },
+                  { title: 'Direct Contact', desc: 'Instant access to terminal help desk phone numbers.' },
                   { title: 'Non-AC Platform', desc: 'Specifically built for affordable and local bus travel.' }
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4">
@@ -132,8 +132,8 @@ export default function Features() {
                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     </div>
                     <div>
-                      <h4 className="font-black text-slate-900 text-sm">{item.title}</h4>
-                      <p className="text-slate-400 text-xs mt-1 leading-relaxed">{item.desc}</p>
+                       <h4 className="font-black text-slate-900 text-sm">{item.title}</h4>
+                       <p className="text-slate-400 text-xs mt-1 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -160,21 +160,20 @@ export default function Features() {
                   </div>
 
                   <div className="grid gap-3">
-                        <a 
-                           href="tel:+923014321122"
-                           className="w-full py-4 bg-white text-[#022c22] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-50 transition-all shadow-xl shadow-white/5 text-center"
-                        >
-                           <Phone className="w-4 h-4" /> CALL NOW
-                        </a>
-                        
-                        <a 
-                           href="https://wa.me/923014321122"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 text-center"
-                        >
-                           <MessageSquare className="w-4 h-4" /> WHATSAPP
-                        </a>
+                     <a 
+                        href="tel:+923014321122"
+                        className="w-full py-4 bg-white text-[#022c22] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-50 transition-all shadow-xl shadow-white/5 text-center"
+                     >
+                        <Phone className="w-4 h-4" /> CALL NOW
+                     </a>
+                     <a 
+                        href="https://wa.me/923014321122"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 text-center"
+                     >
+                        <MessageSquare className="w-4 h-4" /> WHATSAPP
+                     </a>
                   </div>
                </div>
             </motion.div>
