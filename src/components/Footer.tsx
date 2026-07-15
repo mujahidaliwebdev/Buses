@@ -21,7 +21,7 @@ interface FooterProps {
 
 // Helper to get the correct path to the logo in any hosting environment
 const getLogoPath = () => {
-  return 'https://lh3.googleusercontent.com/d/1UPQLOT36JqVoCfmWfj7g9b3THwPvT21R';
+  return 'https://lh3.googleusercontent.com/d/1BLe_EDy4yCALfwQpgnUDQPoKSyKdECrq';
 };
 
 export default function Footer({
