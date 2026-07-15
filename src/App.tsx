@@ -179,7 +179,7 @@ function AppContent() {
                 />
                 <PopularRoutes onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} onViewAllClick={() => navigate('/schedules')} />
                 <BlogSection />
-                <Features />
+                <Features onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} />
                 <HowItWorks />
               </>
             )
