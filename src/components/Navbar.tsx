@@ -1,4 +1,4 @@
-import { BusFront, User, LogOut, Menu, X } from 'lucide-react';
+import { BusFront, User, LogOut, Menu, X, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, logout } from '../lib/firebase';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ interface NavbarProps {
   onFeaturesClick?: () => void;
   isAdmin?: boolean;
   activeTab?: string;
+  onDownloadAppClick?: () => void;
 }
 
 // Helper to get the correct path to the logo in any hosting environment
@@ -31,7 +32,8 @@ export default function Navbar({
   onRoutesClick,
   onFeaturesClick,
   isAdmin,
-  activeTab
+  activeTab,
+  onDownloadAppClick
 }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -98,6 +100,18 @@ export default function Navbar({
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
+            {/* Download App Action Button */}
+            {onDownloadAppClick && (
+              <button
+                onClick={onDownloadAppClick}
+                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 sm:px-4 py-2.5 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-1.5 border border-emerald-200/60 cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 animate-pulse" />
+                <span className="hidden sm:inline">App Download</span>
+                <span className="sm:hidden">App</span>
+              </button>
+            )}
+
             {user ? (
               <div className="flex items-center gap-3">
                 <div 
@@ -208,6 +222,18 @@ export default function Navbar({
               >
                 Popular Routes
               </button>
+              {onDownloadAppClick && (
+                <button 
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onDownloadAppClick();
+                  }} 
+                  className="w-full text-left py-3 px-4 rounded-xl transition-all text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50 hover:text-emerald-800 flex items-center gap-2"
+                >
+                  <Smartphone className="w-4 h-4 text-emerald-600" />
+                  <span>Android App (.APK)</span>
+                </button>
+              )}
               {isAdmin && (
                 <button 
                   onClick={() => {
