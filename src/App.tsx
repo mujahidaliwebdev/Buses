@@ -277,6 +277,7 @@ function AppContent() {
       <AppDownloadModal 
         isOpen={showDownloadModal} 
         onClose={() => setShowDownloadModal(false)} 
+        isAdmin={isAdmin}
       />
     </div>
   );
