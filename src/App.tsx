@@ -37,6 +37,7 @@ import OurTeam from './components/OurTeam';
 import FAQs from './components/FAQs';
 import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
+import AppDownloadModal from './components/AppDownloadModal';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
@@ -57,6 +58,7 @@ function AppContent() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((u) => {
@@ -154,6 +156,7 @@ function AppContent() {
         onFeaturesClick={() => handleNavClick('features')}
         isAdmin={isAdmin}
         activeTab={location.pathname === '/' ? 'home' : ''}
+        onDownloadAppClick={() => setShowDownloadModal(true)}
       />
       
       <main>
@@ -229,6 +232,7 @@ function AppContent() {
         onTeamClick={() => navigate('/team')}
         onFAQsClick={() => navigate('/faqs')}
         onSitemapClick={() => navigate('/sitemap')}
+        onDownloadAppClick={() => setShowDownloadModal(true)}
       />
 
       <AnimatePresence>
@@ -269,6 +273,11 @@ function AppContent() {
 
       <FeedbackSystem />
       <NoticePopup />
+
+      <AppDownloadModal 
+        isOpen={showDownloadModal} 
+        onClose={() => setShowDownloadModal(false)} 
+      />
     </div>
   );
 }
