@@ -1,4 +1,4 @@
-import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube } from 'lucide-react';
+import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface FooterProps {
@@ -17,6 +17,7 @@ interface FooterProps {
   onTeamClick: () => void;
   onFAQsClick: () => void;
   onSitemapClick: () => void;
+  onDownloadAppClick?: () => void;
 }
 
 // Helper to get the correct path to the logo in any hosting environment
@@ -39,7 +40,8 @@ export default function Footer({
   onCareersClick,
   onTeamClick,
   onFAQsClick,
-  onSitemapClick
+  onSitemapClick,
+  onDownloadAppClick
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -50,6 +52,7 @@ export default function Footer({
         { label: 'Search Route', onClick: onHomeClick },
         { label: 'Bus Schedules', onClick: onSchedulesClick },
         { label: 'Sitemap (سائٹ میپ)', onClick: onSitemapClick },
+        { label: 'Android App 📱', onClick: onDownloadAppClick || (() => {}) },
       ]
     },
     {
@@ -108,24 +111,34 @@ export default function Footer({
               Verified non-AC bus schedules, fares, routes and travel information across Pakistan. Helping travelers save time with accurate and reliable transport data.
             </p>
 
-              <div className="flex gap-4">
-                {[
-                  { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
-                  { Icon: Instagram, url: "https://instagram.com/Asaan.Safar" },
-                  { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
-                  { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
-                ].map((item, idx) => (
-                  <a 
-                    key={idx}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
-                  >
-                    <item.Icon className="w-4 h-4" />
-                  </a>
-                ))}
-              </div>
+            <div className="flex gap-4">
+              {[
+                { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
+                { Icon: Instagram, url: "https://instagram.com/Asaan.Safar" },
+                { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
+                { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
+              ].map((item, idx) => (
+                <a 
+                  key={idx}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
+                >
+                  <item.Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+
+            {onDownloadAppClick && (
+              <button
+                onClick={onDownloadAppClick}
+                className="w-full px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/10 active:scale-95 flex items-center justify-center gap-2.5 mt-6 cursor-pointer"
+              >
+                <Smartphone className="w-4 h-4 text-emerald-300" />
+                <span>Android App (.APK)</span>
+              </button>
+            )}
           </div>
 
           <div className="lg:col-span-9 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
