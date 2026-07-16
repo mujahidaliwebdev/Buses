@@ -115,7 +115,7 @@ AsaanSafar Pakistan - Verified Bus Timings & Fares.
 
   const handleOpenNewTab = () => {
     // Open application in a fresh new window outside the AI Studio sandbox iframe
-    window.open(window.location.origin, '_blank');
+    window.open(window.location.href, '_blank');
   };
 
   return (
