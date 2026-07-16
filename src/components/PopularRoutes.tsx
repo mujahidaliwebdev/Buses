@@ -29,7 +29,7 @@ export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularR
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {POPULAR_ROUTES.map((route, idx) => (
             <motion.div
               key={`${route.from}-${route.to}`}
@@ -37,24 +37,29 @@ export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularR
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white p-5 border border-slate-200 rounded-2xl hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer relative"
+              className="bg-white p-6 border border-slate-100 rounded-[1.5rem] hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer relative shadow-sm"
             >
               <Link 
                 to={`/${route.from.toLowerCase()}-to-${route.to.toLowerCase()}-bus-timing`}
                 className="absolute inset-0 z-20"
               />
-              <div className="flex gap-6 items-center">
+              <div className="flex-1 flex items-center gap-4">
                  <div className="flex flex-col">
-                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">From</span>
-                   <span className="font-bold text-slate-800">{route.from}</span>
+                   <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest mb-1">FROM</span>
+                   <span className="text-base font-black text-slate-900">{route.from}</span>
                  </div>
-                 <ArrowRight className="w-4 h-4 text-emerald-300" />
+                 
+                 <div className="flex-1 flex justify-center">
+                    <ArrowRight className="w-5 h-5 text-emerald-400 opacity-30 group-hover:opacity-100 transition-opacity" />
+                 </div>
+
                  <div className="flex flex-col text-right">
-                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">To</span>
-                   <span className="font-bold text-slate-800">{route.to}</span>
+                   <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest mb-1">TO</span>
+                   <span className="text-base font-black text-slate-900">{route.to}</span>
                  </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+
+              <div className="ml-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-600 border border-slate-100 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all shadow-sm">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </motion.div>

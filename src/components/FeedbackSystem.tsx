@@ -62,7 +62,7 @@ export default function FeedbackSystem() {
       {/* Floating Tab */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-emerald-600 text-white px-2 py-6 rounded-l-2xl shadow-xl hover:bg-emerald-700 transition-all flex flex-col items-center gap-2 group"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-emerald-600 text-white px-2 py-6 rounded-l-2xl shadow-xl hover:bg-emerald-700 transition-all flex flex-col items-center gap-2 group cursor-pointer"
       >
         <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
         <span className="[writing-mode:vertical-lr] font-bold text-xs uppercase tracking-widest rotate-180">
@@ -86,27 +86,28 @@ export default function FeedbackSystem() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
             >
               {/* Header */}
-              <div className="bg-emerald-600 p-6 text-white flex justify-between items-center">
+              <div className="bg-emerald-600 p-6 text-white flex justify-between items-center shrink-0">
                 <div>
                   <h2 className="text-xl font-bold">AsaanSafar Services</h2>
                   <p className="text-emerald-100 text-xs">We value your input for better commute.</p>
                 </div>
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               {/* Tabs */}
-              <div className="flex border-b border-slate-100">
+              <div className="flex border-b border-slate-100 shrink-0">
                 <button
+                  type="button"
                   onClick={() => setActiveTab('feedback')}
-                  className={`flex-1 py-4 text-sm font-bold transition-colors ${
+                  className={`flex-1 py-4 text-sm font-bold transition-colors cursor-pointer ${
                     activeTab === 'feedback' 
                       ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/30' 
                       : 'text-slate-400 hover:text-slate-600'
@@ -115,8 +116,9 @@ export default function FeedbackSystem() {
                   FEEDBACK
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('complaint')}
-                  className={`flex-1 py-4 text-sm font-bold transition-colors ${
+                  className={`flex-1 py-4 text-sm font-bold transition-colors cursor-pointer ${
                     activeTab === 'complaint' 
                       ? 'text-rose-600 border-b-2 border-rose-600 bg-rose-50/30' 
                       : 'text-slate-400 hover:text-slate-600'
@@ -127,7 +129,7 @@ export default function FeedbackSystem() {
               </div>
 
               {/* Form */}
-              <div className="p-6">
+              <div className="p-6 overflow-y-auto">
                 {showSuccess ? (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -197,7 +199,7 @@ export default function FeedbackSystem() {
                     <button
                       disabled={isSubmitting}
                       type="submit"
-                      className={`w-full py-4 rounded-xl font-bold text-white transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
+                      className={`w-full py-4 rounded-xl font-bold text-white transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
                         activeTab === 'feedback' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
                       } ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >

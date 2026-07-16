@@ -1,9 +1,6 @@
 import { Bus } from '../types';
 
 export const PAKISTAN_CITIES = [
-  // Popular Cities
-  "Lahore", "Islamabad", "Karachi", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Peshawar", "Quetta",
-  // All Other Cities (A-Z)
   "18 Hazari",
   "Abbaspur",
   "Abbottabad",
@@ -28,7 +25,7 @@ export const PAKISTAN_CITIES = [
   "Awaran",
   "Baba Kot",
   "Babusar",
-  "Babuzai (Saidu Sharif-Mingora)",
+  "Babuzai (Saidu Sharif/Mingora)",
   "Badaber",
   "Baddomalhi",
   "Badin",
@@ -146,6 +143,7 @@ export const PAKISTAN_CITIES = [
   "Eminabad",
   "Eminabad More",
   "Essa",
+  "Faisalabad",
   "Faiz Ganj",
   "Faqir Wali",
   "Farooqabad",
@@ -181,6 +179,7 @@ export const PAKISTAN_CITIES = [
   "Gojal",
   "Gojra",
   "Gujar Khan",
+  "Gujranwala",
   "Gujrat",
   "Gulabpur",
   "Gulistan",
@@ -321,6 +320,7 @@ export const PAKISTAN_CITIES = [
   "Kunri",
   "Lachi",
   "Lahor",
+  "Lahore",
   "Lakki Marwat",
   "Lala Musa",
   "Lalian",
@@ -384,6 +384,7 @@ export const PAKISTAN_CITIES = [
   "More Khunda",
   "Moro",
   "Mulkhow",
+  "Multan",
   "Muridke",
   "Murree",
   "Musakhel",
@@ -430,7 +431,7 @@ export const PAKISTAN_CITIES = [
   "Pattan",
   "Pattoki",
   "Peer Jaggi",
-  "Peshawar City",
+  "Peshawar",
   "Phalia",
   "Phander",
   "Phelawagh",
@@ -522,6 +523,7 @@ export const PAKISTAN_CITIES = [
   "Shorkot Cantt",
   "Shujabad",
   "Sial Sharif",
+  "Sialkot",
   "Sibi",
   "Sijawal Junejo",
   "Sillanwali",

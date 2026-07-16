@@ -21,6 +21,8 @@ import ReportModal from './ReportModal';
 import { addDoc, collection, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';
 import { db, auth, signInWithGoogle } from '../lib/firebase';
 
+
+
 interface BusDetailsProps {
   bus: Bus;
   onClose: () => void;
@@ -32,6 +34,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [isRatingSent, setIsRatingSent] = useState(false);
+
 
   // Dynamic reviews states
   const [showReviews, setShowReviews] = useState(false);

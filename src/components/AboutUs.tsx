@@ -229,7 +229,7 @@ export default function AboutUs() {
               ہمارے انتظامیہ اور بانی ارکان
             </p>
             <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm md:text-base font-medium">
-              AsaanSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Noman Ejaz</strong>.
+              AsaanSafar is directed by an exceptional group of transit experts, developers, and field leaders under the guidance of our CEO & Founder <strong>Mujahid Ali</strong> and General Manager <strong>Muhammad Arsalan</strong>.
             </p>
             <div className="pt-4">
               <button
@@ -250,7 +250,7 @@ export default function AboutUs() {
           <div className="bg-emerald-950 p-8 md:p-12 rounded-[2.5rem] text-center">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { label: "Cities Included", value: "250+" },
+                { label: "Cities Included", value: "50+" },
                 { label: "Verified Operators", value: "100+" },
                 { label: "Daily Route Schedules", value: "1200+" },
                 { label: "Monthly Commuters", value: "10k+" }

@@ -2,5 +2,7 @@
   "name": "AsaanSafar Pakistan",
   "description": "Pakistan's #1 Non-AC bus transportation platform for real-time timings, fares, and terminal information.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

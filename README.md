@@ -1,4 +1,4 @@
-# AsaanSafar Pakistan 🇵🇰
+# AsaanBusSafar Pakistan 🇵🇰
 
 A modern, fast, and responsive bus transportation platform built for Pakistan. Users can search for AC and Non-AC bus timings, fares, and route details across 50+ cities.
 
@@ -15,6 +15,7 @@ A modern, fast, and responsive bus transportation platform built for Pakistan. U
 - **Styling:** Tailwind CSS 4
 - **Animations:** Motion (formerly Framer Motion)
 - **Icons:** Lucide React
+- **Backend:** Firebase (Firestore, Authentication)
 
 ## 📂 Project Structure
 
@@ -22,6 +23,7 @@ A modern, fast, and responsive bus transportation platform built for Pakistan. U
 - `src/data/`: Mock data and constants (City lists, Bus records)
 - `src/types.ts`: TypeScript interfaces for the application.
 - `src/App.tsx`: Main application logic and layout.
+- `src/lib/`: Firebase configuration and service layers.
 
 ## 🚦 Getting Started
 
@@ -31,14 +33,3 @@ A modern, fast, and responsive bus transportation platform built for Pakistan. U
 
 ---
 Built with ❤️ for Pakistan.
-
-## 🚀 Deployment to GitHub Pages
-
-If your website is showing a blank page on GitHub Pages, follow these steps:
-
-1. **Vite Base Path:** Ensure `base: '/Buses/'` is set in your `vite.config.ts`.
-2. **GitHub Actions:** Ensure your repository setings are configured to deploy from GitHub Actions:
-   - Go to your repo **Settings** -> **Pages**.
-   - Under **Build and deployment**, set **Source** to `GitHub Actions`.
-3. **Commit & Push:** Push all files, including the `.github/workflows/deploy.yml` file created by the assistant.
-4. **Environment:** Make sure your repository name matches the base path (`/Buses/`). If your repo name isDifferent, update `base` in `vite.config.ts` accordingly.

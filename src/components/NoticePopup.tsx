@@ -16,36 +16,36 @@ export default function NoticePopup() {
   return (
     <AnimatePresence>
       {show && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div key="notice-popup" className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closePopup}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-auto cursor-pointer"
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden pointer-events-auto"
+            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+            className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden pointer-events-auto"
           >
-            {/* Top Bar with Icon */}
-            <div className="bg-emerald-600 p-8 text-white relative">
+            {/* Header */}
+            <div className="bg-emerald-600 p-7 text-white relative">
               <button 
                 onClick={closePopup}
-                className="absolute top-6 right-6 p-2 hover:bg-white/20 rounded-full transition-colors"
+                className="absolute top-6 right-6 p-2 hover:bg-white/20 rounded-full transition-colors z-10"
               >
                 <X className="w-5 h-5" />
               </button>
               
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
-                <Info className="w-8 h-8 text-white" />
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-5">
+                <Info className="w-7 h-7 text-white" />
               </div>
               
-              <h2 className="text-3xl font-black tracking-tight mb-2">Important Notice</h2>
-              <p className="text-emerald-100 font-medium opacity-80 uppercase text-[10px] tracking-[0.3em]">Software update in progress</p>
+              <h2 className="text-2xl font-black tracking-tight mb-1 uppercase tracking-[0.05em]">Important Notice</h2>
+              <p className="text-emerald-100 font-bold opacity-70 uppercase text-[9px] tracking-[0.2em]">Latest Platform Update</p>
             </div>
 
             {/* Content Area */}
