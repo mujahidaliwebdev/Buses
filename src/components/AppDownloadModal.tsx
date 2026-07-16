@@ -5,15 +5,16 @@ import { X, Smartphone, Download, Chrome, Info, CheckCircle, HelpCircle, ArrowRi
 interface AppDownloadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
-export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalProps) {
+export default function AppDownloadModal({ isOpen, onClose, isAdmin = false }: AppDownloadModalProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [installSuccess, setInstallSuccess] = useState(false);
   const [showManualGuide, setShowManualGuide] = useState(false);
   const [customApkUrl, setCustomApkUrl] = useState(() => {
-    return localStorage.getItem('asaansafar_custom_apk_url') || '';
+    return localStorage.getItem('asaansafar_custom_apk_url') || 'https://github.com/mujahidali-webdev/asaansafar-apk/raw/main/AsaanSafar.apk';
   });
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [tempApkUrl, setTempApkUrl] = useState(customApkUrl);
@@ -284,7 +285,7 @@ AsaanSafar Pakistan - Verified Bus Timings & Fares.
                       <div>
                         <h4 className="font-black text-slate-900 text-sm">Method 2: Direct APK Download</h4>
                         <p className="text-slate-500 text-xs font-medium mt-1">
-                          {customApkUrl ? 'Aap ki custom compiled direct Android app link (.apk) download karne ke liye tayyar hai.' : 'Native Android installation file (.APK) directly download karein. Isay aap apnay mobile me direct click kar ke install kar sakty hain.'}
+                          Direct native Android installation (.APK) file download karein. Isay aap single-click me apnay mobile me save aur install kar sakty hain.
                         </p>
                       </div>
                       
@@ -294,22 +295,24 @@ AsaanSafar Pakistan - Verified Bus Timings & Fares.
                           className="inline-flex px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-slate-950/10 active:scale-95 items-center gap-2 cursor-pointer"
                         >
                           <Download className="w-3.5 h-3.5 text-emerald-400 animate-bounce" /> 
-                          {customApkUrl ? 'Download Custom APK' : 'Download APK / Guide'}
+                          Download APK File (ایپ ڈاؤن لوڈ کریں)
                         </button>
 
-                        <button
-                          onClick={() => {
-                            setTempApkUrl(customApkUrl);
-                            setIsEditingLink(!isEditingLink);
-                          }}
-                          className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer"
-                        >
-                          {isEditingLink ? 'Hide Link Settings' : 'Change APK Link (لنک تبدیل کریں)'}
-                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={() => {
+                              setTempApkUrl(customApkUrl);
+                              setIsEditingLink(!isEditingLink);
+                            }}
+                            className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                          >
+                            {isEditingLink ? 'Hide Link Settings' : 'Change APK Link (لنک تبدیل کریں)'}
+                          </button>
+                        )}
                       </div>
 
                       {/* Configurable URL Input Section */}
-                      {isEditingLink && (
+                      {isAdmin && isEditingLink && (
                         <motion.div 
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
@@ -348,7 +351,7 @@ AsaanSafar Pakistan - Verified Bus Timings & Fares.
                      ایپ ڈاؤن لوڈ کرنے کا آسان طریقہ <Info className="w-4 h-4 text-emerald-600" />
                   </h5>
                   <p className="text-slate-600 text-xs font-bold leading-relaxed">
-                    1. اوپر موجود **"Download APK / Guide"** بٹن پر کلک کریں۔
+                    1. اوپر موجود **"Download APK File (ایپ ڈاؤن لوڈ کریں)"** بٹن پر کلک کریں۔
                     <br />
                     2. فائل ڈاؤن لوڈ ہونے کے بعد اس پر کلک کریں اور موبائل سیٹنگز سے **"Allow from this source"** کو آن کر کے انسٹال کریں۔
                     <br />
