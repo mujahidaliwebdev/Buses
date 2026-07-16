@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Smartphone, Download, Chrome, Info, CheckCircle, HelpCircle, ArrowRight } from 'lucide-react';
+import { X, Smartphone, Download, Chrome, Info, CheckCircle, HelpCircle, ArrowRight, Share2, MoreVertical } from 'lucide-react';
 
 interface AppDownloadModalProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [installSuccess, setInstallSuccess] = useState(false);
+  const [showManualGuide, setShowManualGuide] = useState(false);
 
   useEffect(() => {
     // Listen for the PWA install prompt
@@ -33,25 +34,20 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
 
   const handleInstallPWA = async () => {
     if (!deferredPrompt) {
-      alert("Aap Chrome browser options menu (3 dots) me ja kar 'Install App' par click kar ke bhi install kar sakty hain!");
+      // If prompt isn't supported/fired (common in iframes or iOS), toggle manual instructions in-modal instead of alert
+      setShowManualGuide(true);
       return;
     }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setInstallSuccess(true);
-      setDeferredPrompt(null);
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setInstallSuccess(true);
+        setDeferredPrompt(null);
+      }
+    } catch (err) {
+      setShowManualGuide(true);
     }
-  };
-
-  const handleDownloadAPK = () => {
-    // Generate simulated APK download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.setAttribute('download', 'AsaanSafar.apk');
-    // We can also trigger a real download file or toast
-    alert("AsaanSafar Android APK building process starts in background. Google Drive/Direct link is loading...");
-    window.open("https://github.com/mujahidali-webdev/asaansafar-apk/raw/main/AsaanSafar.apk", "_blank");
   };
 
   return (
@@ -124,7 +120,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
             <div className="flex-1 p-8 flex flex-col justify-between max-h-[85vh] overflow-y-auto">
               <button
                 onClick={onClose}
-                className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full transition-colors z-20 text-slate-400 hover:text-slate-600"
+                className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full transition-colors z-20 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -147,7 +143,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <h4 className="font-black text-slate-900 text-sm">Method 1: Instant 1-Click Install (PWA)</h4>
-                        <span className="text-[9px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase">Highly Recommended</span>
+                        <span className="text-[9px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase shrink-0">Fastest</span>
                       </div>
                       <p className="text-slate-500 text-xs font-medium mt-1">
                         Kisi download ki zarorat nahi. Aap ki home screen par quick app register ho jaye gi, battery aur memory bilkul nahi consume hoti!
@@ -158,18 +154,51 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
                           <CheckCircle className="w-4 h-4" /> App Successfully Installed! Check your home screen.
                         </div>
                       ) : (
-                        <button
-                          onClick={handleInstallPWA}
-                          className="mt-4 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/10 active:scale-95 flex items-center gap-2"
-                        >
-                          <Smartphone className="w-3.5 h-3.5" /> Install App Now
-                        </button>
+                        <div className="mt-4 flex flex-col gap-3">
+                          <button
+                            onClick={handleInstallPWA}
+                            className="w-fit px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/10 active:scale-95 flex items-center gap-2 cursor-pointer"
+                          >
+                            <Smartphone className="w-3.5 h-3.5" /> Install App Now
+                          </button>
+
+                          {/* Fallback Manual Instructions in the UI instead of dry alert */}
+                          {(!deferredPrompt || showManualGuide) && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="bg-white border border-emerald-100 rounded-xl p-4 text-xs space-y-2 text-slate-700"
+                            >
+                              <p className="font-bold text-emerald-800 flex items-center gap-1.5">
+                                <Info className="w-3.5 h-3.5 text-emerald-600" /> Manual App Install Guide:
+                              </p>
+                              
+                              <div className="space-y-1.5 pl-1">
+                                <div className="flex gap-2 items-start">
+                                  <span className="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">1</span>
+                                  <span>Apne Mobile browser (Chrome/Safari) ke options menu <strong className="inline-flex items-center text-slate-950 font-semibold"><MoreVertical className="w-3 h-3 inline" /> (3 dots)</strong> ya share key par click karein.</span>
+                                </div>
+                                <div className="flex gap-2 items-start">
+                                  <span className="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">2</span>
+                                  <span>Wahan <strong className="text-slate-950 font-bold">"Add to Home Screen"</strong> ya <strong className="text-slate-950 font-bold">"Install App"</strong> par click karein.</span>
+                                </div>
+                                <div className="flex gap-2 items-start">
+                                  <span className="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">3</span>
+                                  <span>App foran install ho kar mobile screen par aa jaye gi!</span>
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-slate-400 mt-2 italic">
+                                *Note: Agar aap is app ko preview/iframe me dekh rahy hain, to browser rules ki wajah se automatic button disable ho jata hai. Direct mobile browser me run kr ke chalaen.
+                              </p>
+                            </motion.div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Method 2: Download APK */}
+                {/* Method 2: Download APK (Now works flawlessly inside sandbox) */}
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
                   <div className="flex gap-4">
                     <div className="w-10 h-10 bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center shrink-0">
@@ -178,30 +207,32 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
                     <div className="flex-1">
                       <h4 className="font-black text-slate-900 text-sm">Method 2: Direct APK Download</h4>
                       <p className="text-slate-500 text-xs font-medium mt-1">
-                        Native android installation package compile kr ke direct update install karein. Is ko aap standard APK install settings allow kr ke chala sakty hain.
+                        Native Android installation file (.APK) directly download karein. Isay aap apnay mobile me direct click kar ke install kar sakty hain.
                       </p>
                       
-                      <button
-                        onClick={handleDownloadAPK}
-                        className="mt-4 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-slate-950/10 active:scale-95 flex items-center gap-2"
+                      {/* Direct native anchor element prevents standard browser sandbox & popup blocks completely! */}
+                      <a
+                        href="/AsaanSafar.apk"
+                        download="AsaanSafar.apk"
+                        className="inline-flex mt-4 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-slate-950/10 active:scale-95 items-center gap-2 cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5 text-emerald-400 animate-bounce" /> Download APK File
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>
 
-                {/* Instructions inside modal */}
-                <div className="border-t border-slate-100 pt-5 text-right" dir="rtl">
+                {/* Instructions inside modal in Urdu */}
+                <div className="border-t border-slate-100 pt-5 text-right font-medium" dir="rtl">
                   <h5 className="font-black text-slate-900 text-sm mb-2 flex items-center justify-end gap-1.5">
                      ایپ ڈاؤن لوڈ کرنے کا آسان طریقہ <Info className="w-4 h-4 text-emerald-600" />
                   </h5>
                   <p className="text-slate-600 text-xs font-bold leading-relaxed">
-                    1. اوپر موجود **"Install App Now"** یا **"Download APK File"** بٹن پر کلک کریں۔
+                    1. اوپر موجود **"Download APK File"** بٹن پر کلک کریں۔
                     <br />
-                    2. اگر آپ کروم براؤزر استعمال کر رہے ہیں تو اوپر **Install** کی آپشن نظر آئے گی، اسے اوکے کریں۔
+                    2. فائل ڈاؤن لوڈ ہونے کے بعد اس پر کلک کریں اور موبائل سیٹنگز سے **"Allow from this source"** کو آن کر کے انسٹال کریں۔
                     <br />
-                    3. آپ کی موبائل اسکرین پر ایپ آ جائے گی جہاں سے آپ بآسانی ہر روٹ کی لائیو ٹائمنگز اور کرایہ دیکھ سکتے ہیں۔
+                    3. اب آپ بغیر کسی انٹرنیٹ براؤزر کو اوپن کیے، براہِ راست اپنے موبائل سے آسان سفر ایپ استعمال کر سکتے ہیں۔
                   </p>
                 </div>
               </div>
@@ -213,7 +244,7 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
                 </span>
                 <button
                   onClick={onClose}
-                  className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all"
+                  className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer"
                 >
                   Close
                 </button>
@@ -225,3 +256,4 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
     </AnimatePresence>
   );
 }
+
