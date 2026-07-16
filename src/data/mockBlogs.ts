@@ -25,7 +25,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 1,
     title: "How to Choose a Reliable Non-AC Bus Service in Pakistan",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
     imageOverlayText: "NON-AC BUS SERVICE GUIDE 2026",
     date: "01 June 2026",
     slug: "choose-reliable-non-ac-bus-service",
@@ -709,7 +709,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 2,
     title: "Top Benefits of Traveling by Non-AC Buses in Pakistan",
-    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&q=80&w=2072",
+    image: "https://lh3.googleusercontent.com/d/1Wkfac9fb1VgTVYsbSLUkgmwEZAgjfh04",
     imageOverlayText: "NON-AC BUS BENEFITS 2026",
     date: "04 June 2026",
     slug: "benefits-traveling-non-ac-buses-pakistan",
@@ -1279,7 +1279,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 3,
     title: "How to Verify Bus Timings Before Your Journey",
-    image: "https://images.unsplash.com/photo-1544621448-316223204907?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1fueaZC9QHayV8uYVALgLrHH6tQEU3u28",
     imageOverlayText: "VERIFY BUS TIMINGS EASILY",
     date: "07 June 2026",
     slug: "verify-bus-timings-before-journey",
@@ -1723,7 +1723,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 4,
     title: "Bus Travel Safety Tips Every Passenger Should Know",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1tgcot30Eoe6tNFluWjmc-UxBl7c2pvSL",
     imageOverlayText: "BUS SAFETY STANDARDS 2026",
     date: "11 June 2026",
     slug: "bus-travel-safety-tips-passenger-should-know",
@@ -2443,7 +2443,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 5,
     title: "Lahore to Faisalabad Bus Travel Guide",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1bcPD1Ffc7l0tA_DARa0ph7qSVD6k8v4v",
     imageOverlayText: "LAHORE - FAISALABAD ROUTE 2026",
     date: "15 June 2026",
     slug: "lahore-to-faisalabad-bus-travel-guide",
