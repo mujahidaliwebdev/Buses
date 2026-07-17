@@ -1,0 +1,1172 @@
+[
+  {
+    "to": "18 Hazari",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Adda Mangatanwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Ahmadpur East",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Ahmedpur Sial",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Alipur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Alipur Chatha",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Allahabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Aminpur Bangla",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Arifwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Attock",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Baddomalhi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bagh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bahawalnagar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bahawalpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bangla Gogera",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Barnala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Basirpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Behal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bhakkar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bhalwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bhawana",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bhikhi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Bhimber",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Burewala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chak Aamru",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chak Jhumra",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chakwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Changa Manga",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chaubara",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chawinda",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chichawatni",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chiniot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chishtian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Choa Saidan Shah",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chorasta Mian Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chowk Azam",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chowk Munda",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chowki Bhagat",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chund Bharwana",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Chunian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Daira Din Panah",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dajal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dara Adamkhel",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Darya Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Daska",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Daud Khel",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Daulat Nagar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Depalpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dera Ghazi Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dera Ismail Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dhirkot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Digikot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dina",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dinga",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dunga Bunga",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Dunyapur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Eminabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Eminabad More",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Faisalabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Faqir Wali",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Fateh Jang",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Fatehpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Feroze Wattwan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Fort Abbas",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Fort Monroe",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Garh Moor",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Girot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Gojra",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Gujar Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Gujranwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Gujrat",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hafizabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hajira",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hangu",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Harapa",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Harnoli",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Haroonabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hasilpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hassan Abdal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Haveli Azad Kashmir",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Haveli Lakha",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hazara",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Heera Adda",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hujra Shah Muqeem",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Hyderabad Thal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Isa Khel",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Islamabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jahanian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jalalpur Bhattian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jalalpur Jattan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jalalpur Pirwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jampur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jand",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jatoi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jhang",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jhawarian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Jhelum",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kabirwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kacha Khuh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kala Bagh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kala Shah Kaku",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kallar Kahar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kallar Syedan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kallur Kot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kalri",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kamalia",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kamoke",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kamran Kalan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kangan Pur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Karachi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Karor",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Karor Pakka",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kasur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khanewal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khanpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khansar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kharian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kharianwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khewra",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khudian Khas",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khurrianwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Khushab",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kingra Mor",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kohat",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Addu",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Arab Ali Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Chutta",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Momin",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Radha Kishan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kot Sultan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kotla Jam",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kotli",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Kundian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Lahore",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Lala Musa",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Lalian",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Layyah",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Liaquatpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Lodhran",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Luddan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mailsi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Malakwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mamu Kanjan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Manawala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mandi Ahmed Abad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mandi Bahauddin",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mandi Bhalwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mandi Faizabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Manga Mandi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mankera",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mian Channu",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Miani",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mianwali",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Minchinabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Mirpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Multan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Muridke",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Murree",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Muzaffarabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Muzaffargarh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Nainan Kot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Nankana Sahib",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Narang Mandi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Narowal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Naushehra",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Nawan Kot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Noorpur Thal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Nowshera Virkan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Nurkot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Okara",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Painsra",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pakpattan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Panwan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pasrur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pattoki",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Peer Jaggi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Peshawar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Phalia",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Phool Nagar",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pind Dadan Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pindi Gheb",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Piplan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Pir Mahal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Qadirabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Qasba Gujrat",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Qila Didar Singh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Quetta",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rahim Yar Khan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rahwali",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Raiwind",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rajana",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rajanpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rang Pur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rawalakot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rawalpindi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Renala Khurd",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rojhan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Rokhri",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sadhoke",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sadiqabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Safdarabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sahiwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sakhi Sarwer",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Samundri",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sanawan",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sangla Hill",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sarai Alamgir",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sarai Mahajir",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Satiana",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shah Jeewna",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shahkot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shakardara",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shakargarh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sharaqpur",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sheikhupura",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shorkot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shorkot Cantt",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Shujabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sial Sharif",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sialkot",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sillanwali",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Sohawa",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Talagang",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Talwandi",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Tandlianwala",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Taunsa",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Toba Tek Singh",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Uch Sharif",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Vehari",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Vehova",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Wan Bhachran",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Warburton",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Wazirabad",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  },
+  {
+    "to": "Zafarwal",
+    "fare": "0",
+    "buses_file": "B1-B500.json"
+  }
+]

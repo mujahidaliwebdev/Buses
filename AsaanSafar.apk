@@ -1,0 +1,5 @@
+AsaanSafar Android Application Package (.APK) Placeholder.
+To replace this file with your actual fully functional mobile app:
+1. Compile your Android App in Android Studio as detailed in MOBILE_APP_GUIDE.md.
+2. Copy your compiled 'app-release.apk' into the 'public/' directory of this project and rename it to 'AsaanSafar.apk'.
+3. Your users will then be able to download the real working app instantly from this button!
