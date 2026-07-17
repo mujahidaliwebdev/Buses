@@ -101,7 +101,7 @@ export default function Navbar({
 
           <div className="flex items-center gap-4 sm:gap-6">
             {/* Download App Action Button */}
-            {onDownloadAppClick && (
+            {onDownloadAppClick && isAdmin && (
               <button
                 onClick={onDownloadAppClick}
                 className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 sm:px-4 py-2.5 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-1.5 border border-emerald-200/60 cursor-pointer"
@@ -222,7 +222,7 @@ export default function Navbar({
               >
                 Popular Routes
               </button>
-              {onDownloadAppClick && (
+              {onDownloadAppClick && isAdmin && (
                 <button 
                   onClick={() => {
                     setIsMobileMenuOpen(false);

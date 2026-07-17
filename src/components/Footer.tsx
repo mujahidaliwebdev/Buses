@@ -18,6 +18,7 @@ interface FooterProps {
   onFAQsClick: () => void;
   onSitemapClick: () => void;
   onDownloadAppClick?: () => void;
+  isAdmin?: boolean;
 }
 
 // Helper to get the correct path to the logo in any hosting environment
@@ -41,7 +42,8 @@ export default function Footer({
   onTeamClick,
   onFAQsClick,
   onSitemapClick,
-  onDownloadAppClick
+  onDownloadAppClick,
+  isAdmin = false
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
@@ -52,7 +54,7 @@ export default function Footer({
         { label: 'Search Route', onClick: onHomeClick },
         { label: 'Bus Schedules', onClick: onSchedulesClick },
         { label: 'Sitemap (سائٹ میپ)', onClick: onSitemapClick },
-        { label: 'Android App 📱', onClick: onDownloadAppClick || (() => {}) },
+        ...(isAdmin ? [{ label: 'Android App 📱', onClick: onDownloadAppClick || (() => {}) }] : []),
       ]
     },
     {
@@ -130,7 +132,7 @@ export default function Footer({
               ))}
             </div>
 
-            {onDownloadAppClick && (
+            {onDownloadAppClick && isAdmin && (
               <button
                 onClick={onDownloadAppClick}
                 className="w-full px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/10 active:scale-95 flex items-center justify-center gap-2.5 mt-6 cursor-pointer"

@@ -233,6 +233,7 @@ function AppContent() {
         onFAQsClick={() => navigate('/faqs')}
         onSitemapClick={() => navigate('/sitemap')}
         onDownloadAppClick={() => setShowDownloadModal(true)}
+        isAdmin={isAdmin}
       />
 
       <AnimatePresence>
