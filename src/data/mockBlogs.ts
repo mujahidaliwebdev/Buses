@@ -2956,7 +2956,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 6,
     title: "Lahore to Multan Bus Travel Guide",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1DaX92phUo09z-ZMaWLaNJBYoR6f-4ly1",
     imageOverlayText: "LAHORE - MULTAN ROUTE 2026",
     date: "18 June 2026",
     slug: "lahore-to-multan-bus-travel-guide",
@@ -3523,7 +3523,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 7,
     title: "How to Choose the Right Bus Service for Your Journey in Pakistan",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1L_L5EwUPTFitEZAV15izmHKJWd_nPrRH",
     imageOverlayText: "BUS SELECTION GUIDE 2026",
     date: "22 June 2026",
     slug: "how-to-choose-right-bus-service-pakistan",
