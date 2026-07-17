@@ -30,6 +30,7 @@ import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { calculateDuration } from '../lib/timeUtils';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 
 interface AdminDashboardProps {
   buses: Bus[];
@@ -51,6 +52,11 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isJsonUploading, setIsJsonUploading] = useState(false);
+  const [selectedPartitionFile, setSelectedPartitionFile] = useState('B1-B500.json');
+  const [customPartitionFile, setCustomPartitionFile] = useState('');
+  const [uploadMode, setUploadMode] = useState<'merge' | 'overwrite'>('merge');
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
 
   // Careers real-time subscription
   const [careersList, setCareersList] = useState<any[]>([]);
@@ -350,6 +356,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     setIsViewingFeedbacks(false);
     setIsSaving(false);
     setUploadProgress(null);
+    setIsJsonUploading(false);
+    setSelectedPartitionFile('B1-B500.json');
+    setCustomPartitionFile('');
+    setUploadMode('merge');
   };
 
   const handleBulkFareUpdateSubmit = async (e: React.FormEvent) => {
@@ -467,6 +477,239 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     });
   };
 
+  const mapRowToBus = (row: any) => {
+    const findVal = (keys: string[]) => {
+      for (const key of keys) {
+        const foundKey = Object.keys(row).find(k => {
+          const kNorm = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const targetNorm = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return kNorm === targetNorm;
+        });
+        if (foundKey !== undefined) {
+          return row[foundKey];
+        }
+      }
+      return '';
+    };
+
+    const busId = String(findVal(['busId', 'bus_id', 'id']) || '').trim();
+    const company = String(findVal(['company', 'company_name', 'companyName']) || '').trim();
+    const number = String(findVal(['number', 'bus_number', 'busNumber', 'registration_number', 'registrationNumber']) || '').trim();
+    const contact = String(findVal(['contact', 'contact_number', 'contactNumber', 'phone', 'phone_number', 'phoneNumber']) || '').trim();
+    const serviceType = String(findVal(['serviceType', 'service_type', 'service']) || '').trim();
+    const climateControl = String(findVal(['climateControl', 'climate_control', 'climate']) || '').trim();
+    const stops = String(findVal(['stops', 'stop_ids', 'stopIds']) || '').trim();
+    const terminal = String(findVal(['terminal', 'terminals', 'terminal_names', 'terminalNames']) || '').trim();
+    const stand = String(findVal(['stand', 'stands', 'stand_numbers', 'standNumbers']) || '').trim();
+    const arrivalTime = String(findVal(['arrivalTime', 'arrival_time', 'arrivalTimes', 'arrival']) || '').trim();
+    const departureTime = String(findVal(['departureTime', 'departure_time', 'departureTimes', 'departure']) || '').trim();
+
+    return {
+      busId,
+      company,
+      number,
+      contact,
+      serviceType,
+      climateControl,
+      stops,
+      terminal,
+      stand,
+      arrivalTime,
+      departureTime
+    };
+  };
+
+  const downloadPartitionTemplate = (format: 'json' | 'csv' | 'xlsx') => {
+    const templateData = [
+      {
+        "busId": "B1",
+        "company": "New Khan (Wahla Bros)",
+        "number": "BSE-011",
+        "contact": "0345-6816188",
+        "serviceType": "Standard",
+        "climateControl": "Normal Ventilation",
+        "stops": "S1, S2, S5, S7, S9, S10, S11, S13, S14, S50, S22, S18, S19, S20",
+        "terminal": "Badami Bagh, Bypass, Main Stop, Main Stop, Main Stop, Main Stop, General Bus Stand, Interchange, Interchange, Main Stop, Main Stop, Main Stop, Main Stop, Bus Stand",
+        "stand": "9, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 0, ?",
+        "arrivalTime": "10:15, 14:30, 15:00, 15:10, 15:30, 15:45, 16:15, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 22:30",
+        "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30"
+      },
+      {
+        "busId": "B2",
+        "company": "New Khan (Wahla Bros)",
+        "number": "BSE-011",
+        "contact": "0345-6816188",
+        "serviceType": "Standard",
+        "climateControl": "Normal Ventilation",
+        "stops": "S20, S19, S18, S22, S50, S14, S13, S11, S10, S9, S7, S5, S2, S1",
+        "terminal": "Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Interchange, Interchange, General Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Bypass, Badami Bagh",
+        "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
+        "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
+        "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
+      }
+    ];
+
+    if (format === 'json') {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(templateData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "B1-B500_template.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } else if (format === 'csv') {
+      const csvContent = Papa.unparse(templateData);
+      const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "B1-B500_template.csv");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } else if (format === 'xlsx') {
+      const worksheet = XLSX.utils.json_to_sheet(templateData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Buses");
+      XLSX.writeFile(workbook, "B1-B500_template.xlsx");
+    }
+  };
+
+  const handlePartitionFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+      try {
+        let parsedData: any[] = [];
+
+        if (fileExtension === 'json') {
+          const text = event.target?.result as string;
+          const rawJson = JSON.parse(text);
+          if (Array.isArray(rawJson)) {
+            parsedData = rawJson.map(mapRowToBus);
+          } else {
+            alert('Error: JSON file must be an array of bus sequences. / Array of buses hona chahiye.');
+            return;
+          }
+        } else if (fileExtension === 'csv') {
+          const text = event.target?.result as string;
+          const csvResult = Papa.parse(text, { header: true, skipEmptyLines: true });
+          if (Array.isArray(csvResult.data)) {
+            parsedData = csvResult.data.map(mapRowToBus);
+          }
+        } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const sheetJson = XLSX.utils.sheet_to_json(worksheet);
+          parsedData = sheetJson.map(mapRowToBus);
+        } else {
+          alert('Error: Unsupported file format. Please upload .csv, .xlsx, .xls or .json files.');
+          return;
+        }
+
+        // Validate basic structure
+        if (parsedData.length === 0) {
+          alert('Error: No records found in the uploaded file.');
+          return;
+        }
+
+        const invalidItems = parsedData.filter(item => !item.busId || !item.company || !item.stops || !item.arrivalTime || !item.departureTime);
+        if (invalidItems.length > 0) {
+          if (!confirm(`Warning: ${invalidItems.length} records are missing important fields like busId, company, stops, arrivalTime, departureTime. \n\nDo you still want to proceed?\n\n(Kuch records main zaroori fields missing hain. Kya aap phir bhi continue karna chahte hain?)`)) {
+            return;
+          }
+        }
+
+        const fileNameToSave = selectedPartitionFile === 'custom' 
+          ? (customPartitionFile.trim() || 'custom_partition.json')
+          : selectedPartitionFile;
+
+        // Ensure the filename ends with .json
+        const finalFileName = fileNameToSave.toLowerCase().endsWith('.json') 
+          ? fileNameToSave 
+          : `${fileNameToSave}.json`;
+
+        let actionMessage = '';
+        if (uploadMode === 'merge') {
+          actionMessage = `Merge ${parsedData.length} uploaded records with the existing static file "${finalFileName}"? \n\nExisting sequences with matching busId will be updated, and new ones will be added.`;
+        } else {
+          actionMessage = `Create/Overwrite "${finalFileName}" completely with only the ${parsedData.length} uploaded records?`;
+        }
+
+        if (confirm(`${actionMessage} \n\nKya aap is file ko update kar k direct download karna chahte hain?`)) {
+          setIsSaving(true);
+          try {
+            let finalDataToDownload = [];
+
+            if (uploadMode === 'merge') {
+              try {
+                // Try to load existing static file data from the server
+                const response = await fetch(`/data/buses/${finalFileName}`);
+                if (response.ok) {
+                  const existingData = await response.json();
+                  if (Array.isArray(existingData)) {
+                    // Match and merge by busId
+                    const busMap = new Map();
+                    existingData.forEach((item: any) => {
+                      if (item && item.busId) busMap.set(item.busId, item);
+                    });
+                    parsedData.forEach((item: any) => {
+                      if (item && item.busId) busMap.set(item.busId, item);
+                    });
+                    finalDataToDownload = Array.from(busMap.values());
+                  } else {
+                    finalDataToDownload = parsedData;
+                  }
+                } else {
+                  // File does not exist yet on server, just use uploaded data
+                  finalDataToDownload = parsedData;
+                }
+              } catch (fetchErr) {
+                console.warn('Could not fetch existing static file, using uploaded data only:', fetchErr);
+                finalDataToDownload = parsedData;
+              }
+            } else {
+              // Overwrite mode
+              finalDataToDownload = parsedData;
+            }
+
+            // Generate and trigger download of the newly compiled JSON file
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalDataToDownload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", finalFileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            alert(`Success! Generated and downloaded updated JSON file "${finalFileName}" containing ${finalDataToDownload.length} sequences.\n\nAb aap is file ko apni local directory ya GitHub repository me save/replace kar sakty hain.`);
+            setIsJsonUploading(false);
+            resetForm();
+          } catch (error) {
+            console.error(error);
+            alert('Processing failed. Check the console for details.');
+          } finally {
+            setIsSaving(false);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Failed to parse file. Ensure the format is valid.');
+      }
+    };
+
+    if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
+  };
+
   const downloadTemplate = () => {
     const template = [
       {
@@ -581,6 +824,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               <Upload className="w-5 h-5 text-blue-500" /> Bulk Upload
             </button>
             <button 
+              onClick={() => setIsJsonUploading(true)}
+              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <FileText className="w-5 h-5 text-indigo-500" /> JSON Partition Upload
+            </button>
+            <button 
               onClick={() => setIsAdding(true)}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
             >
@@ -673,6 +922,182 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           {renderPagination(false)}
         </div>
       </div>
+
+      {/* JSON Partition Bulk Upload Modal */}
+      <AnimatePresence>
+        {isJsonUploading && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={resetForm}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-10 md:p-14 max-h-[90vh] overflow-y-auto"
+            >
+              <button 
+                onClick={resetForm} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-indigo-50 rounded-[2rem] flex items-center justify-center text-indigo-600 mx-auto mb-6">
+                  <FileText className="w-10 h-10" />
+                </div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Static JSON Partition</h2>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Update static JSON partition files offline. Your uploaded records will be parsed, merged/overwritten, and downloaded directly as a clean file.
+                  <br />
+                  <span className="text-xs text-slate-400">یہ ڈیٹا فائر اسٹور میں سیو نہیں ہوگا، یہ صرف لوکل فائل کو اپ ڈیٹ اور ڈاؤن لوڈ کرے گا۔</span>
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Download Template File */}
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+                    Download Sample Template / سیمپل ٹیمپلیٹ فائل ڈاؤن لوڈ کریں
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => downloadPartitionTemplate('xlsx')}
+                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-3 px-2 rounded-2xl font-bold text-xs flex flex-col items-center justify-center gap-1 border border-emerald-100 transition-all active:scale-95 shadow-sm"
+                    >
+                      <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                      <span>Excel (.xlsx)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadPartitionTemplate('csv')}
+                      className="bg-sky-50 hover:bg-sky-100 text-sky-700 py-3 px-2 rounded-2xl font-bold text-xs flex flex-col items-center justify-center gap-1 border border-sky-100 transition-all active:scale-95 shadow-sm"
+                    >
+                      <FileText className="w-5 h-5 text-sky-600" />
+                      <span>CSV (.csv)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadPartitionTemplate('json')}
+                      className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-3 px-2 rounded-2xl font-bold text-xs flex flex-col items-center justify-center gap-1 border border-indigo-100 transition-all active:scale-95 shadow-sm"
+                    >
+                      <FileText className="w-5 h-5 text-indigo-600" />
+                      <span>JSON (.json)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Partition File Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+                    Target Partition File Name / کس فائل میں سیو کرنا ہے؟
+                  </label>
+                  <select
+                    value={selectedPartitionFile}
+                    onChange={(e) => setSelectedPartitionFile(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none font-bold text-slate-800"
+                  >
+                    <option value="B1-B500.json">B1-B500.json</option>
+                    <option value="B501-B1000.json">B501-B1000.json</option>
+                    <option value="B1001-B1500.json">B1001-B1500.json</option>
+                    <option value="custom">Custom File Name... (Apni Marzi ka Name)</option>
+                  </select>
+                </div>
+
+                {selectedPartitionFile === 'custom' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-2"
+                  >
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+                      Custom File Name (e.g. B1501-B2000.json)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. B1501-B2000.json"
+                      value={customPartitionFile}
+                      onChange={(e) => setCustomPartitionFile(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none font-bold text-slate-800"
+                    />
+                  </motion.div>
+                )}
+
+                {/* Processing Mode Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+                    Processing Mode / فائل کو اپ ڈیٹ کرنے کا طریقہ
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('merge')}
+                      className={`py-3.5 px-4 rounded-2xl border text-xs font-black text-center transition-all ${
+                        uploadMode === 'merge'
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Merge with existing file / ڈیٹا شامل کریں
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('overwrite')}
+                      className={`py-3.5 px-4 rounded-2xl border text-xs font-black text-center transition-all ${
+                        uploadMode === 'overwrite'
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Replace completely / پورا تبدیل کریں
+                    </button>
+                  </div>
+                </div>
+
+                {/* File Upload Zone */}
+                <div 
+                  className="p-8 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 text-center group hover:border-emerald-500 hover:bg-emerald-50/10 transition-all cursor-pointer"
+                  onClick={() => jsonFileInputRef.current?.click()}
+                >
+                  <Upload className="w-10 h-10 text-slate-300 mx-auto mb-4 group-hover:text-emerald-500 transition-colors" />
+                  <p className="text-sm font-bold text-slate-600 mb-1">Click to select Excel, CSV or JSON file</p>
+                  <p className="text-xs text-slate-400 font-medium">Supports .xlsx, .xls, .csv, .json • Max 10MB</p>
+                  <input 
+                    type="file"
+                    ref={jsonFileInputRef}
+                    onChange={handlePartitionFileUpload}
+                    accept=".xlsx,.xls,.csv,.json"
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6 flex items-start gap-4">
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-1 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-bold text-amber-900 mb-2">Structure & File Storage</h4>
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      Make sure your uploaded file columns match the sample template. After downloading, place the updated file inside your project's <code className="font-mono bg-amber-100/50 px-1 py-0.5 rounded text-amber-800">/public/data/buses/</code> directory to replace the older partition file.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {isSaving && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4" />
+                  <p className="font-bold text-slate-900">Processing & Downloading...</p>
+                  <p className="text-xs text-slate-500 mt-1">Please do not close this window</p>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Bulk Upload Modal */}
       <AnimatePresence>

@@ -59,6 +59,7 @@ export const staticDataService = {
 
   /**
    * Fetches buses directly from a specific partition file.
+   * Checks Firestore partition_buses first, then falls back to static JSON file.
    */
   getBusesFromPartition: async (partitionFile: string): Promise<StaticBus[]> => {
     try {

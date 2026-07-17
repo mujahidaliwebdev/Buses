@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { staticDataService } from '../lib/staticDataService';
 import { 
   Map, 
   Compass, 
@@ -32,9 +33,7 @@ export default function Sitemap() {
     async function loadDynamicCompanies() {
       try {
         // 1. Fetch index of stops to find all Bus IDs in the system
-        const indexResponse = await fetch('/data/stops_index.json');
-        if (!indexResponse.ok) return;
-        const indexData = await indexResponse.json();
+        const indexData = await staticDataService.getStopsIndex();
 
         if (!indexData || !indexData.stops) return;
 
@@ -69,17 +68,12 @@ export default function Sitemap() {
         const dynamicCompanies = new Set<string>();
         for (const partition of partitions) {
           try {
-            const partRes = await fetch(`/data/buses/${partition}`);
-            if (partRes.ok) {
-              const buses = await partRes.json();
-              if (Array.isArray(buses)) {
-                buses.forEach((bus: any) => {
-                  if (bus && bus.company && bus.company.trim()) {
-                    dynamicCompanies.add(bus.company.trim());
-                  }
-                });
+            const buses = await staticDataService.getBusesFromPartition(partition);
+            buses.forEach((bus: any) => {
+              if (bus && bus.company && bus.company.trim()) {
+                dynamicCompanies.add(bus.company.trim());
               }
-            }
+            });
           } catch (err) {
             console.error(`Error loading partition ${partition} in sitemap:`, err);
           }
