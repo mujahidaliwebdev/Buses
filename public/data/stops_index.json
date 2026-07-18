@@ -1,3567 +1,1777 @@
 {
   "stops": {
     "18 Hazari": {
-      "id": "S2904",
-      "buses": [
-        "B1"
-      ]
+      "id": "S16"
     },
     "Abbaspur": {
-      "id": "S9157",
-      "buses": [
-        "B1"
-      ]
+      "id": "S533"
     },
     "Abbottabad": {
-      "id": "S9319",
-      "buses": [
-        "B1"
-      ]
+      "id": "S232"
     },
     "Adda Mangatanwala": {
-      "id": "S1603",
-      "buses": [
-        "B1"
-      ]
+      "id": "S61"
     },
     "Adenzai": {
-      "id": "S713",
-      "buses": [
-        "B1"
-      ]
+      "id": "S284"
     },
     "Ahmadpur East": {
-      "id": "S2601",
-      "buses": [
-        "B1"
-      ]
+      "id": "S23"
     },
     "Ahmedpur Sial": {
-      "id": "S2540",
-      "buses": [
-        "B1"
-      ]
+      "id": "S88"
     },
     "Aliabad": {
-      "id": "S5853",
-      "buses": [
-        "B1"
-      ]
+      "id": "S534"
     },
     "Alipur": {
-      "id": "S2041",
-      "buses": [
-        "B1"
-      ]
+      "id": "S86"
     },
     "Alipur Chatha": {
-      "id": "S8466",
-      "buses": [
-        "B1"
-      ]
+      "id": "S176"
     },
     "Allahabad": {
-      "id": "S2944",
-      "buses": [
-        "B1"
-      ]
+      "id": "S113"
     },
     "Allai": {
-      "id": "S6262",
-      "buses": [
-        "B1"
-      ]
+      "id": "S246"
     },
     "Alpuri": {
-      "id": "S5764",
-      "buses": [
-        "B1"
-      ]
+      "id": "S310"
     },
     "Aminpur Bangla": {
-      "id": "S5627",
-      "buses": [
-        "B1"
-      ]
+      "id": "S192"
     },
     "Anambar": {
-      "id": "S55",
-      "buses": [
-        "B1"
-      ]
+      "id": "S436"
     },
     "Aram Bagh": {
-      "id": "S6487",
-      "buses": [
-        "B1"
-      ]
+      "id": "S354"
     },
     "Arifwala": {
-      "id": "S148",
-      "buses": [
-        "B1"
-      ]
+      "id": "S95"
     },
     "Ashwat": {
-      "id": "S3271",
-      "buses": [
-        "B1"
-      ]
+      "id": "S437"
     },
     "Astore": {
-      "id": "S373",
-      "buses": [
-        "B1"
-      ]
+      "id": "S535"
     },
     "Athmuqam": {
-      "id": "S8742",
-      "buses": [
-        "B1"
-      ]
+      "id": "S536"
     },
     "Attock": {
-      "id": "S6011",
-      "buses": [
-        "B1"
-      ]
+      "id": "S209"
     },
     "Awaran": {
-      "id": "S5705",
-      "buses": [
-        "B1"
-      ]
+      "id": "S438"
     },
     "Baba Kot": {
-      "id": "S5257",
-      "buses": [
-        "B1"
-      ]
+      "id": "S439"
     },
     "Babusar": {
-      "id": "S4194",
-      "buses": [
-        "B1"
-      ]
+      "id": "S537"
     },
     "Babuzai (Saidu Sharif/Mingora)": {
-      "id": "S9772",
-      "buses": [
-        "B1"
-      ]
+      "id": "S317"
     },
     "Badaber": {
-      "id": "S1118",
-      "buses": [
-        "B1"
-      ]
+      "id": "S307"
     },
     "Baddomalhi": {
-      "id": "S3586",
-      "buses": [
-        "B1"
-      ]
+      "id": "S138"
     },
     "Badin": {
-      "id": "S7001",
-      "buses": [
-        "B1"
-      ]
+      "id": "S330"
     },
     "Bagh": {
-      "id": "S3929",
-      "buses": [
-        "B1"
-      ]
+      "id": "S160"
     },
     "Bahawalnagar": {
-      "id": "S7711",
-      "buses": [
-        "B1"
-      ]
+      "id": "S104"
     },
     "Bahawalpur": {
-      "id": "S6152",
-      "buses": [
-        "B1"
-      ]
+      "id": "S89"
     },
     "Bahrain": {
-      "id": "S2638",
-      "buses": [
-        "B1"
-      ]
+      "id": "S321"
     },
     "Bakot": {
-      "id": "S306",
-      "buses": [
-        "B1"
-      ]
+      "id": "S235"
     },
     "Bakrani": {
-      "id": "S1268",
-      "buses": [
-        "B1"
-      ]
+      "id": "S367"
     },
     "Balakot": {
-      "id": "S2440",
-      "buses": [
-        "B1"
-      ]
+      "id": "S291"
     },
     "Balambat": {
-      "id": "S9237",
-      "buses": [
-        "B1"
-      ]
+      "id": "S285"
     },
     "Balanari": {
-      "id": "S3525",
-      "buses": [
-        "B1"
-      ]
+      "id": "S440"
     },
     "Balouch": {
-      "id": "S6799",
-      "buses": [
-        "B1"
-      ]
+      "id": "S539"
     },
     "Banda Daud Shah": {
-      "id": "S6504",
-      "buses": [
-        "B1"
-      ]
+      "id": "S264"
     },
     "Bangla Gogera": {
-      "id": "S786",
-      "buses": [
-        "B1"
-      ]
+      "id": "S74"
     },
     "Bannu": {
-      "id": "S800",
-      "buses": [
-        "B1"
-      ]
+      "id": "S236"
     },
     "Bara": {
-      "id": "S5938",
-      "buses": [
-        "B1"
-      ]
+      "id": "S272"
     },
     "Barang": {
-      "id": "S4938",
-      "buses": [
-        "B1"
-      ]
+      "id": "S244"
     },
     "Barikot": {
-      "id": "S4686",
-      "buses": [
-        "B1"
-      ]
+      "id": "S322"
     },
     "Barnala": {
-      "id": "S2993",
-      "buses": [
-        "B1"
-      ]
+      "id": "S153"
     },
     "Basirpur": {
-      "id": "S3831",
-      "buses": [
-        "B1"
-      ]
+      "id": "S110"
     },
     "Batkhela": {
-      "id": "S6216",
-      "buses": [
-        "B1"
-      ]
+      "id": "S287"
     },
     "Battagram": {
-      "id": "S5916",
-      "buses": [
-        "B1"
-      ]
+      "id": "S245"
     },
     "Behal": {
-      "id": "S9768",
-      "buses": [
-        "B1"
-      ]
+      "id": "S230"
     },
     "Bela": {
-      "id": "S975",
-      "buses": [
-        "B1"
-      ]
+      "id": "S441"
     },
     "Besma": {
-      "id": "S3250",
-      "buses": [
-        "B1"
-      ]
+      "id": "S442"
     },
     "Bhakkar": {
-      "id": "S3100",
-      "buses": [
-        "B1"
-      ]
+      "id": "S229"
     },
     "Bhalwal": {
-      "id": "S2871",
-      "buses": [
-        "B1"
-      ]
+      "id": "S146"
     },
     "Bhawana": {
-      "id": "S1583",
-      "buses": [
-        "B1"
-      ]
+      "id": "S191"
     },
     "Bhikhi": {
-      "id": "S5086",
-      "buses": [
-        "B1"
-      ]
+      "id": "S4"
     },
     "Bhimber": {
-      "id": "S5351",
-      "buses": [
-        "B1"
-      ]
+      "id": "S154"
     },
     "Bhiria": {
-      "id": "S6813",
-      "buses": [
-        "B1"
-      ]
+      "id": "S380"
     },
     "Bisham": {
-      "id": "S8031",
-      "buses": [
-        "B1"
-      ]
+      "id": "S311"
     },
     "Bucheki": {
-      "id": "S3766",
-      "buses": [
-        "B1"
-      ]
+      "id": "S575"
     },
     "Buleda": {
-      "id": "S5174",
-      "buses": [
-        "B1"
-      ]
+      "id": "S443"
     },
     "Bulri Shah Karim": {
-      "id": "S1483",
-      "buses": [
-        "B1"
-      ]
+      "id": "S415"
     },
     "Burewala": {
-      "id": "S7700",
-      "buses": [
-        "B1"
-      ]
+      "id": "S94"
     },
     "Central Kurram": {
-      "id": "S2935",
-      "buses": [
-        "B1"
-      ]
+      "id": "S277"
     },
     "Chachro": {
-      "id": "S1981",
-      "buses": [
-        "B1"
-      ]
+      "id": "S417"
     },
     "Chak Aamru": {
-      "id": "S5075",
-      "buses": [
-        "B1"
-      ]
+      "id": "S136"
     },
     "Chak Jhumra": {
-      "id": "S117",
-      "buses": [
-        "B1"
-      ]
+      "id": "S189"
     },
     "Chakwal": {
-      "id": "S6514",
-      "buses": [
-        "B1"
-      ]
+      "id": "S166"
     },
     "Chalt": {
-      "id": "S1669",
-      "buses": [
-        "B1"
-      ]
+      "id": "S541"
     },
     "Chaman": {
-      "id": "S1787",
-      "buses": [
-        "B1"
-      ]
+      "id": "S444"
     },
     "Chamber": {
-      "id": "S8971",
-      "buses": [
-        "B1"
-      ]
+      "id": "S413"
     },
     "Chamkani": {
-      "id": "S6818",
-      "buses": [
-        "B1"
-      ]
+      "id": "S309"
     },
     "Chamla": {
-      "id": "S8438",
-      "buses": [
-        "B1"
-      ]
+      "id": "S249"
     },
     "Changa Manga": {
-      "id": "S1921",
-      "buses": [
-        "B1"
-      ]
+      "id": "S69"
     },
     "Charhoi": {
-      "id": "S5860",
-      "buses": [
-        "B1"
-      ]
+      "id": "S540"
     },
     "Charsadda": {
-      "id": "S621",
-      "buses": [
-        "B1"
-      ]
+      "id": "S252"
     },
     "Chattar": {
-      "id": "S198",
-      "buses": [
-        "B1"
-      ]
+      "id": "S445"
     },
     "Chaubara": {
-      "id": "S6036",
-      "buses": [
-        "B1"
-      ]
+      "id": "S202"
     },
     "Chawinda": {
-      "id": "S4836",
-      "buses": [
-        "B1"
-      ]
+      "id": "S131"
     },
     "Chichawatni": {
-      "id": "S8116",
-      "buses": [
-        "B1"
-      ]
+      "id": "S77"
     },
     "Chikar": {
-      "id": "S9825",
-      "buses": [
-        "B1"
-      ]
+      "id": "S542"
     },
     "Chilas": {
-      "id": "S31",
-      "buses": [
-        "B1"
-      ]
+      "id": "S543"
     },
     "Chiniot": {
-      "id": "S8604",
-      "buses": [
-        "B1"
-      ]
+      "id": "S190"
     },
     "Chishtian": {
-      "id": "S1917",
-      "buses": [
-        "B1"
-      ]
+      "id": "S99"
     },
     "Chitral": {
-      "id": "S5252",
-      "buses": [
-        "B1"
-      ]
+      "id": "S281"
     },
     "Choa Saidan Shah": {
-      "id": "S708",
-      "buses": [
-        "B1"
-      ]
+      "id": "S167"
     },
     "Chorasta Mian Khan": {
-      "id": "S6477",
-      "buses": [
-        "B1"
-      ]
+      "id": "S109"
     },
     "Chorbat": {
-      "id": "S1348",
-      "buses": [
-        "B1"
-      ]
+      "id": "S544"
     },
     "Chowk Azam": {
-      "id": "S18",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S18"
     },
     "Chowk Munda": {
-      "id": "S4405",
-      "buses": [
-        "B1"
-      ]
+      "id": "S25"
     },
     "Chowki Bhagat": {
-      "id": "S2049",
-      "buses": [
-        "B1"
-      ]
+      "id": "S185"
     },
     "Chund Bharwana": {
-      "id": "S558",
-      "buses": [
-        "B1"
-      ]
+      "id": "S195"
     },
     "Chunian": {
-      "id": "S9010",
-      "buses": [
-        "B1"
-      ]
+      "id": "S70"
     },
     "Dadu": {
-      "id": "S9735",
-      "buses": [
-        "B1"
-      ]
+      "id": "S334"
     },
     "Dadyal": {
-      "id": "S8910",
-      "buses": [
-        "B1"
-      ]
+      "id": "S545"
     },
     "Daggar": {
-      "id": "S7285",
-      "buses": [
-        "B1"
-      ]
+      "id": "S247"
     },
     "Daghoni": {
-      "id": "S6517",
-      "buses": [
-        "B1"
-      ]
+      "id": "S546"
     },
     "Daharki": {
-      "id": "S233",
-      "buses": [
-        "B1"
-      ]
+      "id": "S339"
     },
     "Dahli": {
-      "id": "S1362",
-      "buses": [
-        "B1"
-      ]
+      "id": "S418"
     },
     "Daira Din Panah": {
-      "id": "S5782",
-      "buses": [
-        "B1"
-      ]
+      "id": "S29"
     },
     "Dajal": {
-      "id": "S6874",
-      "buses": [
-        "B1"
-      ]
+      "id": "S41"
     },
     "Dalbandin": {
-      "id": "S6191",
-      "buses": [
-        "B1"
-      ]
+      "id": "S446"
     },
     "Danyor": {
-      "id": "S1310",
-      "buses": [
-        "B1"
-      ]
+      "id": "S547"
     },
     "Dara Adamkhel": {
-      "id": "S3291",
-      "buses": [
-        "B1"
-      ]
+      "id": "S212"
     },
     "Daraban": {
-      "id": "S8257",
-      "buses": [
-        "B1"
-      ]
+      "id": "S257"
     },
     "Daran": {
-      "id": "S1075",
-      "buses": [
-        "B1"
-      ]
+      "id": "S447"
     },
     "Darel": {
-      "id": "S9961",
-      "buses": [
-        "B1"
-      ]
+      "id": "S548"
     },
     "Dargai": {
-      "id": "S2870",
-      "buses": [
-        "B1"
-      ]
+      "id": "S288"
     },
     "Darya Khan": {
-      "id": "S5645",
-      "buses": [
-        "B1"
-      ]
+      "id": "S225"
     },
     "Dasht": {
-      "id": "S9099",
-      "buses": [
-        "B1"
-      ]
+      "id": "S448"
     },
     "Daska": {
-      "id": "S2038",
-      "buses": [
-        "B1"
-      ]
+      "id": "S128"
     },
     "Dassu": {
-      "id": "S788",
-      "buses": [
-        "B1"
-      ]
+      "id": "S267"
     },
     "Daud Khel": {
-      "id": "S8946",
-      "buses": [
-        "B1"
-      ]
+      "id": "S217"
     },
     "Daulat Nagar": {
-      "id": "S3205",
-      "buses": [
-        "B1"
-      ]
+      "id": "S142"
     },
     "Daur": {
-      "id": "S8815",
-      "buses": [
-        "B1"
-      ]
+      "id": "S397"
     },
     "Depalpur": {
-      "id": "S8581",
-      "buses": [
-        "B1"
-      ]
+      "id": "S107"
     },
     "Dera Allah Yar": {
-      "id": "S1577",
-      "buses": [
-        "B1"
-      ]
+      "id": "S449"
     },
     "Dera Bugti": {
-      "id": "S257",
-      "buses": [
-        "B1"
-      ]
+      "id": "S450"
     },
     "Dera Ghazi Khan": {
-      "id": "S36",
-      "buses": [
-        "B1"
-      ]
+      "id": "S37"
     },
     "Dera Ismail Khan": {
-      "id": "S2814",
-      "buses": [
-        "B1"
-      ]
+      "id": "S228"
     },
     "Dera Murad Jamali": {
-      "id": "S751",
-      "buses": [
-        "B1"
-      ]
+      "id": "S451"
     },
     "Dhadar": {
-      "id": "S1581",
-      "buses": [
-        "B1"
-      ]
+      "id": "S452"
     },
     "Dhirkot": {
-      "id": "S1399",
-      "buses": [
-        "B1"
-      ]
+      "id": "S161"
     },
     "Digkot": {
-      "id": "S7125",
-      "buses": [
-        "B1"
-      ]
+      "id": "S58"
     },
     "Digri": {
-      "id": "S6466",
-      "buses": [
-        "B1"
-      ]
+      "id": "S374"
     },
     "Dina": {
-      "id": "S6282",
-      "buses": [
-        "B1"
-      ]
+      "id": "S150"
     },
     "Dinga": {
-      "id": "S1655",
-      "buses": [
-        "B1"
-      ]
+      "id": "S173"
     },
     "Diplo": {
-      "id": "S6756",
-      "buses": [
-        "B1"
-      ]
+      "id": "S419"
     },
     "Dir": {
-      "id": "S9965",
-      "buses": [
-        "B1"
-      ]
+      "id": "S327"
     },
     "Dobandi": {
-      "id": "S621",
-      "buses": [
-        "B1"
-      ]
+      "id": "S453"
     },
     "Dokri": {
-      "id": "S6678",
-      "buses": [
-        "B1"
-      ]
+      "id": "S368"
     },
     "Domel": {
-      "id": "S9044",
-      "buses": [
-        "B1"
-      ]
+      "id": "S237"
     },
     "Drosh": {
-      "id": "S6634",
-      "buses": [
-        "B1"
-      ]
+      "id": "S282"
     },
     "Drug": {
-      "id": "S704",
-      "buses": [
-        "B1"
-      ]
+      "id": "S454"
     },
     "Dubair": {
-      "id": "S1734",
-      "buses": [
-        "B1"
-      ]
+      "id": "S274"
     },
     "Duki": {
-      "id": "S7715",
-      "buses": [
-        "B1"
-      ]
+      "id": "S455"
     },
     "Dunga Bunga": {
-      "id": "S970",
-      "buses": [
-        "B1"
-      ]
+      "id": "S103"
     },
     "Dunyapur": {
-      "id": "S1876",
-      "buses": [
-        "B1"
-      ]
+      "id": "S82"
     },
     "Dureji": {
-      "id": "S8919",
-      "buses": [
-        "B1"
-      ]
+      "id": "S456"
     },
     "Ekka Ghund": {
-      "id": "S4924",
-      "buses": [
-        "B1"
-      ]
+      "id": "S299"
     },
     "Eminabad": {
-      "id": "S9807",
-      "buses": [
-        "B1"
-      ]
+      "id": "S120"
     },
     "Eminabad More": {
-      "id": "S5058",
-      "buses": [
-        "B1"
-      ]
+      "id": "S121"
     },
     "Essa": {
-      "id": "S8822",
-      "buses": [
-        "B1"
-      ]
+      "id": "S530"
     },
     "Faisalabad": {
-      "id": "S11",
-      "buses": [
-        "B1",
-        "B2",
-        "B3"
-      ]
+      "id": "S11"
     },
     "Faiz Ganj": {
-      "id": "S1768",
-      "buses": [
-        "B1"
-      ]
+      "id": "S361"
     },
     "Faqir Wali": {
-      "id": "S8161",
-      "buses": [
-        "B1"
-      ]
+      "id": "S101"
     },
     "Farooqabad": {
-      "id": "S1263",
-      "buses": [
-        "B1"
-      ]
+      "id": "S531"
     },
     "Fateh Jang": {
-      "id": "S1039",
-      "buses": [
-        "B1"
-      ]
+      "id": "S208"
     },
     "Fatehpur": {
-      "id": "S19",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S19"
     },
     "Fatehpur Thakiala (Nakyal)": {
-      "id": "S1958",
-      "buses": [
-        "B1"
-      ]
+      "id": "S549"
     },
     "Feroze Wattwan": {
-      "id": "S5",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S5"
     },
     "Fort Abbas": {
-      "id": "S5528",
-      "buses": [
-        "B1"
-      ]
+      "id": "S100"
     },
     "Fort Monroe": {
-      "id": "S1642",
-      "buses": [
-        "B1"
-      ]
+      "id": "S40"
     },
     "Gadani": {
-      "id": "S1162",
-      "buses": [
-        "B1"
-      ]
+      "id": "S457"
     },
     "Gagra": {
-      "id": "S5520",
-      "buses": [
-        "B1"
-      ]
+      "id": "S248"
     },
     "Gajjar": {
-      "id": "S3259",
-      "buses": [
-        "B1"
-      ]
+      "id": "S458"
     },
     "Gamba": {
-      "id": "S8485",
-      "buses": [
-        "B1"
-      ]
+      "id": "S550"
     },
     "Gambat": {
-      "id": "S8902",
-      "buses": [
-        "B1"
-      ]
+      "id": "S362"
     },
     "Gandakha": {
-      "id": "S1999",
-      "buses": [
-        "B1"
-      ]
+      "id": "S459"
     },
     "Gandawah": {
-      "id": "S4454",
-      "buses": [
-        "B1"
-      ]
+      "id": "S460"
     },
     "Garh Moor": {
-      "id": "S22",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S22"
     },
     "Garhi Khairo": {
-      "id": "S7505",
-      "buses": [
-        "B1"
-      ]
+      "id": "S347"
     },
     "Garhi Yasin": {
-      "id": "S4651",
-      "buses": [
-        "B1"
-      ]
+      "id": "S401"
     },
     "Gawadar": {
-      "id": "S7435",
-      "buses": [
-        "B1"
-      ]
+      "id": "S528"
     },
     "Gazg": {
-      "id": "S5582",
-      "buses": [
-        "B1"
-      ]
+      "id": "S461"
     },
     "Ghalanai": {
-      "id": "S1782",
-      "buses": [
-        "B1"
-      ]
+      "id": "S296"
     },
     "Gharo": {
-      "id": "S2664",
-      "buses": [
-        "B1"
-      ]
+      "id": "S424"
     },
     "Ghazi": {
-      "id": "S5100",
-      "buses": [
-        "B1"
-      ]
+      "id": "S261"
     },
     "Ghizer": {
-      "id": "S7185",
-      "buses": [
-        "B1"
-      ]
+      "id": "S551"
     },
     "Ghorabari": {
-      "id": "S6008",
-      "buses": [
-        "B1"
-      ]
+      "id": "S425"
     },
     "Ghotki": {
-      "id": "S2267",
-      "buses": [
-        "B1"
-      ]
+      "id": "S338"
     },
-    "Ghowari-Haldi": {
-      "id": "S5597",
-      "buses": [
-        "B1"
-      ]
+    "Ghowari/Haldi": {
+      "id": "S553"
     },
     "Gichk": {
-      "id": "S8347",
-      "buses": [
-        "B1"
-      ]
+      "id": "S462"
     },
     "Gilgit": {
-      "id": "S5221",
-      "buses": [
-        "B1"
-      ]
+      "id": "S552"
     },
     "Girot": {
-      "id": "S2249",
-      "buses": [
-        "B1"
-      ]
+      "id": "S198"
     },
     "Goharabad": {
-      "id": "S4030",
-      "buses": [
-        "B1"
-      ]
+      "id": "S555"
     },
     "Gojal": {
-      "id": "S3152",
-      "buses": [
-        "B1"
-      ]
+      "id": "S554"
     },
     "Gojra": {
-      "id": "S13",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S13"
     },
     "Gujar Khan": {
-      "id": "S7991",
-      "buses": [
-        "B1"
-      ]
+      "id": "S152"
     },
     "Gujranwala": {
-      "id": "S1886",
-      "buses": [
-        "B1"
-      ]
+      "id": "S122"
     },
     "Gujrat": {
-      "id": "S673",
-      "buses": [
-        "B1"
-      ]
+      "id": "S125"
     },
     "Gulabpur": {
-      "id": "S4075",
-      "buses": [
-        "B1"
-      ]
+      "id": "S556"
     },
     "Gulistan": {
-      "id": "S7922",
-      "buses": [
-        "B1"
-      ]
+      "id": "S463"
     },
     "Gultari": {
-      "id": "S8305",
-      "buses": [
-        "B1"
-      ]
+      "id": "S557"
     },
     "Gumbat": {
-      "id": "S5122",
-      "buses": [
-        "B1"
-      ]
+      "id": "S266"
     },
     "Gupis": {
-      "id": "S2853",
-      "buses": [
-        "B1"
-      ]
+      "id": "S558"
     },
     "Gurjura": {
-      "id": "S4109",
-      "buses": [
-        "B1"
-      ]
+      "id": "S434"
     },
     "Hafizabad": {
-      "id": "S8018",
-      "buses": [
-        "B1"
-      ]
+      "id": "S178"
     },
     "Hajira": {
-      "id": "S7671",
-      "buses": [
-        "B1"
-      ]
+      "id": "S158"
     },
     "Hala": {
-      "id": "S8782",
-      "buses": [
-        "B1"
-      ]
+      "id": "S371"
     },
     "Hangu": {
-      "id": "S8405",
-      "buses": [
-        "B1"
-      ]
+      "id": "S214"
     },
     "Harapa": {
-      "id": "S1198",
-      "buses": [
-        "B1"
-      ]
+      "id": "S76"
     },
     "Harbour": {
-      "id": "S140",
-      "buses": [
-        "B1"
-      ]
+      "id": "S356"
     },
     "Hari Ghel": {
-      "id": "S482",
-      "buses": [
-        "B1"
-      ]
+      "id": "S560"
     },
     "Haripur": {
-      "id": "S8806",
-      "buses": [
-        "B1"
-      ]
+      "id": "S260"
     },
     "Harnai": {
-      "id": "S5097",
-      "buses": [
-        "B1"
-      ]
+      "id": "S464"
     },
     "Harnoli": {
-      "id": "S4921",
-      "buses": [
-        "B1"
-      ]
+      "id": "S222"
     },
     "Haroonabad": {
-      "id": "S4658",
-      "buses": [
-        "B1"
-      ]
+      "id": "S102"
     },
     "Hasilpur": {
-      "id": "S4468",
-      "buses": [
-        "B1"
-      ]
+      "id": "S98"
     },
     "Hassan Abdal": {
-      "id": "S1408",
-      "buses": [
-        "B1"
-      ]
+      "id": "S210"
     },
     "Hattian Bala": {
-      "id": "S6462",
-      "buses": [
-        "B1"
-      ]
+      "id": "S561"
     },
     "Haveli": {
-      "id": "S8239",
-      "buses": [
-        "B1"
-      ]
+      "id": "S562"
     },
     "Haveli Azad Kashmir": {
-      "id": "S4290",
-      "buses": [
-        "B1"
-      ]
+      "id": "S162"
     },
     "Haveli Lakha": {
-      "id": "S5778",
-      "buses": [
-        "B1"
-      ]
+      "id": "S106"
     },
     "Havelian": {
-      "id": "S6037",
-      "buses": [
-        "B1"
-      ]
+      "id": "S233"
     },
     "Hazara": {
-      "id": "S7177",
-      "buses": [
-        "B1"
-      ]
+      "id": "S141"
     },
     "Head Balloki": {
-      "id": "S9916",
-      "buses": [
-        "B1"
-      ]
+      "id": "S577"
     },
     "Head Trimmu": {
-      "id": "S24",
-      "buses": [
-        "B1"
-      ]
+      "id": "S559"
     },
     "Heera Adda": {
-      "id": "S34",
-      "buses": [
-        "B1"
-      ]
+      "id": "S26"
     },
     "Hub": {
-      "id": "S6326",
-      "buses": [
-        "B1"
-      ]
+      "id": "S465"
     },
     "Hujra Shah Muqeem": {
-      "id": "S8329",
-      "buses": [
-        "B1"
-      ]
+      "id": "S108"
     },
     "Hunza": {
-      "id": "S4975",
-      "buses": [
-        "B1"
-      ]
+      "id": "S563"
     },
     "Huramzai": {
-      "id": "S6249",
-      "buses": [
-        "B1"
-      ]
+      "id": "S466"
     },
     "Hussain Bux Mari": {
-      "id": "S2020",
-      "buses": [
-        "B1"
-      ]
+      "id": "S375"
     },
     "Hyderabad": {
-      "id": "S7660",
-      "buses": [
-        "B1"
-      ]
+      "id": "S343"
     },
     "Hyderabad Thal": {
-      "id": "S6259",
-      "buses": [
-        "B1"
-      ]
+      "id": "S200"
     },
     "Isa Khel": {
-      "id": "S620",
-      "buses": [
-        "B1"
-      ]
+      "id": "S220"
     },
     "Ishkoman": {
-      "id": "S5520",
-      "buses": [
-        "B1"
-      ]
+      "id": "S565"
     },
-    "Islamabad-Rawalpindi": {
-      "id": "S9796",
-      "buses": [
-        "B1"
-      ]
+    "Islamabad/Rawalpindi": {
+      "id": "S165"
     },
     "Islamgarh": {
-      "id": "S5606",
-      "buses": [
-        "B1"
-      ]
+      "id": "S564"
     },
     "Islamkot": {
-      "id": "S7728",
-      "buses": [
-        "B1"
-      ]
+      "id": "S420"
     },
     "Jacobabad": {
-      "id": "S5570",
-      "buses": [
-        "B1"
-      ]
+      "id": "S346"
     },
     "Jaglot": {
-      "id": "S5811",
-      "buses": [
-        "B1"
-      ]
+      "id": "S566"
     },
     "Jahanian": {
-      "id": "S2350",
-      "buses": [
-        "B1"
-      ]
+      "id": "S81"
     },
     "Jalalpur Bhattian": {
-      "id": "S747",
-      "buses": [
-        "B1"
-      ]
+      "id": "S180"
     },
     "Jalalpur Jattan": {
-      "id": "S650",
-      "buses": [
-        "B1"
-      ]
+      "id": "S140"
     },
     "Jalalpur Pirwala": {
-      "id": "S181",
-      "buses": [
-        "B1"
-      ]
+      "id": "S84"
     },
     "Jam Nawaz Ali": {
-      "id": "S805",
-      "buses": [
-        "B1"
-      ]
+      "id": "S391"
     },
     "Jampur": {
-      "id": "S4977",
-      "buses": [
-        "B1"
-      ]
+      "id": "S42"
     },
     "Jamrud": {
-      "id": "S3421",
-      "buses": [
-        "B1"
-      ]
+      "id": "S270"
     },
     "Jamshed": {
-      "id": "S6622",
-      "buses": [
-        "B1"
-      ]
+      "id": "S353"
     },
     "Jand": {
-      "id": "S6332",
-      "buses": [
-        "B1"
-      ]
+      "id": "S207"
     },
     "Jaranwala": {
-      "id": "S9986",
-      "buses": [
-        "B1"
-      ]
+      "id": "S574"
     },
     "Jati": {
-      "id": "S7816",
-      "buses": [
-        "B1"
-      ]
+      "id": "S403"
     },
     "Jatoi": {
-      "id": "S3458",
-      "buses": [
-        "B1"
-      ]
+      "id": "S87"
     },
     "Jehangira": {
-      "id": "S3277",
-      "buses": [
-        "B1"
-      ]
+      "id": "S301"
     },
     "Jhal Jhao": {
-      "id": "S353",
-      "buses": [
-        "B1"
-      ]
+      "id": "S467"
     },
     "Jhal Magsi": {
-      "id": "S6784",
-      "buses": [
-        "B1"
-      ]
+      "id": "S468"
     },
     "Jhang": {
-      "id": "S2125",
-      "buses": [
-        "B1"
-      ]
+      "id": "S15"
     },
     "Jhawarian": {
-      "id": "S3431",
-      "buses": [
-        "B1"
-      ]
+      "id": "S182"
     },
     "Jhelum": {
-      "id": "S400",
-      "buses": [
-        "B1"
-      ]
+      "id": "S149"
     },
     "Jhuddo": {
-      "id": "S3391",
-      "buses": [
-        "B1"
-      ]
+      "id": "S376"
     },
     "Jiwani": {
-      "id": "S4859",
-      "buses": [
-        "B1"
-      ]
+      "id": "S469"
     },
     "Johi": {
-      "id": "S5433",
-      "buses": [
-        "B1"
-      ]
+      "id": "S335"
     },
     "Judba": {
-      "id": "S2219",
-      "buses": [
-        "B1"
-      ]
+      "id": "S324"
     },
     "Kabal": {
-      "id": "S1810",
-      "buses": [
-        "B1"
-      ]
+      "id": "S318"
     },
     "Kabirwala": {
-      "id": "S3694",
-      "buses": [
-        "B1"
-      ]
+      "id": "S48"
     },
     "Kacha Khuh": {
-      "id": "S9026",
-      "buses": [
-        "B1"
-      ]
+      "id": "S79"
     },
     "Kakki": {
-      "id": "S2298",
-      "buses": [
-        "B1"
-      ]
+      "id": "S238"
     },
     "Kala Bagh": {
-      "id": "S3203",
-      "buses": [
-        "B1"
-      ]
+      "id": "S216"
     },
     "Kala Shah Kaku": {
-      "id": "S3379",
-      "buses": [
-        "B1"
-      ]
+      "id": "S116"
     },
     "Kalat": {
-      "id": "S9196",
-      "buses": [
-        "B1"
-      ]
+      "id": "S470"
     },
     "Kallar Kahar": {
-      "id": "S1936",
-      "buses": [
-        "B1"
-      ]
+      "id": "S168"
     },
     "Kallar Syedan": {
-      "id": "S5208",
-      "buses": [
-        "B1"
-      ]
+      "id": "S156"
     },
     "Kallur Kot": {
-      "id": "S6593",
-      "buses": [
-        "B1"
-      ]
+      "id": "S224"
     },
     "Kaloi": {
-      "id": "S472",
-      "buses": [
-        "B1"
-      ]
+      "id": "S421"
     },
     "Kalri": {
-      "id": "S3246",
-      "buses": [
-        "B1"
-      ]
+      "id": "S193"
     },
     "Kamalia": {
-      "id": "S7749",
-      "buses": [
-        "B1"
-      ]
+      "id": "S54"
     },
     "Kamoke": {
-      "id": "S8052",
-      "buses": [
-        "B1"
-      ]
+      "id": "S119"
     },
     "Kamran Kalan": {
-      "id": "S8390",
-      "buses": [
-        "B1"
-      ]
+      "id": "S211"
     },
     "Kandhkot": {
-      "id": "S3711",
-      "buses": [
-        "B1"
-      ]
+      "id": "S357"
     },
     "Kandia": {
-      "id": "S9332",
-      "buses": [
-        "B1"
-      ]
+      "id": "S268"
     },
     "Kandiaro": {
-      "id": "S7501",
-      "buses": [
-        "B1"
-      ]
+      "id": "S381"
     },
     "Kangan Pur": {
-      "id": "S9007",
-      "buses": [
-        "B1"
-      ]
+      "id": "S112"
     },
     "Kanjrur": {
-      "id": "S3346",
-      "buses": [
-        "B1"
-      ]
+      "id": "S529"
     },
     "Karak": {
-      "id": "S8193",
-      "buses": [
-        "B1"
-      ]
+      "id": "S262"
     },
     "Kardigap": {
-      "id": "S9077",
-      "buses": [
-        "B1"
-      ]
+      "id": "S471"
     },
     "Karezat": {
-      "id": "S8870",
-      "buses": [
-        "B1"
-      ]
+      "id": "S472"
     },
     "Karor": {
-      "id": "S20",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S20"
     },
     "Karor Pakka": {
-      "id": "S4146",
-      "buses": [
-        "B1"
-      ]
+      "id": "S91"
     },
     "Kashmore": {
-      "id": "S6408",
-      "buses": [
-        "B1"
-      ]
+      "id": "S358"
     },
     "Kasur": {
-      "id": "S2990",
-      "buses": [
-        "B1"
-      ]
+      "id": "S64"
     },
     "Katlang": {
-      "id": "S4649",
-      "buses": [
-        "B1"
-      ]
+      "id": "S295"
     },
     "Keris": {
-      "id": "S490",
-      "buses": [
-        "B1"
-      ]
+      "id": "S567"
     },
     "Keti Bunder": {
-      "id": "S4611",
-      "buses": [
-        "B1"
-      ]
+      "id": "S426"
     },
     "Khairpur": {
-      "id": "S3593",
-      "buses": [
-        "B1"
-      ]
+      "id": "S360"
     },
     "Khairpur Nathan Shah": {
-      "id": "S1269",
-      "buses": [
-        "B1"
-      ]
+      "id": "S336"
     },
     "Khanewal": {
-      "id": "S5518",
-      "buses": [
-        "B1"
-      ]
+      "id": "S80"
     },
     "Khangarh": {
-      "id": "S9193",
-      "buses": [
-        "B1"
-      ]
+      "id": "S340"
     },
     "Khanpur": {
-      "id": "S5595",
-      "buses": [
-        "B1"
-      ]
+      "id": "S47"
     },
     "Khanqah Dogran": {
-      "id": "S7187",
-      "buses": [
-        "B1"
-      ]
+      "id": "S532"
     },
     "Khansar": {
-      "id": "S7315",
-      "buses": [
-        "B1"
-      ]
+      "id": "S227"
     },
     "Khaplu": {
-      "id": "S4380",
-      "buses": [
-        "B1"
-      ]
+      "id": "S568"
     },
     "Khar": {
-      "id": "S79",
-      "buses": [
-        "B1"
-      ]
+      "id": "S239"
     },
     "Kharan": {
-      "id": "S566",
-      "buses": [
-        "B1"
-      ]
+      "id": "S473"
     },
     "Kharian": {
-      "id": "S1331",
-      "buses": [
-        "B1"
-      ]
+      "id": "S145"
     },
     "Kharianwala": {
-      "id": "S4492",
-      "buses": [
-        "B1"
-      ]
+      "id": "S3"
     },
     "Kharmang": {
-      "id": "S6742",
-      "buses": [
-        "B1"
-      ]
+      "id": "S569"
     },
     "Kharo Chan": {
-      "id": "S3139",
-      "buses": [
-        "B1"
-      ]
+      "id": "S404"
     },
     "Khewra": {
-      "id": "S1892",
-      "buses": [
-        "B1"
-      ]
+      "id": "S169"
     },
     "Khipro": {
-      "id": "S267",
-      "buses": [
-        "B1"
-      ]
+      "id": "S392"
     },
     "Khudian Khas": {
-      "id": "S4381",
-      "buses": [
-        "B1"
-      ]
+      "id": "S115"
     },
     "Khuiratta": {
-      "id": "S1744",
-      "buses": [
-        "B1"
-      ]
+      "id": "S570"
     },
     "Khurrianwala": {
-      "id": "S10",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S10"
     },
     "Khushab": {
-      "id": "S633",
-      "buses": [
-        "B1"
-      ]
+      "id": "S197"
     },
     "Khuzdar": {
-      "id": "S8566",
-      "buses": [
-        "B1"
-      ]
+      "id": "S474"
     },
     "Khwazakhela": {
-      "id": "S2012",
-      "buses": [
-        "B1"
-      ]
+      "id": "S319"
     },
     "Killa Abdullah": {
-      "id": "S8369",
-      "buses": [
-        "B1"
-      ]
+      "id": "S475"
     },
     "Killa Saifullah": {
-      "id": "S2332",
-      "buses": [
-        "B1"
-      ]
+      "id": "S476"
     },
     "Kingra Mor": {
-      "id": "S7666",
-      "buses": [
-        "B1"
-      ]
+      "id": "S129"
     },
     "Kingri": {
-      "id": "S9871",
-      "buses": [
-        "B1"
-      ]
+      "id": "S363"
     },
     "Kohat": {
-      "id": "S5682",
-      "buses": [
-        "B1"
-      ]
+      "id": "S213"
     },
     "Kohlu": {
-      "id": "S5703",
-      "buses": [
-        "B1"
-      ]
+      "id": "S477"
     },
     "Kot Addu": {
-      "id": "S2526",
-      "buses": [
-        "B1"
-      ]
+      "id": "S30"
     },
     "Kot Arab Ali Khan": {
-      "id": "S3310",
-      "buses": [
-        "B1"
-      ]
+      "id": "S143"
     },
     "Kot Chutta": {
-      "id": "S6494",
-      "buses": [
-        "B1"
-      ]
+      "id": "S43"
     },
     "Kot Diji": {
-      "id": "S4033",
-      "buses": [
-        "B1"
-      ]
+      "id": "S364"
     },
     "Kot Ghulam Muhammad": {
-      "id": "S5789",
-      "buses": [
-        "B1"
-      ]
+      "id": "S377"
     },
     "Kot Momin": {
-      "id": "S873",
-      "buses": [
-        "B1"
-      ]
+      "id": "S181"
     },
     "Kot Radha Kishan": {
-      "id": "S9695",
-      "buses": [
-        "B1"
-      ]
+      "id": "S66"
     },
     "Kot Sultan": {
-      "id": "S8541",
-      "buses": [
-        "B1"
-      ]
+      "id": "S28"
     },
     "Kotla Jam": {
-      "id": "S6339",
-      "buses": [
-        "B1"
-      ]
+      "id": "S226"
     },
     "Kotli": {
-      "id": "S8445",
-      "buses": [
-        "B1"
-      ]
+      "id": "S157"
     },
     "Kotri": {
-      "id": "S4298",
-      "buses": [
-        "B1"
-      ]
+      "id": "S349"
     },
     "Kulachi": {
-      "id": "S8947",
-      "buses": [
-        "B1"
-      ]
+      "id": "S256"
     },
     "Kumrat Vally": {
-      "id": "S7752",
-      "buses": [
-        "B1"
-      ]
+      "id": "S538"
     },
     "Kundian": {
-      "id": "S1265",
-      "buses": [
-        "B1"
-      ]
+      "id": "S221"
     },
     "Kunri": {
-      "id": "S9468",
-      "buses": [
-        "B1"
-      ]
+      "id": "S429"
     },
     "Lachi": {
-      "id": "S1423",
-      "buses": [
-        "B1"
-      ]
+      "id": "S265"
     },
     "Lahor": {
-      "id": "S7212",
-      "buses": [
-        "B1"
-      ]
+      "id": "S315"
     },
     "Lahore": {
-      "id": "S1",
-      "buses": [
-        "B1",
-        "B2",
-        "B3"
-      ]
+      "id": "S1"
     },
     "Lakki Marwat": {
-      "id": "S9963",
-      "buses": [
-        "B1"
-      ]
+      "id": "S279"
     },
     "Lala Musa": {
-      "id": "S8112",
-      "buses": [
-        "B1"
-      ]
+      "id": "S144"
     },
     "Lalian": {
-      "id": "S2147",
-      "buses": [
-        "B1"
-      ]
+      "id": "S184"
     },
     "Landi Kotal": {
-      "id": "S1196",
-      "buses": [
-        "B1"
-      ]
+      "id": "S271"
     },
     "Latifabad": {
-      "id": "S8629",
-      "buses": [
-        "B1"
-      ]
+      "id": "S344"
     },
     "Layyah": {
-      "id": "S9973",
-      "buses": [
-        "B1"
-      ]
+      "id": "S21"
     },
     "Leepa": {
-      "id": "S2740",
-      "buses": [
-        "B1"
-      ]
+      "id": "S572"
     },
     "Lehri": {
-      "id": "S7334",
-      "buses": [
-        "B1"
-      ]
+      "id": "S478"
     },
     "Liaquatpur": {
-      "id": "S470",
-      "buses": [
-        "B1"
-      ]
+      "id": "S49"
     },
     "Lodhran": {
-      "id": "S8609",
-      "buses": [
-        "B1"
-      ]
+      "id": "S90"
     },
     "Loiband": {
-      "id": "S6015",
-      "buses": [
-        "B1"
-      ]
+      "id": "S479"
     },
     "Lora": {
-      "id": "S244",
-      "buses": [
-        "B1"
-      ]
+      "id": "S234"
     },
     "Loralai": {
-      "id": "S8723",
-      "buses": [
-        "B1"
-      ]
+      "id": "S480"
     },
     "Lower Kurram": {
-      "id": "S729",
-      "buses": [
-        "B1"
-      ]
+      "id": "S278"
     },
     "Lower Orakzai": {
-      "id": "S3981",
-      "buses": [
-        "B1"
-      ]
+      "id": "S304"
     },
     "Luddan": {
-      "id": "S9780",
-      "buses": [
-        "B1"
-      ]
+      "id": "S97"
     },
     "Luni": {
-      "id": "S9338",
-      "buses": [
-        "B1"
-      ]
+      "id": "S481"
     },
     "Mach": {
-      "id": "S7456",
-      "buses": [
-        "B1"
-      ]
+      "id": "S482"
     },
     "Mailsi": {
-      "id": "S9493",
-      "buses": [
-        "B1"
-      ]
+      "id": "S92"
     },
     "Maiwand": {
-      "id": "S3955",
-      "buses": [
-        "B1"
-      ]
+      "id": "S483"
     },
     "Malakwal": {
-      "id": "S9136",
-      "buses": [
-        "B1"
-      ]
+      "id": "S171"
     },
     "Mamu Kanjan": {
-      "id": "S4456",
-      "buses": [
-        "B1"
-      ]
+      "id": "S55"
     },
     "Mamund": {
-      "id": "S218",
-      "buses": [
-        "B1"
-      ]
+      "id": "S240"
     },
     "Manawala": {
-      "id": "S7",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S7"
     },
     "Mand": {
-      "id": "S3311",
-      "buses": [
-        "B1"
-      ]
+      "id": "S484"
     },
     "Mandanr": {
-      "id": "S6708",
-      "buses": [
-        "B1"
-      ]
+      "id": "S250"
     },
     "Mandi Ahmed Abad": {
-      "id": "S8205",
-      "buses": [
-        "B1"
-      ]
+      "id": "S111"
     },
     "Mandi Bahauddin": {
-      "id": "S1372",
-      "buses": [
-        "B1"
-      ]
+      "id": "S172"
     },
     "Mandi Bhalwal": {
-      "id": "S984",
-      "buses": [
-        "B1"
-      ]
+      "id": "S147"
     },
     "Mandi Faizabad": {
-      "id": "S6802",
-      "buses": [
-        "B1"
-      ]
+      "id": "S62"
     },
     "Manga Mandi": {
-      "id": "S3171",
-      "buses": [
-        "B1"
-      ]
+      "id": "S67"
     },
     "Mangochar": {
-      "id": "S9643",
-      "buses": [
-        "B1"
-      ]
+      "id": "S485"
     },
     "Manjhand": {
-      "id": "S3149",
-      "buses": [
-        "B1"
-      ]
+      "id": "S351"
     },
     "Manjhipur": {
-      "id": "S9790",
-      "buses": [
-        "B1"
-      ]
+      "id": "S486"
     },
     "Mankera": {
-      "id": "S2883",
-      "buses": [
-        "B1"
-      ]
+      "id": "S201"
     },
     "Mansehra": {
-      "id": "S5992",
-      "buses": [
-        "B1"
-      ]
+      "id": "S290"
     },
     "Mardan": {
-      "id": "S4270",
-      "buses": [
-        "B1"
-      ]
+      "id": "S293"
     },
     "Mashabrum": {
-      "id": "S3321",
-      "buses": [
-        "B1"
-      ]
+      "id": "S573"
     },
     "Mashkai": {
-      "id": "S5904",
-      "buses": [
-        "B1"
-      ]
+      "id": "S487"
     },
     "Mastuj": {
-      "id": "S8558",
-      "buses": [
-        "B1"
-      ]
+      "id": "S325"
     },
     "Mastung": {
-      "id": "S4450",
-      "buses": [
-        "B1"
-      ]
+      "id": "S488"
     },
     "Mathra": {
-      "id": "S8668",
-      "buses": [
-        "B1"
-      ]
+      "id": "S308"
     },
     "Matiari": {
-      "id": "S2971",
-      "buses": [
-        "B1"
-      ]
+      "id": "S370"
     },
     "Matli": {
-      "id": "S9442",
-      "buses": [
-        "B1"
-      ]
+      "id": "S331"
     },
     "Matta": {
-      "id": "S7311",
-      "buses": [
-        "B1"
-      ]
+      "id": "S320"
     },
     "Mauripur": {
-      "id": "S2335",
-      "buses": [
-        "B1"
-      ]
+      "id": "S355"
     },
     "Mehar": {
-      "id": "S1183",
-      "buses": [
-        "B1"
-      ]
+      "id": "S337"
     },
     "Mekhtar": {
-      "id": "S647",
-      "buses": [
-        "B1"
-      ]
+      "id": "S489"
     },
     "Mian Channu": {
-      "id": "S749",
-      "buses": [
-        "B1"
-      ]
+      "id": "S78"
     },
     "Miani": {
-      "id": "S4783",
-      "buses": [
-        "B1"
-      ]
+      "id": "S170"
     },
     "Mianwali": {
-      "id": "S6874",
-      "buses": [
-        "B1"
-      ]
+      "id": "S219"
     },
     "Minchinabad": {
-      "id": "S6275",
-      "buses": [
-        "B1"
-      ]
+      "id": "S105"
     },
     "Miro Khan": {
-      "id": "S7039",
-      "buses": [
-        "B1"
-      ]
+      "id": "S385"
     },
     "Mirpur": {
-      "id": "S4535",
-      "buses": [
-        "B1"
-      ]
+      "id": "S155"
     },
     "Mirpur Bathoro": {
-      "id": "S1931",
-      "buses": [
-        "B1"
-      ]
+      "id": "S405"
     },
     "Mirpur Mathelo": {
-      "id": "S5955",
-      "buses": [
-        "B1"
-      ]
+      "id": "S341"
     },
     "Mirpur Sakro": {
-      "id": "S9698",
-      "buses": [
-        "B1"
-      ]
+      "id": "S427"
     },
     "Mirpurkhas": {
-      "id": "S9975",
-      "buses": [
-        "B1"
-      ]
+      "id": "S373"
     },
     "Mithi": {
-      "id": "S2351",
-      "buses": [
-        "B1"
-      ]
+      "id": "S416"
     },
     "Moola": {
-      "id": "S406",
-      "buses": [
-        "B1"
-      ]
+      "id": "S490"
     },
     "More Khunda": {
-      "id": "S6069",
-      "buses": [
-        "B1"
-      ]
+      "id": "S576"
     },
     "Moro": {
-      "id": "S4352",
-      "buses": [
-        "B1"
-      ]
+      "id": "S382"
     },
     "Mulkhow": {
-      "id": "S5557",
-      "buses": [
-        "B1"
-      ]
+      "id": "S326"
     },
     "Multan": {
-      "id": "S6131",
-      "buses": [
-        "B1"
-      ]
+      "id": "S46"
     },
     "Muridke": {
-      "id": "S9631",
-      "buses": [
-        "B1"
-      ]
+      "id": "S117"
     },
     "Murree": {
-      "id": "S1703",
-      "buses": [
-        "B1"
-      ]
+      "id": "S164"
     },
     "Musakhel": {
-      "id": "S4019",
-      "buses": [
-        "B1"
-      ]
+      "id": "S491"
     },
     "Muslim Bagh": {
-      "id": "S5149",
-      "buses": [
-        "B1"
-      ]
+      "id": "S492"
     },
     "Muzaffarabad": {
-      "id": "S661",
-      "buses": [
-        "B1"
-      ]
+      "id": "S163"
     },
     "Muzaffargarh": {
-      "id": "S9525",
-      "buses": [
-        "B1"
-      ]
+      "id": "S44"
     },
     "Naal": {
-      "id": "S7886",
-      "buses": [
-        "B1"
-      ]
+      "id": "S493"
     },
     "Nag": {
-      "id": "S4623",
-      "buses": [
-        "B1"
-      ]
+      "id": "S494"
     },
     "Nagarparkar": {
-      "id": "S1820",
-      "buses": [
-        "B1"
-      ]
+      "id": "S422"
     },
     "Nainan Kot": {
-      "id": "S248",
-      "buses": [
-        "B1"
-      ]
+      "id": "S135"
     },
     "Nankana Sahib": {
-      "id": "S3654",
-      "buses": [
-        "B1"
-      ]
+      "id": "S60"
     },
     "Nara": {
-      "id": "S2273",
-      "buses": [
-        "B1"
-      ]
+      "id": "S365"
     },
     "Narang Mandi": {
-      "id": "S7578",
-      "buses": [
-        "B1"
-      ]
+      "id": "S139"
     },
     "Narowal": {
-      "id": "S4995",
-      "buses": [
-        "B1"
-      ]
+      "id": "S137"
     },
     "Nasirabad": {
-      "id": "S9158",
-      "buses": [
-        "B1"
-      ]
+      "id": "S386"
     },
     "Naushahro Feroze": {
-      "id": "S4605",
-      "buses": [
-        "B1"
-      ]
+      "id": "S379"
     },
     "Naushehra": {
-      "id": "S2474",
-      "buses": [
-        "B1"
-      ]
+      "id": "S204"
     },
     "Nawabshah": {
-      "id": "S1965",
-      "buses": [
-        "B1"
-      ]
+      "id": "S396"
     },
     "Nawagai": {
-      "id": "S563",
-      "buses": [
-        "B1"
-      ]
+      "id": "S242"
     },
     "Nawan Kot": {
-      "id": "S5668",
-      "buses": [
-        "B1"
-      ]
+      "id": "S17"
     },
     "New Sukkur": {
-      "id": "S988",
-      "buses": [
-        "B1"
-      ]
+      "id": "S408"
     },
     "Nok Kundi": {
-      "id": "S7362",
-      "buses": [
-        "B1"
-      ]
+      "id": "S495"
     },
     "Noorpur Thal": {
-      "id": "S2425",
-      "buses": [
-        "B1"
-      ]
+      "id": "S199"
     },
     "Nowshera": {
-      "id": "S1814",
-      "buses": [
-        "B1"
-      ]
+      "id": "S300"
     },
     "Nowshera Virkan": {
-      "id": "S1459",
-      "buses": [
-        "B1"
-      ]
+      "id": "S179"
     },
     "Nurkot": {
-      "id": "S3465",
-      "buses": [
-        "B1"
-      ]
+      "id": "S134"
     },
     "Oghi": {
-      "id": "S8307",
-      "buses": [
-        "B1"
-      ]
+      "id": "S292"
     },
     "Okara": {
-      "id": "S3745",
-      "buses": [
-        "B1"
-      ]
+      "id": "S73"
     },
     "Ormara": {
-      "id": "S8309",
-      "buses": [
-        "B1"
-      ]
+      "id": "S496"
     },
     "Ornach": {
-      "id": "S6872",
-      "buses": [
-        "B1"
-      ]
+      "id": "S497"
     },
     "Pabbi": {
-      "id": "S9085",
-      "buses": [
-        "B1"
-      ]
+      "id": "S302"
     },
     "Paharpur": {
-      "id": "S5379",
-      "buses": [
-        "B1"
-      ]
+      "id": "S255"
     },
     "Painsra": {
-      "id": "S7861",
-      "buses": [
-        "B1"
-      ]
+      "id": "S12"
     },
     "Pakpattan": {
-      "id": "S7227",
-      "buses": [
-        "B1"
-      ]
+      "id": "S96"
     },
     "Pallandri": {
-      "id": "S3120",
-      "buses": [
-        "B1"
-      ]
+      "id": "S578"
     },
     "Panjgur": {
-      "id": "S3179",
-      "buses": [
-        "B1"
-      ]
+      "id": "S498"
     },
     "Pano Aqil": {
-      "id": "S2478",
-      "buses": [
-        "B1"
-      ]
+      "id": "S409"
     },
     "Panwan": {
-      "id": "S1104",
-      "buses": [
-        "B1"
-      ]
+      "id": "S8"
     },
     "Paroa": {
-      "id": "S4989",
-      "buses": [
-        "B1"
-      ]
+      "id": "S258"
     },
     "Paroom": {
-      "id": "S7746",
-      "buses": [
-        "B1"
-      ]
+      "id": "S499"
     },
     "Pasni": {
-      "id": "S4820",
-      "buses": [
-        "B1"
-      ]
+      "id": "S500"
     },
     "Pasrur": {
-      "id": "S4991",
-      "buses": [
-        "B1"
-      ]
+      "id": "S132"
     },
     "Patika": {
-      "id": "S2558",
-      "buses": [
-        "B1"
-      ]
+      "id": "S579"
     },
     "Pattan": {
-      "id": "S980",
-      "buses": [
-        "B1"
-      ]
+      "id": "S269"
     },
     "Pattoki": {
-      "id": "S8342",
-      "buses": [
-        "B1"
-      ]
+      "id": "S71"
     },
     "Peer Jaggi": {
-      "id": "S3748",
-      "buses": [
-        "B1"
-      ]
+      "id": "S27"
     },
-    "Peshawar": {
-      "id": "S710",
-      "buses": [
-        "B1"
-      ]
+    "Peshawar City": {
+      "id": "S305"
     },
     "Phalia": {
-      "id": "S1407",
-      "buses": [
-        "B1"
-      ]
+      "id": "S174"
     },
     "Phander": {
-      "id": "S5305",
-      "buses": [
-        "B1"
-      ]
+      "id": "S580"
     },
     "Phelawagh": {
-      "id": "S8726",
-      "buses": [
-        "B1"
-      ]
+      "id": "S501"
     },
     "Phool Nagar": {
-      "id": "S5090",
-      "buses": [
-        "B1"
-      ]
+      "id": "S68"
     },
     "Pindi Bhattian": {
-      "id": "S4072",
-      "buses": [
-        "B1"
-      ]
+      "id": "S186"
     },
     "Pindi Gheb": {
-      "id": "S6499",
-      "buses": [
-        "B1"
-      ]
+      "id": "S206"
     },
     "Pindiali": {
-      "id": "S7091",
-      "buses": [
-        "B1"
-      ]
+      "id": "S297"
     },
     "Piplan": {
-      "id": "S3335",
-      "buses": [
-        "B1"
-      ]
+      "id": "S223"
     },
     "Pir Mahal": {
-      "id": "S1768",
-      "buses": [
-        "B1"
-      ]
+      "id": "S52"
     },
     "Pishin": {
-      "id": "S8698",
-      "buses": [
-        "B1"
-      ]
+      "id": "S502"
     },
     "Pithoro": {
-      "id": "S9616",
-      "buses": [
-        "B1"
-      ]
+      "id": "S430"
     },
     "Punial": {
-      "id": "S8365",
-      "buses": [
-        "B1"
-      ]
+      "id": "S581"
     },
     "Puran": {
-      "id": "S513",
-      "buses": [
-        "B1"
-      ]
+      "id": "S312"
     },
     "Qadirabad": {
-      "id": "S5506",
-      "buses": [
-        "B1"
-      ]
+      "id": "S175"
     },
     "Qamar Din Karez": {
-      "id": "S9386",
-      "buses": [
-        "B1"
-      ]
+      "id": "S503"
     },
     "Qambar": {
-      "id": "S7668",
-      "buses": [
-        "B1"
-      ]
+      "id": "S383"
     },
     "Qasba Gujrat": {
-      "id": "S974",
-      "buses": [
-        "B1"
-      ]
+      "id": "S32"
     },
     "Qasimabad": {
-      "id": "S539",
-      "buses": [
-        "B1"
-      ]
+      "id": "S345"
     },
     "Qazi Ahmed": {
-      "id": "S5040",
-      "buses": [
-        "B1"
-      ]
+      "id": "S398"
     },
     "Qila Didar Singh": {
-      "id": "S4592",
-      "buses": [
-        "B1"
-      ]
+      "id": "S177"
     },
     "Qubo Saeed Khan": {
-      "id": "S7008",
-      "buses": [
-        "B1"
-      ]
+      "id": "S387"
     },
     "Rahim Yar Khan": {
-      "id": "S3384",
-      "buses": [
-        "B1"
-      ]
+      "id": "S45"
     },
     "Rahwali": {
-      "id": "S9810",
-      "buses": [
-        "B1"
-      ]
+      "id": "S123"
     },
     "Raiwind": {
-      "id": "S1266",
-      "buses": [
-        "B1"
-      ]
+      "id": "S65"
     },
     "Rajana": {
-      "id": "S1871",
-      "buses": [
-        "B1"
-      ]
+      "id": "S53"
     },
     "Rajanpur": {
-      "id": "S8318",
-      "buses": [
-        "B1"
-      ]
+      "id": "S34"
     },
     "Rang Pur": {
-      "id": "S1900",
-      "buses": [
-        "B1"
-      ]
+      "id": "S24"
     },
     "Ranolia": {
-      "id": "S544",
-      "buses": [
-        "B1"
-      ]
+      "id": "S275"
     },
     "Ratodero": {
-      "id": "S3011",
-      "buses": [
-        "B1"
-      ]
+      "id": "S369"
     },
     "Rawalakot": {
-      "id": "S1729",
-      "buses": [
-        "B1"
-      ]
+      "id": "S159"
     },
     "Razar": {
-      "id": "S7280",
-      "buses": [
-        "B1"
-      ]
+      "id": "S316"
     },
     "Renala Khurd": {
-      "id": "S8553",
-      "buses": [
-        "B1"
-      ]
+      "id": "S72"
     },
     "Rohri": {
-      "id": "S3957",
-      "buses": [
-        "B1"
-      ]
+      "id": "S410"
     },
     "Rojhan": {
-      "id": "S1538",
-      "buses": [
-        "B1"
-      ]
+      "id": "S36"
     },
     "Rokhri": {
-      "id": "S721",
-      "buses": [
-        "B1"
-      ]
+      "id": "S218"
     },
     "Roundu": {
-      "id": "S2606",
-      "buses": [
-        "B1"
-      ]
+      "id": "S582"
     },
     "Sadhoke": {
-      "id": "S3783",
-      "buses": [
-        "B1"
-      ]
+      "id": "S118"
     },
     "Sadiqabad": {
-      "id": "S7716",
-      "buses": [
-        "B1"
-      ]
+      "id": "S38"
     },
     "Saeedabad": {
-      "id": "S4441",
-      "buses": [
-        "B1"
-      ]
+      "id": "S372"
     },
     "Safdarabad": {
-      "id": "S2014",
-      "buses": [
-        "B1"
-      ]
+      "id": "S187"
     },
     "Safi": {
-      "id": "S8865",
-      "buses": [
-        "B1"
-      ]
+      "id": "S298"
     },
     "Sahiwal": {
-      "id": "S7641",
-      "buses": [
-        "B1"
-      ]
+      "id": "S75"
     },
     "Sakhi Sarwer": {
-      "id": "S5384",
-      "buses": [
-        "B1"
-      ]
+      "id": "S39"
     },
     "Sakran": {
-      "id": "S8276",
-      "buses": [
-        "B1"
-      ]
+      "id": "S504"
     },
     "Sakrand": {
-      "id": "S5404",
-      "buses": [
-        "B1"
-      ]
+      "id": "S399"
     },
     "Salarzai": {
-      "id": "S3171",
-      "buses": [
-        "B1"
-      ]
+      "id": "S241"
     },
     "Saleh Pat": {
-      "id": "S7403",
-      "buses": [
-        "B1"
-      ]
+      "id": "S411"
     },
     "Samahni": {
-      "id": "S3523",
-      "buses": [
-        "B1"
-      ]
+      "id": "S583"
     },
     "Samar Bagh": {
-      "id": "S4109",
-      "buses": [
-        "B1"
-      ]
+      "id": "S286"
     },
     "Samaro": {
-      "id": "S4414",
-      "buses": [
-        "B1"
-      ]
+      "id": "S431"
     },
     "Sambaza": {
-      "id": "S4855",
-      "buses": [
-        "B1"
-      ]
+      "id": "S505"
     },
     "Sambrial": {
-      "id": "S9448",
-      "buses": [
-        "B1"
-      ]
+      "id": "S126"
     },
     "Samundri": {
-      "id": "S2192",
-      "buses": [
-        "B1"
-      ]
+      "id": "S59"
     },
     "Sanawan": {
-      "id": "S8455",
-      "buses": [
-        "B1"
-      ]
+      "id": "S31"
     },
     "Sanghar": {
-      "id": "S2087",
-      "buses": [
-        "B1"
-      ]
+      "id": "S390"
     },
     "Sangla Hill": {
-      "id": "S4066",
-      "buses": [
-        "B1"
-      ]
+      "id": "S188"
     },
     "Sangsillah": {
-      "id": "S1436",
-      "buses": [
-        "B1"
-      ]
+      "id": "S506"
     },
     "Sanjavi": {
-      "id": "S2906",
-      "buses": [
-        "B1"
-      ]
+      "id": "S507"
     },
     "Sarai Alamgir": {
-      "id": "S3163",
-      "buses": [
-        "B1"
-      ]
+      "id": "S148"
     },
     "Sarai Mahajir": {
-      "id": "S7208",
-      "buses": [
-        "B1"
-      ]
+      "id": "S231"
     },
     "Sarai Naurang": {
-      "id": "S4441",
-      "buses": [
-        "B1"
-      ]
+      "id": "S280"
     },
     "Saranan": {
-      "id": "S476",
-      "buses": [
-        "B1"
-      ]
+      "id": "S508"
     },
     "Sarawan": {
-      "id": "S3159",
-      "buses": [
-        "B1"
-      ]
+      "id": "S509"
     },
     "Satiana": {
-      "id": "S6208",
-      "buses": [
-        "B1"
-      ]
+      "id": "S57"
     },
     "Sayedwala": {
-      "id": "S3318",
-      "buses": [
-        "B1"
-      ]
+      "id": "S571"
     },
     "Sehnsa": {
-      "id": "S9097",
-      "buses": [
-        "B1"
-      ]
+      "id": "S584"
     },
     "Sehwan": {
-      "id": "S9017",
-      "buses": [
-        "B1"
-      ]
+      "id": "S350"
     },
     "Seo": {
-      "id": "S9436",
-      "buses": [
-        "B1"
-      ]
+      "id": "S273"
     },
     "Shabqadar": {
-      "id": "S8860",
-      "buses": [
-        "B1"
-      ]
+      "id": "S254"
     },
     "Shah Alam": {
-      "id": "S2980",
-      "buses": [
-        "B1"
-      ]
+      "id": "S306"
     },
     "Shah Bandar": {
-      "id": "S8378",
-      "buses": [
-        "B1"
-      ]
+      "id": "S406"
     },
     "Shah Jeewna": {
-      "id": "S1924",
-      "buses": [
-        "B1"
-      ]
+      "id": "S194"
     },
     "Shahdadkot": {
-      "id": "S5316",
-      "buses": [
-        "B1"
-      ]
+      "id": "S384"
     },
     "Shahdadpur": {
-      "id": "S9673",
-      "buses": [
-        "B1"
-      ]
+      "id": "S393"
     },
     "Shahkot": {
-      "id": "S9",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S9"
     },
     "Shahrag": {
-      "id": "S4172",
-      "buses": [
-        "B1"
-      ]
+      "id": "S510"
     },
     "Shakardara": {
-      "id": "S936",
-      "buses": [
-        "B1"
-      ]
+      "id": "S215"
     },
     "Shakargarh": {
-      "id": "S9174",
-      "buses": [
-        "B1"
-      ]
+      "id": "S133"
     },
     "Shalkani": {
-      "id": "S7518",
-      "buses": [
-        "B1"
-      ]
+      "id": "S435"
     },
     "Sharaqpur": {
-      "id": "S731",
-      "buses": [
-        "B1"
-      ]
+      "id": "S63"
     },
     "Sharda": {
-      "id": "S4498",
-      "buses": [
-        "B1"
-      ]
+      "id": "S585"
     },
     "Sharingal": {
-      "id": "S9884",
-      "buses": [
-        "B1"
-      ]
+      "id": "S329"
     },
     "Sheikhupura": {
-      "id": "S2",
-      "buses": [
-        "B1",
-        "B2",
-        "B3"
-      ]
+      "id": "S2"
     },
     "Sherani": {
-      "id": "S7504",
-      "buses": [
-        "B1"
-      ]
+      "id": "S511"
     },
     "Shigar": {
-      "id": "S7718",
-      "buses": [
-        "B1"
-      ]
+      "id": "S586"
     },
     "Shikarpur": {
-      "id": "S2537",
-      "buses": [
-        "B1"
-      ]
+      "id": "S400"
     },
     "Shinaki": {
-      "id": "S1372",
-      "buses": [
-        "B1"
-      ]
+      "id": "S587"
     },
     "Shorkot": {
-      "id": "S50",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S50"
     },
     "Shorkot Cantt": {
-      "id": "S4192",
-      "buses": [
-        "B1"
-      ]
+      "id": "S51"
     },
     "Shujabad": {
-      "id": "S9710",
-      "buses": [
-        "B1"
-      ]
+      "id": "S83"
     },
     "Sial Sharif": {
-      "id": "S4392",
-      "buses": [
-        "B1"
-      ]
+      "id": "S196"
     },
     "Sialkot": {
-      "id": "S6425",
-      "buses": [
-        "B1"
-      ]
+      "id": "S127"
     },
     "Sibi": {
-      "id": "S2688",
-      "buses": [
-        "B1"
-      ]
+      "id": "S512"
     },
     "Sijawal Junejo": {
-      "id": "S5168",
-      "buses": [
-        "B1"
-      ]
+      "id": "S388"
     },
     "Sillanwali": {
-      "id": "S9456",
-      "buses": [
-        "B1"
-      ]
+      "id": "S183"
     },
     "Sindhri": {
-      "id": "S2346",
-      "buses": [
-        "B1"
-      ]
+      "id": "S378"
     },
     "Sinjhoro": {
-      "id": "S9310",
-      "buses": [
-        "B1"
-      ]
+      "id": "S394"
     },
     "Skardu": {
-      "id": "S4461",
-      "buses": [
-        "B1"
-      ]
+      "id": "S588"
     },
     "Sobhodero": {
-      "id": "S2885",
-      "buses": [
-        "B1"
-      ]
+      "id": "S366"
     },
     "Sohawa": {
-      "id": "S1996",
-      "buses": [
-        "B1"
-      ]
+      "id": "S151"
     },
     "Sohbatpur": {
-      "id": "S6381",
-      "buses": [
-        "B1"
-      ]
+      "id": "S513"
     },
     "Sonmiani": {
-      "id": "S5524",
-      "buses": [
-        "B1"
-      ]
+      "id": "S514"
     },
     "Sui": {
-      "id": "S2926",
-      "buses": [
-        "B1"
-      ]
+      "id": "S515"
     },
     "Sujawal": {
-      "id": "S4793",
-      "buses": [
-        "B1"
-      ]
+      "id": "S402"
     },
     "Sukkur": {
-      "id": "S942",
-      "buses": [
-        "B1"
-      ]
+      "id": "S407"
     },
     "Swabi": {
-      "id": "S8621",
-      "buses": [
-        "B1"
-      ]
+      "id": "S313"
     },
     "Taftan": {
-      "id": "S3845",
-      "buses": [
-        "B1"
-      ]
+      "id": "S516"
     },
     "Takht Bhai": {
-      "id": "S6017",
-      "buses": [
-        "B1"
-      ]
+      "id": "S294"
     },
     "Takht-e-Nasrati": {
-      "id": "S6869",
-      "buses": [
-        "B1"
-      ]
+      "id": "S263"
     },
     "Talagang": {
-      "id": "S2511",
-      "buses": [
-        "B1"
-      ]
+      "id": "S205"
     },
     "Talhar": {
-      "id": "S8827",
-      "buses": [
-        "B1"
-      ]
+      "id": "S332"
     },
     "Tall": {
-      "id": "S8932",
-      "buses": [
-        "B1"
-      ]
+      "id": "S259"
     },
     "Talwandi": {
-      "id": "S6652",
-      "buses": [
-        "B1"
-      ]
+      "id": "S114"
     },
     "Tamboo": {
-      "id": "S8730",
-      "buses": [
-        "B1"
-      ]
+      "id": "S517"
     },
     "Tandlianwala": {
-      "id": "S4246",
-      "buses": [
-        "B1"
-      ]
+      "id": "S56"
     },
     "Tando Adam": {
-      "id": "S761",
-      "buses": [
-        "B1"
-      ]
+      "id": "S395"
     },
     "Tando Allahyar": {
-      "id": "S5068",
-      "buses": [
-        "B1"
-      ]
+      "id": "S412"
     },
     "Tando Bago": {
-      "id": "S2099",
-      "buses": [
-        "B1"
-      ]
+      "id": "S333"
     },
     "Tando Muhammad Khan": {
-      "id": "S4789",
-      "buses": [
-        "B1"
-      ]
+      "id": "S414"
     },
     "Tangi": {
-      "id": "S1095",
-      "buses": [
-        "B1"
-      ]
+      "id": "S253"
     },
     "Tangir": {
-      "id": "S7447",
-      "buses": [
-        "B1"
-      ]
+      "id": "S589"
     },
     "Tangwani": {
-      "id": "S6628",
-      "buses": [
-        "B1"
-      ]
+      "id": "S359"
     },
     "Tank": {
-      "id": "S274",
-      "buses": [
-        "B1"
-      ]
+      "id": "S323"
     },
     "Taunsa": {
-      "id": "S9252",
-      "buses": [
-        "B1"
-      ]
+      "id": "S35"
     },
     "Thana": {
-      "id": "S2990",
-      "buses": [
-        "B1"
-      ]
+      "id": "S289"
     },
     "Thano Bula Khan": {
-      "id": "S770",
-      "buses": [
-        "B1"
-      ]
+      "id": "S352"
     },
     "Thatta": {
-      "id": "S7628",
-      "buses": [
-        "B1"
-      ]
+      "id": "S423"
     },
     "Thorar": {
-      "id": "S58",
-      "buses": [
-        "B1"
-      ]
+      "id": "S590"
     },
     "Thul": {
-      "id": "S7785",
-      "buses": [
-        "B1"
-      ]
+      "id": "S348"
     },
     "Timergara": {
-      "id": "S2219",
-      "buses": [
-        "B1"
-      ]
+      "id": "S283"
     },
     "Toba Tek Singh": {
-      "id": "S14",
-      "buses": [
-        "B1",
-        "B2"
-      ]
+      "id": "S14"
     },
     "Toisar": {
-      "id": "S5504",
-      "buses": [
-        "B1"
-      ]
+      "id": "S518"
     },
     "Topi": {
-      "id": "S4673",
-      "buses": [
-        "B1"
-      ]
+      "id": "S314"
     },
     "Torkham": {
-      "id": "S4264",
-      "buses": [
-        "B1"
-      ]
+      "id": "S432"
     },
     "Totalai": {
-      "id": "S199",
-      "buses": [
-        "B1"
-      ]
+      "id": "S251"
     },
     "Trarkhal": {
-      "id": "S3825",
-      "buses": [
-        "B1"
-      ]
+      "id": "S591"
     },
     "Tump": {
-      "id": "S8750",
-      "buses": [
-        "B1"
-      ]
+      "id": "S519"
     },
     "Turbat": {
-      "id": "S3625",
-      "buses": [
-        "B1"
-      ]
+      "id": "S520"
     },
     "Ubauro": {
-      "id": "S690",
-      "buses": [
-        "B1"
-      ]
+      "id": "S342"
     },
     "Uch Sharif": {
-      "id": "S8870",
-      "buses": [
-        "B1"
-      ]
+      "id": "S85"
     },
     "Umerkot": {
-      "id": "S19",
-      "buses": [
-        "B1"
-      ]
+      "id": "S428"
     },
     "Upper Kurram": {
-      "id": "S4811",
-      "buses": [
-        "B1"
-      ]
+      "id": "S276"
     },
     "Upper Orakzai": {
-      "id": "S2688",
-      "buses": [
-        "B1"
-      ]
+      "id": "S303"
     },
     "Usta Muhammad": {
-      "id": "S6580",
-      "buses": [
-        "B1"
-      ]
+      "id": "S521"
     },
     "Uthal": {
-      "id": "S4190",
-      "buses": [
-        "B1"
-      ]
+      "id": "S522"
     },
     "Utman Khel": {
-      "id": "S5522",
-      "buses": [
-        "B1"
-      ]
+      "id": "S243"
     },
     "Vehari": {
-      "id": "S9767",
-      "buses": [
-        "B1"
-      ]
+      "id": "S93"
     },
     "Vehova": {
-      "id": "S6477",
-      "buses": [
-        "B1"
-      ]
+      "id": "S33"
     },
     "Wadh": {
-      "id": "S3722",
-      "buses": [
-        "B1"
-      ]
+      "id": "S523"
     },
     "Wali Khel": {
-      "id": "S2105",
-      "buses": [
-        "B1"
-      ]
+      "id": "S433"
     },
     "Wan Bhachran": {
-      "id": "S3842",
-      "buses": [
-        "B1"
-      ]
+      "id": "S203"
     },
     "Warah": {
-      "id": "S4989",
-      "buses": [
-        "B1"
-      ]
+      "id": "S389"
     },
     "Warburton": {
-      "id": "S9112",
-      "buses": [
-        "B1"
-      ]
+      "id": "S6"
     },
     "Wari": {
-      "id": "S5632",
-      "buses": [
-        "B1"
-      ]
+      "id": "S328"
     },
     "Wazirabad": {
-      "id": "S6638",
-      "buses": [
-        "B1"
-      ]
+      "id": "S124"
     },
     "Zafarwal": {
-      "id": "S6772",
-      "buses": [
-        "B1"
-      ]
+      "id": "S130"
     },
     "Zarghoon": {
-      "id": "S9647",
-      "buses": [
-        "B1"
-      ]
+      "id": "S524"
     },
     "Zehri": {
-      "id": "S1350",
-      "buses": [
-        "B1"
-      ]
+      "id": "S525"
     },
     "Zhob": {
-      "id": "S1243",
-      "buses": [
-        "B1"
-      ]
+      "id": "S526"
     },
     "Ziarat": {
-      "id": "S8847",
-      "buses": [
-        "B1"
-      ]
+      "id": "S527"
     }
   }
 }

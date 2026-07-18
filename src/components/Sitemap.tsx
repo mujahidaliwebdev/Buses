@@ -32,40 +32,10 @@ export default function Sitemap() {
 
     async function loadDynamicCompanies() {
       try {
-        // 1. Fetch index of stops to find all Bus IDs in the system
-        const indexData = await staticDataService.getStopsIndex();
-
-        if (!indexData || !indexData.stops) return;
-
-        // Collect all unique Bus IDs served by these stops
-        const busIdsSet = new Set<string>();
-        Object.values(indexData.stops).forEach((stop: any) => {
-          if (Array.isArray(stop.buses)) {
-            stop.buses.forEach((bId: string) => {
-              if (bId) busIdsSet.add(bId.trim());
-            });
-          }
-        });
-
-        if (busIdsSet.size === 0) return;
-
-        // 2. Map Bus IDs to partition filenames
-        const partitions = new Set<string>();
-        busIdsSet.forEach((busId) => {
-          const match = busId.match(/^B(\d+)$/i);
-          let partitionFile = 'B1-B500.json';
-          if (match) {
-            const idNum = parseInt(match[1], 10);
-            const quotient = Math.floor((idNum - 1) / 500);
-            const start = quotient * 500 + 1;
-            const end = (quotient + 1) * 500;
-            partitionFile = `B${start}-B${end}.json`;
-          }
-          partitions.add(partitionFile);
-        });
-
-        // 3. Fetch each partition and extract unique company names
+        // Fetch partition directly to extract unique company names
+        const partitions = ['B1-B500.json'];
         const dynamicCompanies = new Set<string>();
+
         for (const partition of partitions) {
           try {
             const buses = await staticDataService.getBusesFromPartition(partition);

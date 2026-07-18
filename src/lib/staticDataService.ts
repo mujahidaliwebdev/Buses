@@ -1,6 +1,6 @@
 export interface StaticStop {
   id: string;
-  buses: string[];
+  buses?: string[];
 }
 
 export interface StaticStopsIndex {
@@ -106,29 +106,17 @@ export const staticDataService = {
     const originId = originStop.id;
     const destId = destStop.id;
 
-    // Find overlapping Bus IDs that serve both stops
-    const commonBusIds = originStop.buses.filter((bId) => destStop.buses.includes(bId));
-    if (commonBusIds.length === 0) {
-      return [];
-    }
-
-    // Determine which partition files we need to load (using a Set to avoid loading the same file multiple times)
-    const partitionsToLoad = new Set<string>();
-    commonBusIds.forEach((busId) => {
-      partitionsToLoad.add(staticDataService.getPartitionFileName(busId));
-    });
-
-    // Fetch and combine the buses from needed partition files
+    // Load the partition file (currently B1-B500.json contains all sequences)
+    const partitionFiles = ['B1-B500.json'];
+    
     const loadedBuses: StaticBus[] = [];
-    for (const partitionFile of partitionsToLoad) {
+    for (const partitionFile of partitionFiles) {
       const buses = await staticDataService.getBusesFromPartition(partitionFile);
       loadedBuses.push(...buses);
     }
 
-    // Filter to buses in commonBusIds, and ensure the originStop occurs BEFORE destStop in stops sequence
+    // Filter to buses that contain both originId and destId, and ensure originId comes before destId
     const matchingBusesStr = loadedBuses.filter((bus) => {
-      if (!commonBusIds.includes(bus.busId)) return false;
-
       const stopList = bus.stops.split(',').map((s) => s.trim());
       const originIndex = stopList.indexOf(originId);
       const destIndex = stopList.indexOf(destId);
