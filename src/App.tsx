@@ -66,18 +66,40 @@ function AppContent() {
       setUser(u);
     });
 
-    const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
-      if (fetchedBuses.length === 0) {
-        setBuses(MOCK_BUSES);
+    // Load static partition buses as the main source of truth (including Admin panel)
+    staticDataService.getAllBuses().then((staticBuses) => {
+      if (staticBuses && staticBuses.length > 0) {
+        setBuses(staticBuses);
+        setLoadingBuses(false);
       } else {
-        setBuses(fetchedBuses);
+        // Fallback to Firestore just in case static files fail to load
+        const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
+          if (fetchedBuses.length === 0) {
+            setBuses(MOCK_BUSES);
+          } else {
+            setBuses(fetchedBuses);
+          }
+          setLoadingBuses(false);
+        });
+        return () => {
+          unsubscribeBuses();
+        };
       }
-      setLoadingBuses(false);
+    }).catch((err) => {
+      console.error("Failed to load static partition buses:", err);
+      const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
+        if (fetchedBuses.length === 0) {
+          setBuses(MOCK_BUSES);
+        } else {
+          setBuses(fetchedBuses);
+        }
+        setLoadingBuses(false);
+      });
+      return () => unsubscribeBuses();
     });
 
     return () => {
       unsubscribeAuth();
-      unsubscribeBuses();
     };
   }, []);
 

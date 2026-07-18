@@ -199,5 +199,94 @@ export const staticDataService = {
     }
 
     return matchingBuses;
+  },
+
+  /**
+   * Loads all partition files and maps them to full Bus objects.
+   */
+  getAllBuses: async (): Promise<Bus[]> => {
+    try {
+      const index = await staticDataService.getStopsIndex();
+      const reverseStops: { [id: string]: string } = {};
+      if (index && index.stops) {
+        for (const [cityName, stopObj] of Object.entries(index.stops)) {
+          reverseStops[stopObj.id] = cityName;
+        }
+      }
+
+      const partitions = ['B1-B500.json', 'B501-B1000.json', 'B1001-B1500.json'];
+      const allBuses: Bus[] = [];
+
+      const calculateDuration = (depTime: string, arrTime: string): string => {
+        try {
+          const [depH, depM] = depTime.split(':').map(Number);
+          const [arrH, arrM] = arrTime.split(':').map(Number);
+          if (isNaN(depH) || isNaN(depM) || isNaN(arrH) || isNaN(arrM)) return '2h 30m';
+          
+          let diffMins = (arrH * 60 + arrM) - (depH * 60 + depM);
+          if (diffMins < 0) {
+            diffMins += 24 * 60;
+          }
+          const h = Math.floor(diffMins / 60);
+          const m = diffMins % 60;
+          return `${h}h ${m}m`;
+        } catch (e) {
+          return '2h 30m';
+        }
+      };
+
+      for (const file of partitions) {
+        try {
+          const busesData = await staticDataService.getBusesFromPartition(file);
+          if (!busesData || !Array.isArray(busesData)) continue;
+          
+          for (const bus of busesData) {
+            const stopList = (bus.stops || '').split(',').map((s) => s.trim());
+            if (stopList.length < 2) continue;
+            
+            const originId = stopList[0];
+            const destId = stopList[stopList.length - 1];
+            
+            const originName = reverseStops[originId] || originId;
+            const destinationName = reverseStops[destId] || destId;
+            
+            const terminalList = (bus.terminal || '').split(',').map((s) => s.trim());
+            const standList = (bus.stand || '').split(',').map((s) => s.trim());
+            const arrTimeList = (bus.arrivalTime || '').split(',').map((s) => s.trim());
+            const depTimeList = (bus.departureTime || '').split(',').map((s) => s.trim());
+            
+            const depTime = depTimeList[0] || bus.departureTime || '00:00';
+            const arrTime = arrTimeList[arrTimeList.length - 1] || bus.arrivalTime || '00:00';
+            const terminalLoc = terminalList[0] || bus.terminal || 'Main Stop';
+            const standNum = standList[0] || bus.stand || '0';
+            
+            const durationStr = calculateDuration(depTime, arrTime);
+
+            allBuses.push({
+              id: bus.busId,
+              origin: originName,
+              destination: destinationName,
+              departureTime: depTime,
+              arrivalTime: arrTime,
+              duration: durationStr,
+              fare: 1200, // Default standard fare for general reference list
+              companyName: bus.company,
+              busNumber: bus.number,
+              contactNumber: bus.contact,
+              terminalLocation: terminalLoc,
+              standNumber: standNum,
+              isAC: (bus.climateControl || '').toLowerCase() === 'ac',
+              type: (bus.serviceType as any) || 'Standard'
+            });
+          }
+        } catch (fileErr) {
+          console.warn(`Could not load buses from static partition: ${file}`, fileErr);
+        }
+      }
+      return allBuses;
+    } catch (err) {
+      console.error("Error in getAllBuses:", err);
+      return [];
+    }
   }
 };
