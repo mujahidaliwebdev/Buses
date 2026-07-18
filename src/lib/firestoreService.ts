@@ -131,7 +131,8 @@ export const busService = {
   updateBus: async (busId: string, busData: Partial<Bus>) => {
     const path = `buses/${busId}`;
     try {
-      await updateDoc(doc(db, 'buses', busId), busData);
+      const { id, ...data } = busData as any;
+      await setDoc(doc(db, 'buses', busId), data, { merge: true });
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
@@ -164,7 +165,11 @@ export const busService = {
   deleteBus: async (busId: string) => {
     const path = `buses/${busId}`;
     try {
-      await deleteDoc(doc(db, 'buses', busId));
+      if (busId.startsWith('B')) {
+        await setDoc(doc(db, 'buses', busId), { isDeleted: true }, { merge: true });
+      } else {
+        await deleteDoc(doc(db, 'buses', busId));
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, path);
     }

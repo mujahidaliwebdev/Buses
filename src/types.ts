@@ -13,6 +13,7 @@ export interface Bus {
   standNumber: string;
   isAC: boolean;
   type: "Luxury" | "Executive" | "Non-AC" | "Standard";
+  isDeleted?: boolean;
 }
 
 export interface Company {

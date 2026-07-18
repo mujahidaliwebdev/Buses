@@ -66,40 +66,51 @@ function AppContent() {
       setUser(u);
     });
 
-    // Load static partition buses as the main source of truth (including Admin panel)
-    staticDataService.getAllBuses().then((staticBuses) => {
-      if (staticBuses && staticBuses.length > 0) {
-        setBuses(staticBuses);
-        setLoadingBuses(false);
-      } else {
-        // Fallback to Firestore just in case static files fail to load
-        const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
-          if (fetchedBuses.length === 0) {
-            setBuses(MOCK_BUSES);
-          } else {
-            setBuses(fetchedBuses);
-          }
-          setLoadingBuses(false);
-        });
-        return () => {
-          unsubscribeBuses();
-        };
-      }
+    let staticBuses: Bus[] = [];
+    let unsubscribeBuses: (() => void) | null = null;
+
+    // Load static partition buses as the main source of truth
+    staticDataService.getAllBuses().then((fetchedStatic) => {
+      staticBuses = fetchedStatic || [];
+      // Initially display static buses while we await for Firestore subscriptions
+      setBuses(staticBuses);
+      setLoadingBuses(false);
     }).catch((err) => {
       console.error("Failed to load static partition buses:", err);
-      const unsubscribeBuses = busService.subscribeBuses((fetchedBuses) => {
-        if (fetchedBuses.length === 0) {
-          setBuses(MOCK_BUSES);
+    }).finally(() => {
+      // Subscribe to Firestore updates/additions/deletions in real-time
+      unsubscribeBuses = busService.subscribeBuses((firestoreBuses) => {
+        const mergedBusesMap = new Map<string, Bus>();
+
+        // 1. Insert all static buses
+        staticBuses.forEach(b => {
+          mergedBusesMap.set(b.id, b);
+        });
+
+        // 2. Override, add, or delete using Firestore entries
+        firestoreBuses.forEach(fb => {
+          if (fb.isDeleted) {
+            mergedBusesMap.delete(fb.id);
+          } else {
+            mergedBusesMap.set(fb.id, fb);
+          }
+        });
+
+        const finalMerged = Array.from(mergedBusesMap.values());
+        if (finalMerged.length > 0) {
+          setBuses(finalMerged);
         } else {
-          setBuses(fetchedBuses);
+          setBuses(MOCK_BUSES);
         }
         setLoadingBuses(false);
       });
-      return () => unsubscribeBuses();
     });
 
     return () => {
       unsubscribeAuth();
+      if (unsubscribeBuses) {
+        unsubscribeBuses();
+      }
     };
   }, []);
 
