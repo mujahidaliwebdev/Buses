@@ -5,7 +5,6 @@ import { Bus as BusIcon, Clock, Phone, MapPin, Tag, ArrowLeft, Share2, Info, Nav
 import { Bus, Company } from '../types';
 import { MOCK_BUSES } from '../data/mockBuses';
 import { MOCK_COMPANIES } from '../data/mockCompanies';
-import { busService } from '../lib/firestoreService';
 import { staticDataService } from '../lib/staticDataService';
 import BusDetails from './BusDetails';
 import CompanyProfile from './CompanyProfile';
@@ -49,38 +48,23 @@ const [isShareOpen, setIsShareOpen] = useState(false);
         .then((staticFetched) => {
           if (staticFetched && staticFetched.length > 0) {
             setRouteBuses(staticFetched);
-            setLoading(false);
           } else {
-            // Fallback to legacy Firestore/mock search if static data isn't configured for this route yet
-            busService.getBusesByRoute(capitalizedOrigin, capitalizedDestination).then((fetched) => {
-              if (fetched.length > 0) {
-                setRouteBuses(fetched);
-              } else {
-                const filtered = MOCK_BUSES.filter(b => 
-                  b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
-                  b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
-                );
-                setRouteBuses(filtered);
-              }
-              setLoading(false);
-            });
+            const filtered = MOCK_BUSES.filter(b => 
+              b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
+              b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
+            );
+            setRouteBuses(filtered);
           }
+          setLoading(false);
         })
         .catch((err) => {
           console.error("Static route search error:", err);
-          // Fallback
-          busService.getBusesByRoute(capitalizedOrigin, capitalizedDestination).then((fetched) => {
-            if (fetched.length > 0) {
-              setRouteBuses(fetched);
-            } else {
-              const filtered = MOCK_BUSES.filter(b => 
-                b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
-                b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
-              );
-              setRouteBuses(filtered);
-            }
-            setLoading(false);
-          });
+          const filtered = MOCK_BUSES.filter(b => 
+            b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
+            b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
+          );
+          setRouteBuses(filtered);
+          setLoading(false);
         });
     } else {
       // Not a valid route slug, stop loading

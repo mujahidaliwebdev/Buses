@@ -42,7 +42,6 @@ import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
-import { busService } from './lib/firestoreService';
 import { staticDataService } from './lib/staticDataService';
 import { User as FirebaseUser } from 'firebase/auth';
 
@@ -66,51 +65,22 @@ function AppContent() {
       setUser(u);
     });
 
-    let staticBuses: Bus[] = [];
-    let unsubscribeBuses: (() => void) | null = null;
-
-    // Load static partition buses as the main source of truth
+    // Load static partition buses as the absolute and only source of truth (no Firestore reads/writes for buses)
     staticDataService.getAllBuses().then((fetchedStatic) => {
-      staticBuses = fetchedStatic || [];
-      // Initially display static buses while we await for Firestore subscriptions
-      setBuses(staticBuses);
+      if (fetchedStatic && fetchedStatic.length > 0) {
+        setBuses(fetchedStatic);
+      } else {
+        setBuses(MOCK_BUSES);
+      }
       setLoadingBuses(false);
     }).catch((err) => {
       console.error("Failed to load static partition buses:", err);
-    }).finally(() => {
-      // Subscribe to Firestore updates/additions/deletions in real-time
-      unsubscribeBuses = busService.subscribeBuses((firestoreBuses) => {
-        const mergedBusesMap = new Map<string, Bus>();
-
-        // 1. Insert all static buses
-        staticBuses.forEach(b => {
-          mergedBusesMap.set(b.id, b);
-        });
-
-        // 2. Override, add, or delete using Firestore entries
-        firestoreBuses.forEach(fb => {
-          if (fb.isDeleted) {
-            mergedBusesMap.delete(fb.id);
-          } else {
-            mergedBusesMap.set(fb.id, fb);
-          }
-        });
-
-        const finalMerged = Array.from(mergedBusesMap.values());
-        if (finalMerged.length > 0) {
-          setBuses(finalMerged);
-        } else {
-          setBuses(MOCK_BUSES);
-        }
-        setLoadingBuses(false);
-      });
+      setBuses(MOCK_BUSES);
+      setLoadingBuses(false);
     });
 
     return () => {
       unsubscribeAuth();
-      if (unsubscribeBuses) {
-        unsubscribeBuses();
-      }
     };
   }, []);
 
