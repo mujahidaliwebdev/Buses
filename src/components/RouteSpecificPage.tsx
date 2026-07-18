@@ -6,6 +6,7 @@ import { Bus, Company } from '../types';
 import { MOCK_BUSES } from '../data/mockBuses';
 import { MOCK_COMPANIES } from '../data/mockCompanies';
 import { busService } from '../lib/firestoreService';
+import { staticDataService } from '../lib/staticDataService';
 import BusDetails from './BusDetails';
 import CompanyProfile from './CompanyProfile';
 import ShareModal from './ShareModal'; // شیئر ماڈل امپورٹ کیا
@@ -43,20 +44,44 @@ const [isShareOpen, setIsShareOpen] = useState(false);
       setDestination(capitalizedDestination);
 
       setLoading(true);
-      // Try to fetch from Firestore first, then fallback to mock data
-      busService.getBusesByRoute(capitalizedOrigin, capitalizedDestination).then((fetched) => {
-        if (fetched.length > 0) {
-          setRouteBuses(fetched);
-        } else {
-          // Fallback to mock data for the demo/current state
-          const filtered = MOCK_BUSES.filter(b => 
-            b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
-            b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
-          );
-          setRouteBuses(filtered);
-        }
-        setLoading(false);
-      });
+      // Try to load via the new static routing search mechanism first
+      staticDataService.searchBuses(capitalizedOrigin, capitalizedDestination)
+        .then((staticFetched) => {
+          if (staticFetched && staticFetched.length > 0) {
+            setRouteBuses(staticFetched);
+            setLoading(false);
+          } else {
+            // Fallback to legacy Firestore/mock search if static data isn't configured for this route yet
+            busService.getBusesByRoute(capitalizedOrigin, capitalizedDestination).then((fetched) => {
+              if (fetched.length > 0) {
+                setRouteBuses(fetched);
+              } else {
+                const filtered = MOCK_BUSES.filter(b => 
+                  b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
+                  b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
+                );
+                setRouteBuses(filtered);
+              }
+              setLoading(false);
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Static route search error:", err);
+          // Fallback
+          busService.getBusesByRoute(capitalizedOrigin, capitalizedDestination).then((fetched) => {
+            if (fetched.length > 0) {
+              setRouteBuses(fetched);
+            } else {
+              const filtered = MOCK_BUSES.filter(b => 
+                b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
+                b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
+              );
+              setRouteBuses(filtered);
+            }
+            setLoading(false);
+          });
+        });
     } else {
       // Not a valid route slug, stop loading
       setLoading(false);

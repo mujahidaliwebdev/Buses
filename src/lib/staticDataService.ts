@@ -1,3 +1,5 @@
+import { Bus } from '../types';
+
 export interface StaticStop {
   id: string;
   buses?: string[];
@@ -76,13 +78,13 @@ export const staticDataService = {
 
   /**
    * Highly optimized search logic that:
-   * 1. Looks up the origin and destination stop IDs.
-   * 2. Finds the intersection of Bus IDs passing through both stops.
-   * 3. Calculates which partition files those Bus IDs live in.
-   * 4. Loads ONLY those partition files.
-   * 5. Filters out the specific buses and verifies route sequence/direction.
+   * 1. Looks up the origin and destination stop IDs from stops_index.json.
+   * 2. Finds the origin city's routes JSON file (e.g., /data/routes/Lahore.json).
+   * 3. Extracts the route fare and the name of the partition file (e.g. B1-B500.json).
+   * 4. Loads the determined partition file containing buses detail.
+   * 5. Filters and maps buses that pass through both stops in correct sequence, computing stop-specific timings.
    */
-  searchBuses: async (originName: string, destinationName: string): Promise<StaticBus[]> => {
+  searchBuses: async (originName: string, destinationName: string): Promise<Bus[]> => {
     const index = await staticDataService.getStopsIndex();
     
     // Normalize names to find the closest match in the index keys
@@ -106,25 +108,96 @@ export const staticDataService = {
     const originId = originStop.id;
     const destId = destStop.id;
 
-    // Load the partition file (currently B1-B500.json contains all sequences)
-    const partitionFiles = ['B1-B500.json'];
+    // Load the route file from routes folder to find the fare and buses_file
+    let busesFile = 'B1-B500.json'; // Default fallback
+    let fare = 1200; // Default fallback
     
-    const loadedBuses: StaticBus[] = [];
-    for (const partitionFile of partitionFiles) {
-      const buses = await staticDataService.getBusesFromPartition(partitionFile);
-      loadedBuses.push(...buses);
+    try {
+      // Encode file name safely for HTTP request (handling spaces and capitals)
+      const routeResponse = await fetch(`/data/routes/${encodeURIComponent(matchedOriginKey)}.json`);
+      if (routeResponse.ok) {
+        const routeData = await routeResponse.json();
+        const routeEntry = routeData.find(
+          (r: any) => r.to && r.to.toLowerCase().trim() === matchedDestKey.toLowerCase().trim()
+        );
+        if (routeEntry) {
+          if (routeEntry.buses_file) {
+            busesFile = routeEntry.buses_file;
+          }
+          if (routeEntry.fare) {
+            fare = parseInt(routeEntry.fare, 10) || 0;
+          }
+        }
+      } else {
+        console.warn(`Route JSON file not found: /data/routes/${matchedOriginKey}.json`);
+      }
+    } catch (routeError) {
+      console.error(`Error loading routes for ${matchedOriginKey}:`, routeError);
     }
 
+    // Load buses from the specific partition file indicated in the route entry
+    const loadedBuses = await staticDataService.getBusesFromPartition(busesFile);
+
+    const matchingBuses: Bus[] = [];
+
+    const calculateDuration = (depTime: string, arrTime: string): string => {
+      try {
+        const [depH, depM] = depTime.split(':').map(Number);
+        const [arrH, arrM] = arrTime.split(':').map(Number);
+        if (isNaN(depH) || isNaN(depM) || isNaN(arrH) || isNaN(arrM)) return '2h 30m';
+        
+        let diffMins = (arrH * 60 + arrM) - (depH * 60 + depM);
+        if (diffMins < 0) {
+          diffMins += 24 * 60; // Overnight crossing
+        }
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+        return `${h}h ${m}m`;
+      } catch (e) {
+        return '2h 30m';
+      }
+    };
+
     // Filter to buses that contain both originId and destId, and ensure originId comes before destId
-    const matchingBusesStr = loadedBuses.filter((bus) => {
+    for (const bus of loadedBuses) {
       const stopList = bus.stops.split(',').map((s) => s.trim());
       const originIndex = stopList.indexOf(originId);
       const destIndex = stopList.indexOf(destId);
 
       // Verify both exist on the bus route and origin stop comes before destination stop
-      return originIndex !== -1 && destIndex !== -1 && originIndex < destIndex;
-    });
+      if (originIndex !== -1 && destIndex !== -1 && originIndex < destIndex) {
+        const terminalList = bus.terminal.split(',').map((s) => s.trim());
+        const standList = bus.stand.split(',').map((s) => s.trim());
+        const arrTimeList = bus.arrivalTime.split(',').map((s) => s.trim());
+        const depTimeList = bus.departureTime.split(',').map((s) => s.trim());
 
-    return matchingBusesStr;
+        // Extract timing details for the specific stops
+        const depTime = depTimeList[originIndex] || bus.departureTime;
+        const arrTime = arrTimeList[destIndex] || bus.arrivalTime;
+        const terminalLoc = terminalList[originIndex] || bus.terminal;
+        const standNum = standList[originIndex] || bus.stand;
+
+        const durationStr = calculateDuration(depTime, arrTime);
+
+        matchingBuses.push({
+          id: bus.busId,
+          origin: matchedOriginKey,
+          destination: matchedDestKey,
+          departureTime: depTime,
+          arrivalTime: arrTime,
+          duration: durationStr,
+          fare: fare,
+          companyName: bus.company,
+          busNumber: bus.number,
+          contactNumber: bus.contact,
+          terminalLocation: terminalLoc,
+          standNumber: standNum,
+          isAC: bus.climateControl.toLowerCase() === 'ac',
+          type: (bus.serviceType as any) || 'Standard'
+        });
+      }
+    }
+
+    return matchingBuses;
   }
 };

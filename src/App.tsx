@@ -43,6 +43,7 @@ import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
 import { busService } from './lib/firestoreService';
+import { staticDataService } from './lib/staticDataService';
 import { User as FirebaseUser } from 'firebase/auth';
 
 function AppContent() {
@@ -85,20 +86,24 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname, searchResults]);
 
-  const handleSearch = (filters: SearchFilters) => {
+  const handleSearch = async (filters: SearchFilters) => {
     setIsSearching(true);
     setSearchParams(filters);
     
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+      const filtered = await staticDataService.searchBuses(filters.origin, filters.destination);
+      setSearchResults(filtered);
+    } catch (error) {
+      console.error("Static routing search failed, using fallback:", error);
       const filtered = buses.filter(bus => 
         bus.origin.toLowerCase() === filters.origin.toLowerCase() && 
         bus.destination.toLowerCase() === filters.destination.toLowerCase()
       );
       setSearchResults(filtered);
+    } finally {
       setIsSearching(false);
       navigate('/'); // Go back to top level to show search results if they were on another page
-    }, 800);
+    }
   };
 
   const handleSelectCompany = (companyName: string) => {
@@ -116,7 +121,9 @@ function AppContent() {
     }
   };
 
-  const isAdmin = user?.email === 'mujahidali.webdev@gmail.com' || user?.email === 'mujahidali.stf@gmail.com';
+  const isAdmin = user?.email === 'mujahidali.webdev@gmail.com' || 
+                  user?.email === 'mujahidali.stf@gmail.com' || 
+                  user?.email === 'kanwal200485@gmail.com';
 
   const handleNavClick = (sectionId: string) => {
     if (location.pathname !== '/') {
