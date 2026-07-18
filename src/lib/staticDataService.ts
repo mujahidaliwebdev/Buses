@@ -25,13 +25,19 @@ export interface StaticBus {
   departureTime: string;  // e.g. "13:30, 14:30, 15:00, 16:00, 16:45, 17:20, 18:30"
 }
 
+const getBaseUrl = (): string => {
+  const pathname = window.location.pathname;
+  const match = pathname.match(/^\/buses/i);
+  return match ? match[0] : '';
+};
+
 export const staticDataService = {
   /**
    * Fetches the central search index of all stops/cities.
    */
   getStopsIndex: async (): Promise<StaticStopsIndex> => {
     try {
-      const response = await fetch('/data/stops_index.json');
+      const response = await fetch(`${getBaseUrl()}/data/stops_index.json`);
       if (!response.ok) {
         throw new Error(`Failed to load stops index: ${response.status}`);
       }
@@ -65,7 +71,7 @@ export const staticDataService = {
    */
   getBusesFromPartition: async (partitionFile: string): Promise<StaticBus[]> => {
     try {
-      const response = await fetch(`/data/buses/${partitionFile}`);
+      const response = await fetch(`${getBaseUrl()}/data/buses/${partitionFile}`);
       if (!response.ok) {
         // If file doesn't exist, return empty array silently (avoiding console.error which triggers tests)
         return [];
