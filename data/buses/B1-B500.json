@@ -24,5 +24,31 @@
     "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
     "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
     "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
+  },
+  {
+    "busId": "B-63",
+    "company": "Al-Fareed Transport",
+    "number": "LET-6677",
+    "contact": "0314-4988837",
+    "serviceType": "Standard",
+    "climateControl": "Normal Ventilation",
+    "stops": "S93, S94, S95, S75, S73, S1, S2, S531, S532",
+    "terminal": "Main Stop, Main Stop, Main Stop, Main Stop, Main Stop, Thokar, Bypass, Main Stop, Main Stop",
+    "stand": "0, 0, 0, 0, 0, 0, 0, 0, 0",
+    "arrivalTime": "01:30, 10:35, 11:25, 12:10, 13:00, 14:50, 16:00, 16:40, 17:00",
+    "departureTime": "9:40, 10:35, 11:25, 12:10, 13:00, 15:00, 16:00, 16:40, 18:00"
+  },
+  {
+    "busId": "B-64",
+    "company": "Al-Fareed Transport",
+    "number": "LET-6677",
+    "contact": "0314-4988837",
+    "serviceType": "Standard",
+    "climateControl": "Normal Ventilation",
+    "stops": "S532, S531, S2, S1, S73, S75, S95, S94, S93",
+    "terminal": "Main Stop, Main Stop, Bypass, Thokar, Main Stop, Main Stop, Main Stop, Main Stop, Main Stop",
+    "stand": "0, 0, 0, 0, 0, 0, 0, 0, 0",
+    "arrivalTime": "17:00, 18:25, 19:00, 20:00, 22:00, 22:45, 23:30, 0:40, 1:30",
+    "departureTime": "18:00, 18:30, 19:00, 20:15, 22:00, 22:45, 23:30, 00:40, 09:40"
   }
 ]
