@@ -39,7 +39,7 @@ export const staticDataService = {
    */
   getStopsIndex: async (): Promise<StaticStopsIndex> => {
     try {
-      const response = await fetch(`${getBaseUrl()}/data/stops_index.json`);
+      const response = await fetch(`${getBaseUrl()}/data/stops_index.json?v=${Date.now()}`);
       if (!response.ok) {
         throw new Error(`Failed to load stops index: ${response.status}`);
       }
@@ -73,7 +73,7 @@ export const staticDataService = {
    */
   getBusesFromPartition: async (partitionFile: string): Promise<StaticBus[]> => {
     try {
-      const response = await fetch(`${getBaseUrl()}/data/buses/${partitionFile}`);
+      const response = await fetch(`${getBaseUrl()}/data/buses/${partitionFile}?v=${Date.now()}`);
       if (!response.ok) {
         // If file doesn't exist, return empty array silently (avoiding console.error which triggers tests)
         return [];
@@ -129,7 +129,7 @@ export const staticDataService = {
     let fare = 1200; // Default fallback
     
     try {
-      const routeResponse = await fetch(`${getBaseUrl()}/data/routes/${originId}.json`);
+      const routeResponse = await fetch(`${getBaseUrl()}/data/routes/${originId}.json?v=${Date.now()}`);
       if (routeResponse.ok) {
         const routeData = await routeResponse.json();
         const routeEntry = routeData.find(
@@ -260,7 +260,7 @@ export const staticDataService = {
         }
         const promise = (async () => {
           try {
-            const response = await fetch(`${getBaseUrl()}/data/routes/${originClean}.json`);
+            const response = await fetch(`${getBaseUrl()}/data/routes/${originClean}.json?v=${Date.now()}`);
             if (response.ok) {
               const contentType = response.headers.get('content-type');
               if (contentType && (contentType.includes('text/html') || contentType.includes('text/plain'))) {
