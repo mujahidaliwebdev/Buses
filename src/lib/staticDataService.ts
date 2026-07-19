@@ -127,12 +127,11 @@ export const staticDataService = {
     let fare = 1200; // Default fallback
     
     try {
-      // Encode file name safely for HTTP request (handling spaces and capitals)
-      const routeResponse = await fetch(`/data/routes/${encodeURIComponent(matchedOriginKey)}.json`);
+      const routeResponse = await fetch(`${getBaseUrl()}/data/routes/${originId}.json`);
       if (routeResponse.ok) {
         const routeData = await routeResponse.json();
         const routeEntry = routeData.find(
-          (r: any) => r.to && r.to.toLowerCase().trim() === matchedDestKey.toLowerCase().trim()
+          (r: any) => r.to && r.to.toLowerCase().trim() === destId.toLowerCase().trim()
         );
         if (routeEntry) {
           if (routeEntry.buses_file) {
@@ -143,10 +142,10 @@ export const staticDataService = {
           }
         }
       } else {
-        console.warn(`Route JSON file not found: /data/routes/${matchedOriginKey}.json`);
+        console.warn(`Route JSON file not found: /data/routes/${originId}.json`);
       }
     } catch (routeError) {
-      console.error(`Error loading routes for ${matchedOriginKey}:`, routeError);
+      console.error(`Error loading routes for ${originId}:`, routeError);
     }
 
     // Load buses from the specific partition file indicated in the route entry
@@ -249,14 +248,41 @@ export const staticDataService = {
         }
       };
 
+      const routePromisesCache = new Map<string, Promise<any[]>>();
+      const loadRouteFile = (originId: string): Promise<any[]> => {
+        const originClean = originId.trim();
+        if (routePromisesCache.has(originClean)) {
+          return routePromisesCache.get(originClean)!;
+        }
+        const promise = (async () => {
+          try {
+            const response = await fetch(`${getBaseUrl()}/data/routes/${originClean}.json`);
+            if (response.ok) {
+              const contentType = response.headers.get('content-type');
+              if (contentType && (contentType.includes('text/html') || contentType.includes('text/plain'))) {
+                return [];
+              }
+              const data = await response.json();
+              return Array.isArray(data) ? data : [];
+            }
+          } catch (e) {
+            // Ignore
+          }
+          return [];
+        })();
+        routePromisesCache.set(originClean, promise);
+        return promise;
+      };
+
       for (const file of partitions) {
         try {
           const busesData = await staticDataService.getBusesFromPartition(file);
           if (!busesData || !Array.isArray(busesData)) continue;
           
-          for (const bus of busesData) {
+          // Map each bus and dynamically load route file to resolve its fare
+          const busPromises = busesData.map(async (bus) => {
             const stopList = (bus.stops || '').split(',').map((s) => s.trim());
-            if (stopList.length < 2) continue;
+            if (stopList.length < 2) return null;
             
             const originId = stopList[0];
             const destId = stopList[stopList.length - 1];
@@ -276,14 +302,27 @@ export const staticDataService = {
             
             const durationStr = calculateDuration(depTime, arrTime);
 
-            allBuses.push({
+            let fareVal = 1200; // Default fallback
+            try {
+              const routeData = await loadRouteFile(originId);
+              const routeEntry = routeData.find(
+                (r: any) => r.to && r.to.toLowerCase().trim() === destId.toLowerCase().trim()
+              );
+              if (routeEntry && routeEntry.fare) {
+                fareVal = parseInt(routeEntry.fare, 10) || 1200;
+              }
+            } catch (err) {
+              // Ignore
+            }
+
+            return {
               id: bus.busId,
               origin: originName,
               destination: destinationName,
               departureTime: depTime,
               arrivalTime: arrTime,
               duration: durationStr,
-              fare: 1200, // Default standard fare for general reference list
+              fare: fareVal,
               companyName: bus.company,
               busNumber: bus.number,
               contactNumber: bus.contact,
@@ -291,8 +330,13 @@ export const staticDataService = {
               standNumber: standNum,
               isAC: (bus.climateControl || '').toLowerCase() === 'ac',
               type: (bus.serviceType as any) || 'Standard'
-            });
-          }
+            };
+          });
+
+          const mappedBuses = await Promise.all(busPromises);
+          mappedBuses.forEach((b) => {
+            if (b) allBuses.push(b);
+          });
         } catch (fileErr) {
           console.warn(`Could not load buses from static partition: ${file}`, fileErr);
         }
