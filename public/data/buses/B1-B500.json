@@ -10,7 +10,8 @@
     "terminal": "Badami Bagh, Bypass, Main Stop, Main Stop, Main Stop, Main Stop, General Bus Stand, Interchange, Interchange, Main Stop, Main Stop, Main Stop, Main Stop, Bus Stand",
     "stand": "9, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 0, ?",
     "arrivalTime": "10:15, 14:30, 15:00, 15:10, 15:30, 15:45, 16:15, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 22:30",
-    "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30"
+    "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30",
+    "routeMap": "Lahore -> Sheikhupura -> Ferozwattwan -> Manawala -> Shahkot -> Khurrianwala -> Faisalabad -> Shorkot -> Ghar More -> Chowk Azam -> Fateh Pur -> Karor"
   },
   {
     "busId": "B2",
@@ -23,7 +24,8 @@
     "terminal": "Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Interchange, Interchange, General Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Bypass, Badami Bagh",
     "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
     "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
-    "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
+    "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30",
+    "routeMap": "Karor -> Fateh Pur -> Chowk Azam -> Garh More -> Shorkot -> Faisalabad -> Khurrianwala -> Shahkot -> Manawala -> Feroz Wattwan -> Sheikhupura -> Lahore"
   },
   {
     "busId": "B-63",
@@ -36,7 +38,8 @@
     "terminal": "Main Stop, Main Stop, Main Stop, Main Stop, Main Stop, Thokar, Bypass, Main Stop, Main Stop",
     "stand": "0, 0, 0, 0, 0, 0, 0, 0, 0",
     "arrivalTime": "01:30, 10:35, 11:25, 12:10, 13:00, 14:50, 16:00, 16:40, 17:00",
-    "departureTime": "9:40, 10:35, 11:25, 12:10, 13:00, 15:00, 16:00, 16:40, 18:00"
+    "departureTime": "9:40, 10:35, 11:25, 12:10, 13:00, 15:00, 16:00, 16:40, 18:00",
+    "routeMap": "Vehari -> Khanqah Dogran"
   },
   {
     "busId": "B-64",
@@ -49,6 +52,7 @@
     "terminal": "Main Stop, Main Stop, Bypass, Thokar, Main Stop, Main Stop, Main Stop, Main Stop, Main Stop",
     "stand": "0, 0, 0, 0, 0, 0, 0, 0, 0",
     "arrivalTime": "17:00, 18:25, 19:00, 20:00, 22:00, 22:45, 23:30, 0:40, 1:30",
-    "departureTime": "18:00, 18:30, 19:00, 20:15, 22:00, 22:45, 23:30, 00:40, 09:40"
+    "departureTime": "18:00, 18:30, 19:00, 20:15, 22:00, 22:45, 23:30, 00:40, 09:40",
+    "routeMap": "Khanqah Dogran -> Vehari"
   }
 ]

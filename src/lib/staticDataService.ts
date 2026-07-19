@@ -23,6 +23,8 @@ export interface StaticBus {
   stand: string;          // e.g. "9, 0, 0, 0, 0, 0, 22"
   arrivalTime: string;    // e.g. "10:30, 14:30, 15:00, 16:00, 16:30, 17:00, 18:30"
   departureTime: string;  // e.g. "13:30, 14:30, 15:00, 16:00, 16:45, 17:20, 18:30"
+  routeMap?: string;
+  remarks?: string;
 }
 
 const getBaseUrl = (): string => {
@@ -206,7 +208,9 @@ export const staticDataService = {
           terminalLocation: terminalLoc,
           standNumber: standNum,
           isAC: bus.climateControl.toLowerCase() === 'ac',
-          type: (bus.serviceType as any) || 'Standard'
+          type: (bus.serviceType as any) || 'Standard',
+          routeMap: bus.routeMap,
+          remarks: bus.remarks
         });
       }
     }
@@ -329,7 +333,9 @@ export const staticDataService = {
               terminalLocation: terminalLoc,
               standNumber: standNum,
               isAC: (bus.climateControl || '').toLowerCase() === 'ac',
-              type: (bus.serviceType as any) || 'Standard'
+              type: (bus.serviceType as any) || 'Standard',
+              routeMap: bus.routeMap,
+              remarks: bus.remarks
             };
           });
 

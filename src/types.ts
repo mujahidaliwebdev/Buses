@@ -14,6 +14,8 @@ export interface Bus {
   isAC: boolean;
   type: "Luxury" | "Executive" | "Non-AC" | "Standard";
   isDeleted?: boolean;
+  routeMap?: string;
+  remarks?: string;
 }
 
 export interface Company {

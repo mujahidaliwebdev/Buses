@@ -14,7 +14,9 @@ import {
   Snowflake,
   Sun,
   Star,
-  LogIn
+  LogIn,
+  Map,
+  Coffee
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReportModal from './ReportModal';
@@ -34,6 +36,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [isRatingSent, setIsRatingSent] = useState(false);
+  const [activeStep, setActiveStep] = useState<number>(0);
 
 
   // Dynamic reviews states
@@ -396,6 +399,46 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
             </div>
           </div>
 
+          {/* Route Map Section / روٹ میپ */}
+          <div className="mt-12 border-t border-slate-100 pt-10" id="route-map-section">
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+              <Map className="w-4 h-4 text-emerald-600" /> Route Map / روٹ میپ
+            </h3>
+            
+            <div className="bg-emerald-50/40 rounded-[2rem] p-6 md:p-8 border border-emerald-100/80 shadow-sm">
+              {bus.routeMap ? (
+                <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                  {bus.routeMap.split('->').map((stop, idx, arr) => {
+                    const cleanStop = stop.trim();
+                    if (!cleanStop) return null;
+                    return (
+                      <React.Fragment key={idx}>
+                        <div className="flex items-center gap-2">
+                          <span className="px-4 py-2 bg-white border border-emerald-100 text-emerald-900 rounded-xl text-xs font-black shadow-sm flex items-center gap-1.5 hover:border-emerald-200 transition-all">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            {cleanStop}
+                          </span>
+                        </div>
+                        {idx < arr.length - 1 && (
+                          <span className="text-emerald-400 font-black text-sm select-none shrink-0">→</span>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-slate-500 text-xs font-bold leading-relaxed">
+                    Direct route from <span className="text-slate-900 font-extrabold">{bus.origin}</span> to <span className="text-slate-900 font-extrabold">{bus.destination}</span>. 
+                  </p>
+                  <p className="text-slate-400 text-[10px] mt-1 leading-relaxed">
+                    (روٹ میپ کی مکمل تفصیلات جلد اپ ڈیٹ کی جائیں گی)
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Real-time Passenger Reviews & Testimonials section */}
           <div className="mt-12 border-t border-slate-100 pt-10" id="passenger-reviews-section">
             <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -489,4 +532,65 @@ function DetailItem({ label, value, status }: { label: string, value: string, st
       </span>
     </div>
   );
+}
+
+function getRouteInfo(origin: string, destination: string, durationStr: string) {
+  const orig = origin.trim().toLowerCase();
+  const dest = destination.trim().toLowerCase();
+  
+  let distance = "Calculated en-route";
+  let road = "National Highway N-5";
+  let restStop = "Local Service Plaza";
+  
+  const isLahore = (s: string) => s.includes("lahore");
+  const isIslamabad = (s: string) => s.includes("islamabad") || s.includes("rawalpindi") || s.includes("pindi");
+  const isMultan = (s: string) => s.includes("multan");
+  const isFaisalabad = (s: string) => s.includes("faisalabad");
+  const isKarachi = (s: string) => s.includes("karachi");
+  const isPeshawar = (s: string) => s.includes("peshawar");
+  const isHyderabad = (s: string) => s.includes("hyderabad");
+  
+  if ((isLahore(orig) && isIslamabad(dest)) || (isIslamabad(orig) && isLahore(dest))) {
+    distance = "375 km";
+    road = "M-2 Motorway";
+    restStop = "Bhera Service Area";
+  } else if ((isLahore(orig) && isMultan(dest)) || (isMultan(orig) && isLahore(dest))) {
+    distance = "340 km";
+    road = "M-3 Motorway";
+    restStop = "Rajana Service Area";
+  } else if ((isLahore(orig) && isFaisalabad(dest)) || (isFaisalabad(orig) && isLahore(dest))) {
+    distance = "180 km";
+    road = "M-4 Motorway";
+    restStop = "Pindi Bhattian Rest Area";
+  } else if ((isKarachi(orig) && isHyderabad(dest)) || (isHyderabad(orig) && isKarachi(dest))) {
+    distance = "165 km";
+    road = "M-9 Motorway";
+    restStop = "Nooriabad Super Stop";
+  } else if ((isIslamabad(orig) && isPeshawar(dest)) || (isPeshawar(orig) && isIslamabad(dest))) {
+    distance = "155 km";
+    road = "M-1 Motorway";
+    restStop = "Indus River Service Area";
+  } else {
+    // Estimate distance based on duration
+    const matches = durationStr.match(/(\d+)\s*h/);
+    const minsMatches = durationStr.match(/(\d+)\s*m/);
+    let hours = matches ? parseInt(matches[1]) : 3;
+    let mins = minsMatches ? parseInt(minsMatches[1]) : 0;
+    let totalHours = hours + mins / 60;
+    if (totalHours > 0) {
+      distance = `${Math.round(totalHours * 80)} km`;
+    } else {
+      distance = "250 km";
+    }
+    
+    if (totalHours > 3) {
+      road = "Motorway / Highway Connection";
+      restStop = "Midway Expressway Stop";
+    } else {
+      road = "Main National Highway";
+      restStop = "Highway Service Station";
+    }
+  }
+  
+  return { distance, road, restStop };
 }
