@@ -23,6 +23,7 @@ import {
   Award
 } from 'lucide-react';
 import { POPULAR_ROUTES } from '../data/mockBuses';
+import { getRouteSlug } from '../lib/routeUtils';
 
 export default function Sitemap() {
   const [companies, setCompanies] = useState<string[]>([]);
@@ -174,7 +175,7 @@ export default function Sitemap() {
                 {POPULAR_ROUTES.map((route, idx) => (
                   <Link 
                     key={idx}
-                    to={`/${route.from.toLowerCase()}-to-${route.to.toLowerCase()}-bus-timing`}
+                    to={`/${getRouteSlug(route.from, route.to)}`}
                     className="group flex items-center justify-between p-4 border border-slate-50 hover:border-emerald-100 hover:bg-emerald-50/20 rounded-xl transition-all"
                     id={`sitemap-link-route-${idx}`}
                   >

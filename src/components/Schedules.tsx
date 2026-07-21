@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, MapPin, Search } from 'lucide-react';
+import { getRouteSlug } from '../lib/routeUtils';
 
 const ALL_SCHEDULE_ROUTES = [
   { from: "Lahore", to: "Faisalabad" },
@@ -76,7 +77,7 @@ export default function Schedules({ onRouteClick }: SchedulesProps) {
               className="group bg-white p-6 border border-slate-200 rounded-3xl hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-900/5 transition-all cursor-pointer relative overflow-hidden"
             >
               <Link 
-                to={`/${route.from.toLowerCase().replace(/ /g, '-')}-to-${route.to.toLowerCase().replace(/ /g, '-')}-bus-timing`}
+                to={`/${getRouteSlug(route.from, route.to)}`}
                 className="absolute inset-0 z-20"
               />
               {/* Decorative background element */}

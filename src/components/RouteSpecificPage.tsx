@@ -11,6 +11,8 @@ import CompanyProfile from './CompanyProfile';
 import ShareModal from './ShareModal'; // شیئر ماڈل امپورٹ کیا
 
 
+import { parseRouteSlug } from '../lib/routeUtils';
+
 export default function RouteSpecificPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -20,24 +22,15 @@ export default function RouteSpecificPage() {
   const [destination, setDestination] = useState('');
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  // پیج کے اندر سٹیٹ ایڈ کی گئی:
-const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
 
-    // Parse slug: "lahore-to-faisalabad-bus-timing"
-    // Extract "lahore" and "faisalabad"
-    const parts = slug.split('-');
-    const toIndex = parts.indexOf('to');
-    const busIndex = parts.indexOf('bus');
+    const parsed = parseRouteSlug(slug);
     
-    if (toIndex !== -1 && busIndex !== -1) {
-      const parsedOrigin = parts.slice(0, toIndex).join(' ');
-      const parsedDestination = parts.slice(toIndex + 1, busIndex).join(' ');
-      
-      const capitalizedOrigin = parsedOrigin.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-      const capitalizedDestination = parsedDestination.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    if (parsed) {
+      const { origin: capitalizedOrigin, destination: capitalizedDestination } = parsed;
       
       setOrigin(capitalizedOrigin);
       setDestination(capitalizedDestination);
@@ -45,23 +38,43 @@ const [isShareOpen, setIsShareOpen] = useState(false);
       setLoading(true);
       // Try to load via the new static routing search mechanism first
       staticDataService.searchBuses(capitalizedOrigin, capitalizedDestination)
-        .then((staticFetched) => {
+        .then(async (staticFetched) => {
           if (staticFetched && staticFetched.length > 0) {
             setRouteBuses(staticFetched);
+            setLoading(false);
           } else {
-            const filtered = MOCK_BUSES.filter(b => 
-              b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
-              b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
-            );
-            setRouteBuses(filtered);
+            // Check all partition buses as secondary fallback
+            const allStaticBuses = await staticDataService.getAllBuses().catch(() => []);
+            const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const origNorm = norm(capitalizedOrigin);
+            const destNorm = norm(capitalizedDestination);
+
+            const filteredStatic = allStaticBuses.filter(b => {
+              const bOrigNorm = norm(b.origin);
+              const bDestNorm = norm(b.destination);
+              const stopsNorm = norm(b.stops || '');
+
+              const matchesOrig = bOrigNorm.includes(origNorm) || origNorm.includes(bOrigNorm) || stopsNorm.includes(origNorm);
+              const matchesDest = bDestNorm.includes(destNorm) || destNorm.includes(bDestNorm) || stopsNorm.includes(destNorm);
+              return matchesOrig && matchesDest;
+            });
+
+            if (filteredStatic.length > 0) {
+              setRouteBuses(filteredStatic);
+            } else {
+              const filteredMock = MOCK_BUSES.filter(b => 
+                norm(b.origin).includes(origNorm) && norm(b.destination).includes(destNorm)
+              );
+              setRouteBuses(filteredMock);
+            }
+            setLoading(false);
           }
-          setLoading(false);
         })
         .catch((err) => {
           console.error("Static route search error:", err);
           const filtered = MOCK_BUSES.filter(b => 
-            b.origin.toLowerCase() === capitalizedOrigin.toLowerCase() && 
-            b.destination.toLowerCase() === capitalizedDestination.toLowerCase()
+            b.origin.toLowerCase().includes(capitalizedOrigin.toLowerCase()) && 
+            b.destination.toLowerCase().includes(capitalizedDestination.toLowerCase())
           );
           setRouteBuses(filtered);
           setLoading(false);

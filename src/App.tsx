@@ -43,6 +43,7 @@ import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
 import { staticDataService } from './lib/staticDataService';
+import { getRouteSlug } from './lib/routeUtils';
 import { User as FirebaseUser } from 'firebase/auth';
 
 function AppContent() {
@@ -93,6 +94,8 @@ function AppContent() {
     setIsSearching(true);
     setSearchParams(filters);
     
+    const slug = getRouteSlug(filters.origin, filters.destination);
+    
     try {
       const filtered = await staticDataService.searchBuses(filters.origin, filters.destination);
       setSearchResults(filtered);
@@ -105,7 +108,7 @@ function AppContent() {
       setSearchResults(filtered);
     } finally {
       setIsSearching(false);
-      navigate('/'); // Go back to top level to show search results if they were on another page
+      navigate(`/${slug}`);
     }
   };
 

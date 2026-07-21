@@ -106,12 +106,27 @@ export const staticDataService = {
     // Normalize names to find the closest match in the index keys
     const stopsKeys = Object.keys(index.stops);
     
-    const matchedOriginKey = stopsKeys.find(
-      (k) => k.toLowerCase().trim() === originName.toLowerCase().trim()
-    );
-    const matchedDestKey = stopsKeys.find(
-      (k) => k.toLowerCase().trim() === destinationName.toLowerCase().trim()
-    );
+    const findStopKey = (name: string): string | undefined => {
+      if (!name) return undefined;
+      const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const target = clean(name);
+      if (!target) return undefined;
+
+      // 1. Exact clean match
+      let found = stopsKeys.find(k => clean(k) === target);
+      if (found) return found;
+
+      // 2. Starts with / prefix match
+      found = stopsKeys.find(k => clean(k).startsWith(target) || target.startsWith(clean(k)));
+      if (found) return found;
+
+      // 3. Includes / substring match
+      found = stopsKeys.find(k => clean(k).includes(target) || target.includes(clean(k)));
+      return found;
+    };
+
+    const matchedOriginKey = findStopKey(originName);
+    const matchedDestKey = findStopKey(destinationName);
 
     if (!matchedOriginKey || !matchedDestKey) {
       console.warn(`Could not resolve cities in stops index: "${originName}" or "${destinationName}"`);

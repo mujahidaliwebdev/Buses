@@ -2,6 +2,7 @@ import { ArrowRight, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { POPULAR_ROUTES } from '../data/mockBuses';
+import { getRouteSlug } from '../lib/routeUtils';
 
 interface PopularRoutesProps {
   onRouteClick?: (from: string, to: string) => void;
@@ -40,7 +41,7 @@ export default function PopularRoutes({ onRouteClick, onViewAllClick }: PopularR
               className="bg-white p-6 border border-slate-100 rounded-[1.5rem] hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all group flex items-center justify-between cursor-pointer relative shadow-sm"
             >
               <Link 
-                to={`/${route.from.toLowerCase()}-to-${route.to.toLowerCase()}-bus-timing`}
+                to={`/${getRouteSlug(route.from, route.to)}`}
                 className="absolute inset-0 z-20"
               />
               <div className="flex-1 flex items-center gap-4">
