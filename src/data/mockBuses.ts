@@ -290,6 +290,7 @@ export const PAKISTAN_CITIES = [
   "Kharmang",
   "Kharo Chan",
   "Khewra",
+  "Khichi Wala",
   "Khipro",
   "Khudian Khas",
   "Khuiratta",
