@@ -1,4 +1,5 @@
 import { Bus } from '../types';
+import fallbackStopsIndex from '../../public/data/stops_index.json';
 
 export interface StaticStop {
   id: string;
@@ -40,16 +41,19 @@ export const staticDataService = {
     try {
       const response = await fetch(`${getBaseUrl()}/data/stops_index.json?v=${Date.now()}`);
       if (!response.ok) {
-        throw new Error(`Failed to load stops index: ${response.status}`);
+        return fallbackStopsIndex as StaticStopsIndex;
       }
       const contentType = response.headers.get('content-type');
       if (contentType && (contentType.includes('text/html') || contentType.includes('text/plain'))) {
-        return { stops: {} };
+        return fallbackStopsIndex as StaticStopsIndex;
       }
-      return await response.json();
-    } catch (error) {
-      console.error('Error loading stops index:', error);
-      return { stops: {} };
+      const data = await response.json();
+      if (data && data.stops && Object.keys(data.stops).length > 0) {
+        return data;
+      }
+      return fallbackStopsIndex as StaticStopsIndex;
+    } catch {
+      return fallbackStopsIndex as StaticStopsIndex;
     }
   },
 
@@ -165,7 +169,7 @@ export const staticDataService = {
         console.warn(`Route JSON file not found: /data/routes/${originId}.json`);
       }
     } catch (routeError) {
-      console.error(`Error loading routes for ${originId}:`, routeError);
+      console.warn(`Error loading routes for ${originId}:`, routeError);
     }
 
     // Load buses from the specific partition file indicated in the route entry
