@@ -4180,7 +4180,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 8,
     title: "Why Verified Bus Information Matters for Travelers",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1QSUm9NrOqcxkuUL3ks5T0t-qjVIv-yJ2",
     imageOverlayText: "VERIFIED TRAVEL INFO",
     date: "25 June 2026",
     slug: "why-verified-bus-information-matters-for-travelers",
@@ -4704,7 +4704,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 9,
     title: "Top 10 Mistakes Travelers Make When Traveling by Bus in Pakistan",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1PoFpBtPxSX7RofexNo28GKj6jmNVegfz",
     imageOverlayText: "TRAVEL MISTAKES GUIDE",
     date: "29 June 2026",
     slug: "top-10-mistakes-travelers-make-traveling-bus-pakistan",
@@ -5414,7 +5414,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     id: 10,
     title: "Benefits of Planning Your Bus Journey Before Traveling",
-    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=2069",
+    image: "https://lh3.googleusercontent.com/d/1-TIJZGP3CSv_86ihblmhFE2e0ciG--nO",
     imageOverlayText: "TRAVEL PLANNING BENEFITS",
     date: "02 July 2026",
     slug: "benefits-of-planning-your-bus-journey-before-traveling",
