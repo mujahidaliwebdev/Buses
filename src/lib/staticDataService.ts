@@ -28,9 +28,8 @@ export interface StaticBus {
 }
 
 const getBaseUrl = (): string => {
-  const pathname = window.location.pathname;
-  const match = pathname.match(/^\/buses/i);
-  return match ? match[0] : '';
+  const base = ((import.meta as any).env?.BASE_URL as string) || '';
+  return base.endsWith('/') ? base.slice(0, -1) : base;
 };
 
 export const staticDataService = {
@@ -42,6 +41,10 @@ export const staticDataService = {
       const response = await fetch(`${getBaseUrl()}/data/stops_index.json?v=${Date.now()}`);
       if (!response.ok) {
         throw new Error(`Failed to load stops index: ${response.status}`);
+      }
+      const contentType = response.headers.get('content-type');
+      if (contentType && (contentType.includes('text/html') || contentType.includes('text/plain'))) {
+        return { stops: {} };
       }
       return await response.json();
     } catch (error) {

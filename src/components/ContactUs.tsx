@@ -8,15 +8,15 @@ export default function ContactUs() {
     {
       icon: <Mail className="w-6 h-6" />,
       title: "Email Support",
-      value: "support@asaanbussafar.com",
-      link: "mailto:support@asaanbussafar.com",
+      value: "support@asaansafar.com",
+      link: "mailto:support@asaansafar.com",
       type: "link"
     },
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Official Website",
-      value: "www.asaanbussafar.com",
-      link: "https://www.asaanbussafar.com",
+      value: "www.asaansafar.com",
+      link: "https://www.asaansafar.com",
       type: "link"
     }
   ];
