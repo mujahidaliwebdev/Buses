@@ -148,7 +148,7 @@ export default function Features({ onRouteClick }: FeaturesProps) {
                 {[
                   { title: 'Verified Fares', desc: 'Latest rates for local Non-AC and economy bus operators.' },
                   { title: 'Real-time Timings', desc: 'Accurate departure and arrival schedules for 600+ stops.' },
-                  { title: 'Direct Contact', desc: 'Instant access to terminal help desk phone numbers.' },
+                  { title: 'Direct Contact', desc: 'Instant access to bus phone numbers.' },
                   { title: 'Non-AC Platform', desc: 'Specifically built for affordable and local bus travel.' }
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4">
