@@ -7,6 +7,20 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#059669" />
     <link rel="apple-touch-icon" href="/logo.jpg" />
+    <script type="text/javascript">
+      (function() {
+        var base = '/';
+        if (window.location.hostname.indexOf('github.io') !== -1) {
+          var pathParts = window.location.pathname.split('/');
+          if (pathParts[1]) {
+            base = '/' + pathParts[1] + '/';
+          }
+        }
+        var baseTag = document.createElement('base');
+        baseTag.href = base;
+        document.head.appendChild(baseTag);
+      })();
+    </script>
     <!-- Single Page Apps for GitHub Pages Routing Hack -->
     <script type="text/javascript">
       (function(l) {
