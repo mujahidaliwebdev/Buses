@@ -16,6 +16,7 @@ export interface Bus {
   isDeleted?: boolean;
   routeMap?: string;
   remarks?: string;
+  stops?: string;
 }
 
 export interface Company {

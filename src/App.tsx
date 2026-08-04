@@ -300,11 +300,21 @@ function AppContent() {
 export default function App() {
   let basename = '/';
   if (window.location.hostname.endsWith('.github.io')) {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts[1] && pathParts[1].toLowerCase() === 'buses') {
-      basename = '/' + pathParts[1];
-    } else {
-      basename = '/Buses';
+    const pathname = window.location.pathname;
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments.length > 0) {
+      const KNOWN_ROUTES = [
+        'admin', 'schedules', 'about', 'contact', 'policy', 
+        'privacy', 'terms', 'disclaimer', 'blog', 'careers', 
+        'team', 'faqs', 'sitemap'
+      ];
+      const firstSegment = segments[0].toLowerCase();
+      // If the first segment is a known route or an SEO route, basename is '/'
+      if (KNOWN_ROUTES.includes(firstSegment) || firstSegment.includes('-to-')) {
+        basename = '/';
+      } else {
+        basename = '/' + segments[0];
+      }
     }
   }
   return (
