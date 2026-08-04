@@ -12,7 +12,31 @@
       
       // If hosting on a custom domain (e.g. asaanbussafar.com), set pathSegmentsToKeep to 0.
       // If hosting on github.io subdirectory (e.g. username.github.io/repo/), set pathSegmentsToKeep to 1.
-      var pathSegmentsToKeep = window.location.hostname.indexOf('github.io') !== -1 ? 1 : 0;
+      var pathSegmentsToKeep = 0;
+      if (window.location.hostname.indexOf('github.io') !== -1) {
+        var pathParts = window.location.pathname.split('/').filter(Boolean);
+        if (pathParts.length > 0) {
+          var firstPart = pathParts[0].toLowerCase();
+          var knownRoutes = [
+            'admin', 'schedules', 'about', 'contact', 'policy', 
+            'privacy', 'terms', 'disclaimer', 'blog', 'careers', 
+            'team', 'faqs', 'sitemap'
+          ];
+          var isRoute = false;
+          for (var i = 0; i < knownRoutes.length; i++) {
+            if (knownRoutes[i] === firstPart) {
+              isRoute = true;
+              break;
+            }
+          }
+          if (firstPart.indexOf('-to-') !== -1) {
+            isRoute = true;
+          }
+          if (!isRoute) {
+            pathSegmentsToKeep = 1;
+          }
+        }
+      }
 
       var l = window.location;
       l.replace(

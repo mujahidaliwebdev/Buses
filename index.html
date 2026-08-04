@@ -11,9 +11,27 @@
       (function() {
         var base = '/';
         if (window.location.hostname.indexOf('github.io') !== -1) {
-          var pathParts = window.location.pathname.split('/');
-          if (pathParts[1]) {
-            base = '/' + pathParts[1] + '/';
+          var pathParts = window.location.pathname.split('/').filter(Boolean);
+          if (pathParts.length > 0) {
+            var firstPart = pathParts[0].toLowerCase();
+            var knownRoutes = [
+              'admin', 'schedules', 'about', 'contact', 'policy', 
+              'privacy', 'terms', 'disclaimer', 'blog', 'careers', 
+              'team', 'faqs', 'sitemap'
+            ];
+            var isRoute = false;
+            for (var i = 0; i < knownRoutes.length; i++) {
+              if (knownRoutes[i] === firstPart) {
+                isRoute = true;
+                break;
+              }
+            }
+            if (firstPart.indexOf('-to-') !== -1) {
+              isRoute = true;
+            }
+            if (!isRoute) {
+              base = '/' + pathParts[0] + '/';
+            }
           }
         }
         var baseTag = document.createElement('base');
@@ -34,7 +52,7 @@
         }
       }(window.location));
     </script>
-    <script type="module" crossorigin src="./assets/index-BliGECEG.js"></script>
+    <script type="module" crossorigin src="./assets/index--mquZcFb.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-q3LlVcvS.css">
   </head>
   <body>
