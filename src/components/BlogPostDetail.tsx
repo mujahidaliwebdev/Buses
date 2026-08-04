@@ -1,18 +1,60 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { MOCK_BLOGS } from '../data/mockBlogs';
-import { ArrowLeft, Clock, Calendar, User, Share2, Tag } from 'lucide-react';
-import { useEffect } from 'react';
+import { ArrowLeft, Clock, Calendar, User, Share2, Tag, Facebook, MessageCircle, Copy, Check } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function BlogPostDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const post = MOCK_BLOGS.find(p => p.slug === slug);
+  const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   // Scroll to top on load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+  }, [slug]);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (copyErr) {
+        console.error('Failed to copy', copyErr);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleWhatsApp = () => {
+    if (!post) return;
+    const shareText = `📚 *AsaanSafar Blog*\n\n*${post.title}*\n\nCheck out this amazing and helpful travel story on AsaanSafar:\n🔗 ${shareUrl}`;
+    const encodedText = encodeURIComponent(shareText);
+    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleFacebook = () => {
+    const encodedUrl = encodeURIComponent(shareUrl);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank', 'noopener,noreferrer');
+  };
 
   if (!post) {
     return (
@@ -151,14 +193,56 @@ export default function BlogPostDetail() {
 
          {/* Share & Footer */}
          <div className="mt-20 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-4 text-slate-400 text-sm font-bold">
-               Share this Story:
-               <div className="flex gap-2">
-                  {[1,2,3].map(i => (
-                    <button key={i} className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all">
-                       <Share2 className="w-4 h-4" />
+            <div className="flex items-center gap-4 text-slate-500 text-sm font-black tracking-wide">
+               Share this Story / شیئر کریں:
+               <div className="flex gap-2.5 relative">
+                  {/* WhatsApp Button */}
+                  <button 
+                    onClick={handleWhatsApp}
+                    title="Share on WhatsApp"
+                    className="w-11 h-11 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-[#25D366] hover:text-white hover:shadow-lg hover:shadow-[#25D366]/20 transition-all duration-300 active:scale-95 cursor-pointer"
+                  >
+                     <MessageCircle className="w-5 h-5 fill-current stroke-none" />
+                  </button>
+
+                  {/* Facebook Button */}
+                  <button 
+                    onClick={handleFacebook}
+                    title="Share on Facebook"
+                    className="w-11 h-11 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-[#1877F2] hover:text-white hover:shadow-lg hover:shadow-[#1877F2]/20 transition-all duration-300 active:scale-95 cursor-pointer"
+                  >
+                     <Facebook className="w-5 h-5 fill-current" />
+                  </button>
+
+                  {/* Copy Link Button */}
+                  <div className="relative">
+                    <button 
+                      onClick={handleCopyLink}
+                      title="Copy Link"
+                      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
+                        copied 
+                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' 
+                          : 'bg-slate-50 text-slate-600 hover:bg-slate-900 hover:text-white hover:shadow-lg hover:shadow-slate-900/10'
+                      }`}
+                    >
+                       {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                     </button>
-                  ))}
+
+                    <AnimatePresence>
+                      {copied && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-slate-900 text-white text-[11px] font-bold rounded-xl shadow-xl border border-slate-800 flex flex-col items-center gap-0.5 whitespace-nowrap z-50"
+                        >
+                          <span>Link Copied!</span>
+                          <span className="text-[9px] text-slate-400 font-medium">لنک کاپی ہو گیا ہے</span>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                </div>
             </div>
             
