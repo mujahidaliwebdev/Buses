@@ -11,10 +11,42 @@ export default function BlogPostDetail() {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
 
-  // Scroll to top on load
+  // Scroll to top on load and dynamically update page metadata
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+
+    if (post) {
+      const originalTitle = document.title;
+      document.title = `${post.title} | AsaanSafar`;
+
+      // Helper function to dynamically update or create meta tags
+      const updateMetaTag = (property: string, content: string, isName = false) => {
+        const attr = isName ? 'name' : 'property';
+        let element = document.querySelector(`meta[${attr}="${property}"]`);
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute(attr, property);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+      };
+
+      // Update Facebook Open Graph tags
+      updateMetaTag('og:title', post.title);
+      updateMetaTag('og:description', post.excerpt || 'Read this helpful travel story on AsaanSafar Pakistan.');
+      updateMetaTag('og:image', post.image);
+      updateMetaTag('og:url', window.location.href);
+
+      // Update Twitter Card tags
+      updateMetaTag('twitter:title', post.title);
+      updateMetaTag('twitter:description', post.excerpt || 'Read this helpful travel story on AsaanSafar Pakistan.');
+      updateMetaTag('twitter:image', post.image);
+
+      return () => {
+        document.title = originalTitle;
+      };
+    }
+  }, [slug, post]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
