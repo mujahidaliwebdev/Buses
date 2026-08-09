@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AsaanSafar Pakistan | Verified Bus Timings & Fares</title>
     
+    <!-- Google Search Console Verification -->
+    <script>
+      (function() {
+        var gscCode = "%VITE_GSC_VERIFICATION%";
+        if (gscCode && gscCode !== "%" + "VITE_GSC_VERIFICATION" + "%" && gscCode.trim() !== "") {
+          var meta = document.createElement('meta');
+          meta.name = "google-site-verification";
+          meta.content = gscCode;
+          document.head.appendChild(meta);
+        }
+      })();
+    </script>
+
+    <!-- Google Analytics (GA4) Dynamic Loader -->
+    <script>
+      (function() {
+        var gaId = "%VITE_GA_MEASUREMENT_ID%";
+        // If the environment variable is not set or remains as the placeholder template, use your default ID
+        if (!gaId || gaId === "%" + "VITE_GA_MEASUREMENT_ID" + "%" || gaId.trim() === "") {
+          gaId = "G-QRBHBDCB9J";
+        }
+
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', gaId);
+      })();
+    </script>
+    
     <!-- Open Graph / Facebook Meta Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="AsaanSafar Pakistan | Verified Bus Timings & Fares" />
