@@ -3,11 +3,17 @@
     "18 Hazari": {
       "id": "S16"
     },
+    "90 Morr": {
+      "id": "S594"
+    },
     "Abbaspur": {
       "id": "S533"
     },
     "Abbottabad": {
       "id": "S232"
+    },
+    "Adda Machian Wala": {
+      "id": "S595"
     },
     "Adda Mangatanwala": {
       "id": "S61"
@@ -479,6 +485,9 @@
     },
     "Garh Moor": {
       "id": "S22"
+    },
+    "Garha More": {
+      "id": "S597"
     },
     "Garhi Khairo": {
       "id": "S347"
@@ -1224,6 +1233,9 @@
     "Noorpur Thal": {
       "id": "S199"
     },
+    "Notak": {
+      "id": "S593"
+    },
     "Nowshera": {
       "id": "S300"
     },
@@ -1385,6 +1397,9 @@
     },
     "Rawalakot": {
       "id": "S159"
+    },
+    "Rawat": {
+      "id": "S596"
     },
     "Razar": {
       "id": "S316"
