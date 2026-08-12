@@ -503,6 +503,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     const stand = String(findVal(['stand', 'stands', 'stand_numbers', 'standNumbers']) || '').trim();
     const arrivalTime = String(findVal(['arrivalTime', 'arrival_time', 'arrivalTimes', 'arrival']) || '').trim();
     const departureTime = String(findVal(['departureTime', 'departure_time', 'departureTimes', 'departure']) || '').trim();
+    const routeMap = String(findVal(['routeMap', 'route_map', 'routeMapLink', 'route_map_link', 'map', 'mapLink', 'map_link', 'gmap', 'googleMap', 'google_map', 'gmap_link', 'gmapLink', 'routemap']) || '').trim();
 
     return {
       busId,
@@ -515,7 +516,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       terminal,
       stand,
       arrivalTime,
-      departureTime
+      departureTime,
+      routeMap
     };
   };
 
@@ -532,7 +534,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
         "terminal": "Badami Bagh, Bypass, Main Stop, Main Stop, Main Stop, Main Stop, General Bus Stand, Interchange, Interchange, Main Stop, Main Stop, Main Stop, Main Stop, Bus Stand",
         "stand": "9, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 0, ?",
         "arrivalTime": "10:15, 14:30, 15:00, 15:10, 15:30, 15:45, 16:15, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 22:30",
-        "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30"
+        "departureTime": "13:30, 14:30, 15:00, 15:10, 15:30, 15:45, 17:25, 19:00, 19:15, 20:00, 20:30, 21:30, 22:00, 02:30",
+        "routeMap": "Lahore -> Sheikhupura -> Ferozwattwan -> Manawala -> Shahkot -> Khurrianwala -> Faisalabad -> Shorkot -> Ghar More -> Chowk Azam -> Fateh Pur -> Karor"
       },
       {
         "busId": "B2",
@@ -545,7 +548,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
         "terminal": "Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Interchange, Interchange, General Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Bypass, Badami Bagh",
         "stand": "?, 0, 0, 0, 0, 0, 0, ?, 0, 0, 0, 0, 0, 9",
         "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
-        "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30"
+        "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 05:50, 06:00, 06:45, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30",
+        "routeMap": "Karor -> Fateh Pur -> Chowk Azam -> Garh More -> Shorkot -> Faisalabad -> Khurrianwala -> Shahkot -> Manawala -> Feroz Wattwan -> Sheikhupura -> Lahore"
       }
     ];
 
