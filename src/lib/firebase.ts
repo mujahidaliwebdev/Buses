@@ -23,7 +23,8 @@ const app = initializeApp(firebaseConfig);
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
-  })
+  }),
+  experimentalForceLongPolling: true // Force HTTP long-polling to bypass restrictive sandbox iframes/proxies
 }, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth();

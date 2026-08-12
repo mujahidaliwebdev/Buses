@@ -43,6 +43,7 @@ import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
 import { staticDataService } from './lib/staticDataService';
+import { settingsService } from './lib/firestoreService';
 import { getRouteSlug } from './lib/routeUtils';
 import { User as FirebaseUser } from 'firebase/auth';
 
@@ -60,6 +61,49 @@ function AppContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+
+  // Load dynamic Google Analytics and Google Search Console settings from Firestore
+  useEffect(() => {
+    const unsubscribeSettings = settingsService.subscribeAnalyticsSettings((settings) => {
+      if (!settings) return;
+
+      // 1. Google Search Console Verification
+      if (settings.gscVerification) {
+        let meta = document.querySelector('meta[name="google-site-verification"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'google-site-verification');
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', settings.gscVerification);
+      }
+
+      // 2. Google Analytics 4 (GA4) Measurement ID
+      if (settings.measurementId) {
+        const gaId = settings.measurementId;
+        const scriptId = `ga-script-${gaId}`;
+        const script = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (!script) {
+          const newScript = document.createElement('script');
+          newScript.id = scriptId;
+          newScript.async = true;
+          newScript.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+          document.head.appendChild(newScript);
+
+          (window as any).dataLayer = (window as any).dataLayer || [];
+          (window as any).gtag = function() {
+            (window as any).dataLayer.push(arguments);
+          };
+          (window as any).gtag('js', new Date());
+          (window as any).gtag('config', gaId);
+        }
+      }
+    });
+
+    return () => {
+      if (unsubscribeSettings) unsubscribeSettings();
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((u) => {

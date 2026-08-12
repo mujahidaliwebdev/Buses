@@ -228,3 +228,50 @@ export const reportService = {
     }
   }
 };
+
+export const settingsService = {
+  getAnalyticsSettings: async () => {
+    const path = 'settings/analytics';
+    try {
+      const q = doc(db, 'settings', 'analytics');
+      const snap = await getDocs(query(collection(db, 'settings')));
+      const docSnap = snap.docs.find(d => d.id === 'analytics');
+      if (docSnap && docSnap.exists()) {
+        return docSnap.data() as { measurementId?: string; gscVerification?: string };
+      }
+      return null;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+      return null;
+    }
+  },
+
+  updateAnalyticsSettings: async (settings: { measurementId: string; gscVerification: string }) => {
+    const path = 'settings/analytics';
+    try {
+      await setDoc(doc(db, 'settings', 'analytics'), settings, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+      throw error;
+    }
+  },
+
+  subscribeAnalyticsSettings: (callback: (settings: { measurementId?: string; gscVerification?: string } | null) => void) => {
+    const path = 'settings/analytics';
+    return onSnapshot(doc(db, 'settings', 'analytics'), (docSnap) => {
+      if (docSnap.exists()) {
+        callback(docSnap.data() as { measurementId?: string; gscVerification?: string });
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      try {
+        handleFirestoreError(error, OperationType.GET, path);
+      } catch (e) {
+        console.error("Subscription to settings failed:", e);
+      }
+      callback(null);
+    });
+  }
+};
+

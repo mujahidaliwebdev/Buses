@@ -150,7 +150,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 6. Admins Collection
+    // 6. Settings Collection
+    match /settings/{docId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && (
+        docId == "analytics" &&
+        (!('measurementId' in incoming()) || (incoming().measurementId is string && incoming().measurementId.size() <= 128)) &&
+        (!('gscVerification' in incoming()) || (incoming().gscVerification is string && incoming().gscVerification.size() <= 128))
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 7. Admins Collection
     match /admins/{adminId} {
       allow read: if isSignedIn();
       allow write: if false; // Strictly managed via backend/console

@@ -24,7 +24,7 @@ import {
   FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService, reportService, contributionService } from '../lib/firestoreService';
+import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
 import { db } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
@@ -48,6 +48,20 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isViewingFeedbacks, setIsViewingFeedbacks] = useState(false);
   const [isViewingCareers, setIsViewingCareers] = useState(false);
   const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
+  const [isViewingSettings, setIsViewingSettings] = useState(false);
+  const [measurementId, setMeasurementId] = useState('');
+  const [gscVerification, setGscVerification] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  React.useEffect(() => {
+    const unsubscribe = settingsService.subscribeAnalyticsSettings((settings) => {
+      if (settings) {
+        setMeasurementId(settings.measurementId || '');
+        setGscVerification(settings.gscVerification || '');
+      }
+    });
+    return unsubscribe;
+  }, []);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
@@ -832,6 +846,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
               <FileText className="w-5 h-5 text-indigo-500" /> JSON Partition Upload
+            </button>
+            <button 
+              onClick={() => setIsViewingSettings(true)}
+              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <FileSpreadsheet className="w-5 h-5 text-emerald-500" /> SEO & Analytics Settings
             </button>
             <button 
               onClick={() => setIsAdding(true)}
@@ -2110,6 +2130,116 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                       {isSaving ? 'Processing...' : (editingId ? 'Update Record' : 'Save New Route')}
                     </button>
                  </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* SEO & Google Analytics Settings Modal */}
+      <AnimatePresence>
+        {isViewingSettings && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingSettings(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-10 md:p-14 max-h-[90vh] overflow-y-auto"
+            >
+              <button 
+                onClick={() => setIsViewingSettings(false)} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-10">
+                <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full">
+                  SEO & Google Analytics
+                </span>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-4">
+                  Analytics & GSC Settings
+                </h2>
+                <p className="text-sm font-bold text-slate-400 mt-2">
+                  Update your Google Analytics 4 (GA4) Measurement ID and Google Search Console HTML Verification code.
+                </p>
+              </div>
+
+              <form 
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setSavingSettings(true);
+                  try {
+                    await settingsService.updateAnalyticsSettings({
+                      measurementId: measurementId.trim(),
+                      gscVerification: gscVerification.trim()
+                    });
+                    alert('Success! SEO and Google Analytics settings have been updated successfully.');
+                    setIsViewingSettings(false);
+                  } catch (err) {
+                    console.error(err);
+                    alert('Failed to update settings.');
+                  } finally {
+                    setSavingSettings(false);
+                  }
+                }}
+                className="space-y-8"
+              >
+                <div className="space-y-6">
+                  <InputGroup label="Google Analytics 4 Measurement ID" icon={<FileText className="w-4 h-4 text-emerald-500" />}>
+                    <input 
+                      type="text"
+                      placeholder="e.g. G-QRBHBDCB9J"
+                      value={measurementId}
+                      onChange={(e) => setMeasurementId(e.target.value)}
+                      className="admin-input"
+                    />
+                    <p className="text-[10px] text-slate-400 font-bold mt-1">
+                      Apna GA4 Measurement ID yahan enter karein (starts with G-).
+                    </p>
+                  </InputGroup>
+
+                  <InputGroup label="Google Search Console verification content" icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}>
+                    <input 
+                      type="text"
+                      placeholder="e.g. abcd1234efgh5678"
+                      value={gscVerification}
+                      onChange={(e) => setGscVerification(e.target.value)}
+                      className="admin-input"
+                    />
+                    <p className="text-[10px] text-slate-400 font-bold mt-1">
+                      Search Console verification meta tag ke content="..." attribute ki value yahan likhein.
+                    </p>
+                  </InputGroup>
+                </div>
+
+                <div className="flex gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => setIsViewingSettings(false)}
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-500 py-5 rounded-2xl font-bold transition-all text-sm uppercase tracking-widest"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={savingSettings}
+                    className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black transition-all shadow-xl shadow-emerald-600/20 text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {savingSettings ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Save className="w-5 h-5" /> 
+                    )}
+                    {savingSettings ? 'Saving...' : 'Save Settings'}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>
