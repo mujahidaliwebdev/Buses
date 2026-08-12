@@ -161,8 +161,11 @@ export const staticDataService = {
           if (routeEntry.buses_file) {
             busesFile = routeEntry.buses_file;
           }
-          if (routeEntry.fare) {
-            fare = parseInt(routeEntry.fare, 10) || 0;
+          if (routeEntry.fare !== undefined && routeEntry.fare !== null && routeEntry.fare !== '') {
+            const parsedFare = parseInt(routeEntry.fare, 10);
+            if (!isNaN(parsedFare)) {
+              fare = parsedFare;
+            }
           }
         }
       } else {
@@ -334,8 +337,11 @@ export const staticDataService = {
               const routeEntry = routeData.find(
                 (r: any) => r.to && r.to.toLowerCase().trim() === destId.toLowerCase().trim()
               );
-              if (routeEntry && routeEntry.fare) {
-                fareVal = parseInt(routeEntry.fare, 10) || 1200;
+              if (routeEntry && routeEntry.fare !== undefined && routeEntry.fare !== null && routeEntry.fare !== '') {
+                const parsedFare = parseInt(routeEntry.fare, 10);
+                if (!isNaN(parsedFare)) {
+                  fareVal = parsedFare;
+                }
               }
             } catch (err) {
               // Ignore
