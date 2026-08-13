@@ -39,32 +39,54 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
     image: 'https://lh3.googleusercontent.com/d/125-AWlBTRcMMtSiLob69Z3PtcXYCeS00',
-    email: 'operations@asaanbussafar.com',
+    email: 'operations@asaansafar.com',
     specialization: 'Liaison & Field Quality Management',
     bio: 'Noman Ejaz leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
     urduBio: 'نعمان اعجاز آسان سفر کے آپریشنز کے نگران ہیں۔ وہ اڈہ مینیجرز، علاقائی ٹرانسپورٹ حکام اور فیلڈ ٹیموں کے ساتھ براہِ راست تال میل رکھتے ہیں تاکہ ڈیٹا بیس سو فیصد درست رہے۔ وہ لاجسٹکس اور فلیٹ آپریشنز کے شعبے میں وسیع تجربہ رکھتے ہیں۔'
   },
   {
-    name: 'Aisha Malik',
-    urduName: 'عائشہ ملک',
-    role: 'Head of Finance & Corporate Partnerships',
-    urduRole: 'سربراہ برائے فنانس اور کارپوریٹ پارٹنرشپ',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop',
-    email: 'partnerships@asaanbussafar.com',
-    specialization: 'Operator Tie-ups & Asset Allocation',
-    bio: 'Aisha coordinates strategic integrations with major private bus companies and government authorities. She acts as the vital bridge to facilitate advertiser alignment on the platform, fostering win-win growth models for verified bus standard owners.',
-    urduBio: 'عائشہ ملک نجی بس کمپنیوں اور حکومتی اداروں کے ساتھ اسٹریٹجک پارٹنرشپ کی نگران ہیں۔ وہ تصدیق شدہ بس اڈوں کے مالکان کے لیے ون-ون ترقی کے ماڈلز کو ڈیزائن اور فروغ دیتی ہیں۔'
+    name: '',
+    urduName: '',
+    role: 'Head of Operations',
+    urduRole: 'ہیڈ آف آپریشنز',
+    image: '',
+    email: '',
+    specialization: '',
+    bio: '',
+    urduBio: ''
   },
   {
-    name: 'Sajid Mahmood',
-    urduName: 'ساجد محمود',
-    role: 'Drivers Liaison Officer',
-    urduRole: 'مسؤل برائے ڈرائیور تعلقات',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop',
-    email: 'driver-support@asaanbussafar.com',
-    specialization: 'Union Management & Ground Coordination',
-    bio: 'Sajid has spent over 15 years within major transport unions across Punjab and Sindh. He leads ground support, teaching regional heavy-bus operators, drivers, and conductors how to broadcast dynamic time alterations directly to the digital board.',
-    urduBio: 'ساجد محمود پنجاب اور سندھ کی بڑی ٹرانسپورٹ یونینز میں 15 سال سے زائد کا تجربہ رکھتے ہیں۔ وہ ڈرائیورز، کنڈکٹرز اور ہیوی بس آپریٹرز کو براہِ راست ڈیجیٹل سسٹم سے جوڑنے کی زمینی فیلڈ کی قیادت کرتے ہیں۔'
+    name: '',
+    urduName: '',
+    role: 'Data & Verification Manager',
+    urduRole: 'ڈیٹا اور ویریفیکیشن مینیجر',
+    image: '',
+    email: '',
+    specialization: '',
+    bio: '',
+    urduBio: ''
+  },
+  {
+    name: '',
+    urduName: '',
+    role: 'Technology & Product Manager',
+    urduRole: 'ٹیکنالوجی اور پروڈکٹ مینیجر',
+    image: '',
+    email: '',
+    specialization: '',
+    bio: '',
+    urduBio: ''
+  },
+  {
+    name: '',
+    urduName: '',
+    role: 'Customer Support Manager',
+    urduRole: 'کسٹمر سپورٹ مینیجر',
+    image: '',
+    email: 'support@asaansafar.com',
+    specialization: '',
+    bio: '',
+    urduBio: ''
   }
 ];
 
@@ -118,62 +140,81 @@ export default function OurTeam() {
               <div className="space-y-6">
                 {/* Image and Header */}
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-3xl overflow-hidden shadow-md shrink-0 border border-slate-100">
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
+                  <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-3xl overflow-hidden shadow-md shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
+                    {member.image ? (
+                      <img 
+                        src={member.image} 
+                        alt={member.name || member.role} 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <Users className="w-10 h-10 text-slate-300" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/20 via-transparent to-transparent" />
                   </div>
                   
-                  <div className="text-center sm:text-left space-y-1.5 flex-1">
+                  <div className="text-center sm:text-left space-y-1.5 flex-1 w-full">
                     <div className="flex items-center justify-center sm:justify-start gap-1.5">
                       <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">
                         {member.role}
                       </span>
                     </div>
                     <div className="flex flex-col">
-                      <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{member.name}</h3>
-                      <span className="text-xs text-emerald-700 font-black tracking-widest mt-0.5">{member.urduRole} • {member.urduName}</span>
+                      <h3 className={`text-2xl font-black text-slate-900 tracking-tight leading-none ${!member.name ? 'text-slate-400 italic font-medium' : ''}`}>
+                        {member.name || 'To Be Appointed'}
+                      </h3>
+                      <span className="text-xs text-emerald-700 font-black tracking-widest mt-0.5">
+                        {member.urduRole}
+                        {member.urduName ? ` • ${member.urduName}` : ` • خالی آسامی`}
+                      </span>
                     </div>
                     
-                    <div className="flex items-center justify-center sm:justify-start gap-2 text-xs text-slate-500 font-bold">
-                      <Award className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="truncate">{member.specialization}</span>
-                    </div>
+                    {member.specialization && (
+                      <div className="flex items-center justify-center sm:justify-start gap-2 text-xs text-slate-500 font-bold">
+                        <Award className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate">{member.specialization}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* English Bio */}
-                <div className="space-y-2">
-                  <p className="text-slate-650 text-sm leading-relaxed whitespace-pre-line">
-                    {member.bio}
-                  </p>
-                </div>
+                {member.bio && (
+                  <div className="space-y-2">
+                    <p className="text-slate-650 text-sm leading-relaxed whitespace-pre-line">
+                      {member.bio}
+                    </p>
+                  </div>
+                )}
 
                 {/* Urdu Bio */}
-                <div className="bg-emerald-50/20 border border-emerald-100/20 rounded-2xl p-5" dir="rtl">
-                  <p className="text-slate-800 text-xs font-bold leading-relaxed text-right font-sans whitespace-pre-line">
-                    {member.urduBio}
-                  </p>
-                </div>
-              </div>
-
-              {/* Contact / Footer details inside card */}
-              <div className="pt-6 mt-8 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                  <a href={`mailto:${member.email}`} className="hover:text-emerald-600 transition-colors">{member.email}</a>
-                </div>
-                {member.phone && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
-                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                    <a href={`tel:${member.phone}`} className="hover:text-emerald-600 transition-all">{member.phone}</a>
+                {member.urduBio && (
+                  <div className="bg-emerald-50/20 border border-emerald-100/20 rounded-2xl p-5" dir="rtl">
+                    <p className="text-slate-800 text-xs font-bold leading-relaxed text-right font-sans whitespace-pre-line">
+                      {member.urduBio}
+                    </p>
                   </div>
                 )}
               </div>
+
+              {/* Contact / Footer details inside card */}
+              {(member.email || member.phone) && (
+                <div className="pt-6 mt-8 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                  {member.email && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
+                      <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                      <a href={`mailto:${member.email}`} className="hover:text-emerald-600 transition-colors">{member.email}</a>
+                    </div>
+                  )}
+                  {member.phone && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
+                      <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                      <a href={`tel:${member.phone}`} className="hover:text-emerald-600 transition-all">{member.phone}</a>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
