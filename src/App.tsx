@@ -134,6 +134,14 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname, searchResults]);
 
+  // Clear search results when navigating away from the home page
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setSearchResults(null);
+      setSearchParams(null);
+    }
+  }, [location.pathname]);
+
   const handleSearch = async (filters: SearchFilters) => {
     setIsSearching(true);
     setSearchParams(filters);

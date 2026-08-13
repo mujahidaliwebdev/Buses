@@ -178,7 +178,7 @@ export default function RouteSpecificPage() {
                 </div>
                 <div>
                   <div className="text-[10px] text-emerald-500/80 uppercase font-black tracking-widest leading-none mb-1">Total Operators</div>
-                  <div className="text-xl font-black text-white">{[...new Set(routeBuses.map(b => b.operator))].length} Active</div>
+                  <div className="text-xl font-black text-white">{routeBuses.length} Active</div>
                 </div>
               </div>
             </div>

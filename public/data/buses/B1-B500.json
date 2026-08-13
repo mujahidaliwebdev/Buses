@@ -23,8 +23,8 @@
     "stops": "S20, S19, S18, S22, S50, S11, S10, S9, S7, S5, S2, S1",
     "terminal": "Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, General Bus Stand, Main Stop, Main Stop, Main Stop, Main Stop, Bypass, Badami Bagh",
     "stand": "-, 0, 0, 0, 0, -, 0, 0, 0, 0, 0, 9",
-    "arrivalTime": "22:30, 03:00 03:30, 04:30, 05:00, 07:00, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
-    "departureTime": "02:30, 03:00 03:30, 04:30, 05:00, 07:00, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30",
+    "arrivalTime": "22:30, 03:00, 03:30, 04:30, 05:00, 07:00, 07:30, 08:00, 08:15, 08:30, 09:00, 10:15",
+    "departureTime": "02:30, 03:00, 03:30, 04:30, 05:00, 07:00, 07:30, 08:00, 08:15, 08:30, 09:00, 13:30",
     "routeMap": "Karor -> Fatehpur -> Chowk Azam -> Garh Moor -> Shorkot -> Toba Tek Singh -> Gojra -> Faisalabad -> Khurrianwala -> Shahkot -> Manawala -> Feroze Wattwan -> Sheikhupura -> Lahore"
   },
   {
