@@ -330,7 +330,6 @@ function AppContent() {
       </AnimatePresence>
 
       <FeedbackSystem />
-      <NoticePopup />
 
       <AppDownloadModal 
         isOpen={showDownloadModal} 
