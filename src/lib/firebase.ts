@@ -13,11 +13,15 @@ import {
   initializeFirestore, 
   persistentLocalCache, 
   persistentMultipleTabManager,
-  doc 
+  doc,
+  setLogLevel
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
+
+// Suppress noisy network warning logs in sandbox iframe/proxied environments
+setLogLevel('error');
 
 // Initialize Firestore with robust offline persistence & multi-tab cache synchronization
 export const db = initializeFirestore(app, {
