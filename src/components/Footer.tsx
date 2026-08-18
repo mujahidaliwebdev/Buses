@@ -1,5 +1,36 @@
-import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone } from 'lucide-react';
+import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone, Linkedin } from 'lucide-react';
 import { motion } from 'motion/react';
+
+// Custom high-quality Threads logo icon that perfectly matches the styling of other icons
+const ThreadsIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+    <path d="M12 15.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5c0 .35-.12.67-.32.92.5.34.82.91.82 1.58 0 1.1-.9 2-2 2-1.5 0-2.5-1-2.5-2.5s1-2.5 2.5-2.5 2.5 1 2.5 2.5" />
+  </svg>
+);
+
+// Custom high-quality TikTok logo icon that perfectly matches the styling of other icons
+const TiktokIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 interface FooterProps {
   onHomeClick: () => void;
@@ -113,23 +144,45 @@ export default function Footer({
               Verified non-AC bus schedules, fares, routes and travel information across Pakistan. Helping travelers save time with accurate and reliable transport data.
             </p>
 
-            <div className="flex gap-4">
-              {[
-                { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
-                { Icon: Instagram, url: "https://instagram.com/Asaan.Safar" },
-                { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
-                { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
-              ].map((item, idx) => (
-                <a 
-                  key={idx}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
-                >
-                  <item.Icon className="w-4 h-4" />
-                </a>
-              ))}
+            <div className="flex flex-col gap-3">
+              {/* Row 1: Existing Social Media Icons */}
+              <div className="flex gap-4">
+                {[
+                  { Icon: Facebook, url: "https://www.facebook.com/AsaanSafar/" },
+                  { Icon: Instagram, url: "https://instagram.com/Asaan.Safar" },
+                  { Icon: Twitter, url: "https://twitter.com/AsaanSafar" },
+                  { Icon: Youtube, url: "https://youtube.com/@AsaanSafar" }
+                ].map((item, idx) => (
+                  <a 
+                    key={idx}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
+                  >
+                    <item.Icon className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
+
+              {/* Row 2: Additional Requested Icons */}
+              <div className="flex gap-4">
+                {[
+                  { Icon: Linkedin, url: "https://linkedin.com/company/asaansafar" },
+                  { Icon: ThreadsIcon, url: "https://threads.net/@AsaanSafar" },
+                  { Icon: TiktokIcon, url: "https://tiktok.com/@AsaanSafar" }
+                ].map((item, idx) => (
+                  <a 
+                    key={idx}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer"
+                  >
+                    <item.Icon className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
             </div>
 
             {onDownloadAppClick && isAdmin && (
