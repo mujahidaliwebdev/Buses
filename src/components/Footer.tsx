@@ -1,4 +1,4 @@
-import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone, Linkedin, Tiktok, Threads } from 'lucide-react';
+import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone, Linkedin } from 'lucide-react';
 import { motion } from 'motion/react';
 
 // Custom high-quality Threads logo icon that perfectly matches the styling of other icons
