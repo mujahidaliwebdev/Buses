@@ -1,4 +1,4 @@
-import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone, Linkedin } from 'lucide-react';
+import { Bus, Facebook, Twitter, Instagram, Github, Mail, Phone, MapPin, Youtube, Smartphone, Linkedin, Tiktok, Threads } from 'lucide-react';
 import { motion } from 'motion/react';
 
 // Custom high-quality Threads logo icon that perfectly matches the styling of other icons
@@ -169,8 +169,8 @@ export default function Footer({
               <div className="flex gap-4">
                 {[
                   { Icon: Linkedin, url: "https://linkedin.com/company/asaansafar" },
-                  { Icon: ThreadsIcon, url: "https://threads.net/@AsaanSafar" },
-                  { Icon: TiktokIcon, url: "https://tiktok.com/@AsaanSafar" }
+                  { Icon: ThreadsIcon, url: "https://threads.net/@Asaan.Safar" },
+                  { Icon: TiktokIcon, url: "https://tiktok.com/@Asaan.Safar" }
                 ].map((item, idx) => (
                   <a 
                     key={idx}
