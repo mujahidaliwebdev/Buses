@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
-  signInWithRedirect, 
+  signInWithPopup, 
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -36,7 +36,8 @@ export const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
   try {
-    await signInWithRedirect(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
   } catch (error) {
     console.error("Error signing in with Google", error);
     throw error;
