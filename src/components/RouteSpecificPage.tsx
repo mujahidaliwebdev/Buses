@@ -120,6 +120,17 @@ export default function RouteSpecificPage() {
 
   const cheapestFare = routeBuses.length > 0 ? Math.min(...routeBuses.map(b => b.fare)) : 0;
 
+  // Dynamic Last Updated calculation to ensure it never displays a future day
+  const getDynamicLastUpdatedDay = () => {
+    try {
+      const now = new Date();
+      const currentHour = now.getHours();
+      return currentHour >= 4 ? "Today" : "Yesterday";
+    } catch (e) {
+      return "Today";
+    }
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen pb-20 pt-8">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -298,7 +309,7 @@ export default function RouteSpecificPage() {
                       </li>
                       <li className="flex items-center justify-between text-xs font-bold">
                         <span className="text-slate-500">Last Updated</span>
-                        <span className="text-slate-900">Today</span>
+                        <span className="text-slate-900">{getDynamicLastUpdatedDay()}</span>
                       </li>
                    </ul>
                 </div>

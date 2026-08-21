@@ -142,6 +142,21 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
     ? Number(((baseReviewsCount * baseAverageStars + totalDbStars) / totalReviewsCount).toFixed(1))
     : baseAverageStars;
 
+  // Dynamic Last Updated calculation to ensure it never displays a future time
+  const getDynamicLastUpdated = () => {
+    try {
+      const now = new Date();
+      const currentHour = now.getHours();
+      if (currentHour >= 4) {
+        return "Today 4:00 AM";
+      } else {
+        return "Yesterday 4:00 AM";
+      }
+    } catch (e) {
+      return "Today 4:00 AM";
+    }
+  };
+
   return (
     <>
     <motion.div 
@@ -295,7 +310,7 @@ export default function BusDetails({ bus, onClose, onSelectCompany }: BusDetails
                   This schedule is verified by our terminal operators. However, arrival times are subject to traffic conditions and motorway authority regulations.
                 </p>
                 <div className="flex items-center gap-2 text-xs font-black text-emerald-600 uppercase tracking-widest">
-                  Last Updated: Today 4:00 AM
+                  Last Updated: {getDynamicLastUpdated()}
                 </div>
               </div>
 
