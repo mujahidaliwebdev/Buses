@@ -34,15 +34,15 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
 سفر کے تجربے کو بہتر بنانے کے جذبے سے سرشار، مجاہد علی نے آسان سفر کا آغاز کیا تاکہ مسافروں کو قابلِ اعتماد بس سروسز تلاش کرنے، درست روٹ معلومات حاصل کرنے اور اپنے سفر کی منصوبہ بندی کو مزید آسان بنانے میں مدد مل سکے۔ ان کا وژن جدید ٹیکنالوجی کے ذریعے بین الاضلاعی سفر کو سادہ اور مؤثر بنانا ہے، اور ایک ایسا قابلِ اعتماد پلیٹ فارم فراہم کرنا ہے جو مسافروں کو بہترین ٹرانسپورٹ سہولیات سے جوڑے۔ ان کی قیادت میں آسان سفر پاکستان کا سب سے معتبر اور مسافر دوست بس ٹریول پلیٹ فارم بننے کی جانب گامزن ہے۔`
   },
   {
-    name: 'Noman Ejaz',
-    urduName: 'نعمان اعجاز',
+    name: '',
+    urduName: '',
     role: 'General Manager (GM) of Operations',
     urduRole: 'جنرل مینیجر آپریشنز',
-    image: 'https://lh3.googleusercontent.com/d/125-AWlBTRcMMtSiLob69Z3PtcXYCeS00',
-    email: 'operations@asaansafar.com',
-    specialization: 'Liaison & Field Quality Management',
-    bio: 'Noman Ejaz leads the operational heartbeat of AsaanSafar. He coordinates directly with terminal stand managers, regional transport authorities, and field verification teams to ensure the database stays 100% accurate. He holds substantial experience in Logistics and Fleet Operations.',
-    urduBio: 'نعمان اعجاز آسان سفر کے آپریشنز کے نگران ہیں۔ وہ اڈہ مینیجرز، علاقائی ٹرانسپورٹ حکام اور فیلڈ ٹیموں کے ساتھ براہِ راست تال میل رکھتے ہیں تاکہ ڈیٹا بیس سو فیصد درست رہے۔ وہ لاجسٹکس اور فلیٹ آپریشنز کے شعبے میں وسیع تجربہ رکھتے ہیں۔'
+    image: '',
+    email: '',
+    specialization: '',
+    bio: '',
+    urduBio: ''
   },
   {
     name: '',
@@ -50,7 +50,7 @@ Driven by a passion for improving the travel experience, Mujahid founded AsaanSa
     role: 'Head of Operations',
     urduRole: 'ہیڈ آف آپریشنز',
     image: '',
-    email: '',
+    email: 'operations@asaansafar.com',
     specialization: '',
     bio: '',
     urduBio: ''
