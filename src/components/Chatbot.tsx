@@ -60,6 +60,122 @@ export default function Chatbot() {
     }
   }, [isOpen, messages]);
 
+  // Intelligent offline Urdu matching engine for static hosting environments (like GitHub Pages)
+  const getLocalResponse = (query: string): string => {
+    const text = query.toLowerCase().trim();
+    
+    // 1. Greetings / Salam
+    if (
+      text.includes('salam') || 
+      text.includes('hello') || 
+      text.includes('hi') || 
+      text.includes('سلام') || 
+      text.includes('ہیلو') || 
+      text.includes('اسلام علیکم') ||
+      text.includes('آج آپ کہاں کا سفر کرنا چاہتے ہیں')
+    ) {
+      return `وعلیکم السلام! 🌸\n\nمیں **آسان سفر کا سمارٹ ٹریول اسسٹنٹ** ہوں۔\n\nآپ مجھ سے پاکستان کے کسی بھی بس روٹ کے اوقات، کرائے، اڈوں کے پتے، سامان کی پالیسی، اور طلباء کے لیے ڈسکاؤنٹس کی تفصیلات اردو یا انگلش میں پوچھ سکتے ہیں۔\n\nآج آپ کہاں کا سفر کرنا چاہتے ہیں؟`;
+    }
+    
+    // 2. Lahore to Islamabad / Rawalpindi
+    if (
+      (text.includes('lahore') || text.includes('لاہور')) && 
+      (text.includes('islamabad') || text.includes('pindi') || text.includes('rawalpindi') || text.includes('اسلام آباد') || text.includes('راولپنڈی') || text.includes('پنڈی'))
+    ) {
+      return `🚌 **لاہور تا اسلام آباد / راولپنڈی بس معلومات:**\n\n* **روانگی کے اوقات:** 24 گھنٹے دستیاب ہے (ہر 30 منٹ بعد ایک لگژری بس روانہ ہوتی ہے)۔\n* **مقبول سروسز:** فیصل موورز (Faisal Movers)، ڈیوو ایکسپریس (Daewoo)، روڈ ماسٹر (Road Master)۔\n* **اندازاً کرایہ:** \n  * سٹینڈرڈ/ایگزیکٹو: 1,600 سے 1,950 روپے\n  * بزنس/لگزری: 2,400 سے 2,850 روپے\n* **سفر کا دورانیہ:** موٹروے M2 کے ذریعے تقریباً 4.5 سے 5 گھنٹے۔\n* **لاہور ٹرمینل:** بند روڈ (Band Road) اور نیازی اڈا ٹرمینل۔\n* **راولپنڈی ٹرمینل:** فیض آباد (Faizabad) ٹرمینل یا پشاور روڈ۔`;
+    }
+    
+    // 3. Lahore to Multan
+    if (
+      (text.includes('lahore') || text.includes('لاہور')) && 
+      (text.includes('multan') || text.includes('ملتان'))
+    ) {
+      return `🚌 **لاہور تا ملتان بس معلومات:**\n\n* **روانگی کے اوقات:** صبح 5:00 بجے سے رات 12:00 بجے تک (ہر 45 منٹ بعد بس روانہ ہوتی ہے)۔\n* **مقبول سروسز:** فیصل موورز، نیازی ایکسپریس، ڈیوو ایکسپریس، روڈ ماسٹر۔\n* **اندازاً کرایہ:** \n  * ایگزیکٹو کلاس: 1,350 سے 1,550 روپے\n  * بزنس/سلیپر کلاس: 1,900 سے 2,100 روپے\n* **سفر کا دورانیہ:** موٹروے M3 کے ذریعے تقریباً 4 گھنٹے۔\n* **ٹرمینلز:** لاہور بند روڈ، اور ملتان میں وہاڑی چوک (Vehari Chowk) ٹرمینل۔`;
+    }
+
+    // 4. Lahore to Faisalabad
+    if (
+      (text.includes('lahore') || text.includes('لاہور')) && 
+      (text.includes('faisalabad') || text.includes('lyallpur') || text.includes('فیصل آباد'))
+    ) {
+      return `🚌 **لاہور تا فیصل آباد بس معلومات:**\n\n* **روانگی کے اوقات:** صبح 6:00 بجے سے رات 11:30 بجے تک (ہر 30 منٹ بعد سروس دستیاب ہے)۔\n* **مقبول سروسز:** فیصل موورز، کوہستان ایکسپریس، ڈیوو ایکسپریس۔\n* **اندازاً کرایہ:** 850 سے 1,150 روپے (بس کیٹگری اور روٹ کے مطابق)۔\n* **سفر کا دورانیہ:** موٹروے M3 کے ذریعے تقریباً 2 سے 2.5 گھنٹے۔\n* **ٹرمینلز:** لاہور بند روڈ، اور فیصل آباد موٹروے انٹرچینج ٹرمینل۔`;
+    }
+
+    // 5. Lahore to Karachi / Karachi to Lahore
+    if (
+      (text.includes('karachi') || text.includes('کراچی')) && 
+      (text.includes('lahore') || text.includes('لاہور'))
+    ) {
+      return `🚌 **لاہور تا کراچی (اور کراچی تا لاہور) بس معلومات:**\n\n* **روانگی کے اوقات:** روزانہ مخصوص اوقات (صبح 8:00، دوپہر 2:00، شام 6:00، اور رات 10:00 بجے)۔\n* **مقبول سروسز:** فیصل موورز (صوفیانہ پلس)، ڈیوو ایکسپریس، کائنات ٹریولز، السرحد۔\n* **اندازاً کرایہ:** \n  * سلیپر بس (Sleeper): 5,800 سے 6,800 روپے\n  * ایگزیکٹو پلس: 4,200 سے 4,600 روپے\n* **سفر کا دورانیہ:** موٹروے M5 اور نیشنل ہائی وے کے ذریعے تقریباً 14 سے 16 گھنٹے۔\n* **ٹرمینلز:** لاہور بند روڈ، اور کراچی سہراب گوٹھ (Sohrab Goth) ٹرمینل۔`;
+    }
+
+    // 6. Lahore to Sargodha
+    if (
+      (text.includes('lahore') || text.includes('لاہور')) && 
+      (text.includes('sargodha') || text.includes('سرگودھا'))
+    ) {
+      return `🚌 **لاہور تا سرگودھا بس معلومات:**\n\n* **روانگی کے اوقات:** صبح 6:00 بجے سے رات 10:00 بجے تک (ہر ایک گھنٹے بعد بس)۔\n* **مقبول سروسز:** فیصل موورز، گوندل ٹریولز، لکی ٹرانسپورٹ۔\n* **اندازاً کرایہ:** 800 سے 1,000 روپے تک۔\n* **سفر کا دورانیہ:** موٹروے کے ذریعے تقریباً 2.5 سے 3 گھنٹے۔\n* **ٹرمینلز:** لاہور بند روڈ، اور سرگودھا جنرل بس سٹینڈ۔`;
+    }
+
+    // 7. Luggage / Samaan / Weight
+    if (
+      text.includes('luggage') || 
+      text.includes('samaan') || 
+      text.includes('weight') || 
+      text.includes('سامان') || 
+      text.includes('وزن') || 
+      text.includes('حد') ||
+      text.includes('baggage')
+    ) {
+      return `🎒 **سامان کی حد اور وزن (Luggage Policy):**\n\n* **مفت حد (Free Weight Limit):** ہر مسافر اپنے ساتھ **30 کلوگرام** تک سامان بالکل مفت بس کے سامان والے حصے (Cargo Hold) میں لے جا سکتا ہے۔\n* **ہینڈ بیگ (Hand Carry):** آپ اپنے ساتھ ایک چھوٹا ہینڈ بیگ یا لیپ ٹاپ بیگ بس کے کیبن کے اندر بھی لے جا سکتے ہیں۔\n* **اضافی سامان (Extra Weight):** 30 کلوگرام سے زائد سامان پر اضافی چارجز لاگو ہوتے ہیں جو کہ عام طور پر **20 سے 50 روپے فی کلوگرام** (آپریٹر اور سفر کے فاصلے کے لحاظ سے) ہوتے ہیں۔\n* **ممنوعہ اشیاء:** خطرناک کیمیکلز، گیس سلنڈر، آتش گیر مادہ، اور غیر قانونی اشیاء بس میں لے جانے کی سخت ممانعت ہے۔`;
+    }
+
+    // 8. Student Discount / Discount / Concession / Sasta
+    if (
+      text.includes('student') || 
+      text.includes('discount') || 
+      text.includes('concession') || 
+      text.includes('رعایت') || 
+      text.includes('طلباء') || 
+      text.includes('طالب علم') || 
+      text.includes('بزرگ') || 
+      text.includes('سستا') ||
+      text.includes('بزرگوں')
+    ) {
+      return `🎓 **طلبا اور بزرگ شہریوں کے لیے کرایوں میں رعایت (Discounts):**\n\n* **طلبا (Students):** فیصل موورز (Faisal Movers) اور ڈیوو ایکسپریس (Daewoo) طلبہ کے لیے **10% سے 15% تک کی رعایت** دیتے ہیں۔\n  * **شرائط:** آپ کے پاس اپنی یونیورسٹی یا کالج کا **اصل اسٹوڈنٹ کارڈ (Original Student ID Card)** ہونا لازمی ہے۔\n  * **دن:** یہ ڈسکاؤنٹ عام طور پر پیر سے جمعرات (Monday to Thursday) تک سفر کرنے پر ملتا ہے، جبکہ ویک اینڈ (جمعہ تا اتوار) پر یہ رعایت لاگو نہیں ہوتی۔\n* **بزرگ شہری (Senior Citizens):** 65 سال سے زائد عمر کے بزرگ شہریوں کو بھی قومی شناختی کارڈ (CNIC) دکھانے پر ٹکٹ کے کرائے میں خصوصاً **10% سے 15% تک ڈسکاؤنٹ** دیا جاتا ہے۔`;
+    }
+
+    // 9. Fog / Motorway Closure / Weather
+    if (
+      text.includes('fog') || 
+      text.includes('dhund') || 
+      text.includes('weather') || 
+      text.includes('فوگ') || 
+      text.includes('دھند') || 
+      text.includes('موٹروے') || 
+      text.includes('بند') ||
+      text.includes('موسم')
+    ) {
+      return `🌫️ **شدید دھند (Fog) اور موٹروے بندش کی معلومات:**\n\n* **موٹروے بندش:** سردیوں کے موسم میں (خصوصاً نومبر سے فروری کے دوران) شدید دھند اور زیرو ویزیبلٹی کی وجہ سے موٹرویز (M2, M3, M4, M5) کو رات 10:00 بجے سے صبح 9:00 بجے تک عارضی طور پر بند کر دیا جاتا ہے۔\n* **آسان سفر ٹرپ تجاویز:**\n  1. رات کے وقت سفر کرنے سے پرہیز کریں اور ہمیشہ دن کی روشنی (صبح 10:00 سے شام 4:00 بجے) میں سفر کا انتخاب کریں۔\n  2. سفر شروع کرنے سے پہلے موٹروے پولیس کی آفیشل ہیلپ لائن **130** پر رابطہ کر کے روٹ کی تازہ ترین صورتحال جان لیں۔\n  3. بس سروس کے ہیلپ لائن نمبرز پر کال کر کے تصدیق کر لیں کہ کیا بسیں موٹروے کے بجائے متبادل روٹ (جی ٹی روڈ) استعمال کر رہی ہیں۔`;
+    }
+
+    // 10. Booking / Tickets / Contact
+    if (
+      text.includes('book') || 
+      text.includes('ticket') || 
+      text.includes('seat') || 
+      text.includes('رابطہ') || 
+      text.includes('بکنگ') || 
+      text.includes('ٹکٹ') || 
+      text.includes('سیٹ')
+    ) {
+      return `🎫 **ٹکٹ بکنگ اور آن لائن سیٹ ریزرویشن کی معلومات:**\n\nآسان سفر پاکستان بھر کے نان-اے سی اور اے سی بسوں کے اوقات اور کرایوں کا موازنہ فراہم کرتا ہے۔ آن لائن سیٹ بک کرنے کے لیے آپ درج ذیل ذرائع استعمال کر سکتے ہیں:\n\n1. **موبائل ایپس:** اپنے فون پر **Bookme.pk**, **Bookkaru**, یا **Sastaticket** کی آفیشل ایپ ڈاؤن لوڈ کریں۔\n2. **آفیشل پورٹلز:** فیصل موورز کی آن لائن بکنگ کے لیے \`bookkaru.com\` اور ڈیوو ایکسپریس کے لیے \`daewoo.com.pk\` پر جائیں۔\n3. **ٹرمینل بکنگ:** آپ قریبی بس ٹرمینل پر جا کر براہِ راست ٹکٹ کاؤنٹر سے بھی موقع پر سیٹیں حاصل کر سکتے ہیں۔`;
+  }
+
+    // Default generic helpful fallback reply
+    return `🚌 **آسان سفر اسسٹنٹ گائیڈ:**\n\nمیں نے آپ کا سوال موصول کر لیا ہے! آسان سفر پر پاکستان کے تمام بڑے بس روٹس، اوقات اور سستے کرایوں کی تصدیق شدہ تفصیلات موجود ہیں۔\n\nسفری معلومات حاصل کرنے کے لیے آپ نیچے لکھ سکتے ہیں، مثال کے طور پر:\n* **"لاہور سے ملتان کا کرایہ اور بسیں"**\n* **"بسوں میں سامان کی کیا حد ہوتی ہے؟"**\n* **"طلبا (Students) کے لیے ڈسکاؤنٹ کی کیا شرط ہے؟"**\n* **"سردیوں میں دھند کی صورت میں کیا احتیاط کرنی چاہیے؟"**`;
+  };
+
   const handleSend = async (customPrompt?: string) => {
     const textToSend = customPrompt || input.trim();
     if (!textToSend || loading) return;
@@ -75,6 +191,10 @@ export default function Chatbot() {
     if (!customPrompt) setInput('');
     setLoading(true);
 
+    // Abort controller to prevent infinite hanging/loading state on the client side
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 seconds maximum wait before failing over
+
     try {
       // Format history for server API
       const historyPayload = messages.slice(-6).map(m => ({
@@ -85,14 +205,23 @@ export default function Chatbot() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: textToSend,
           conversationHistory: historyPayload
         })
       });
 
+      clearTimeout(timeoutId);
+
+      // Verify content-type to fail-fast if static host redirected the API route to index.html
+      const contentType = res.headers.get('content-type');
+      if (!res.ok || !contentType || !contentType.includes('application/json')) {
+        throw new Error('Server API not available (static host fallback active)');
+      }
+
       const data = await res.json();
-      const botReply = data.reply || data.error || 'معذرت، رابطہ قائم نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔';
+      const botReply = data.reply || data.error || 'معذرت، رابطہ قائم نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -103,14 +232,19 @@ export default function Chatbot() {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      console.error('Chat error:', err);
-      const fallbackMessage: ChatMessage = {
+      clearTimeout(timeoutId);
+      console.log('Chat fallback activated (running intelligent offline engine):', err);
+      
+      // Get beautiful localized offline Urdu travel reply matching the user intent
+      const botReply = getLocalResponse(textToSend);
+
+      const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'معذرت، انٹرنیٹ یا سرور کی خرابی کی وجہ سے جواب موصول نہیں ہو سکا۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
+        content: botReply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, fallbackMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } finally {
       setLoading(false);
     }
