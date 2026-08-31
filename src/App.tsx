@@ -38,6 +38,7 @@ import FAQs from './components/FAQs';
 import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
 import AppDownloadModal from './components/AppDownloadModal';
+import Chatbot from './components/Chatbot';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
@@ -338,6 +339,8 @@ function AppContent() {
       </AnimatePresence>
 
       <FeedbackSystem />
+
+      <Chatbot />
 
       <AppDownloadModal 
         isOpen={showDownloadModal} 
