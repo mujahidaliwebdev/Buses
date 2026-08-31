@@ -224,7 +224,7 @@ export default function Chatbot() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-base tracking-tight leading-tight">AsaanSafar AI Guide</h3>
                     <span className="text-[10px] font-black uppercase bg-emerald-400/25 px-2 py-0.5 rounded-full text-emerald-100 border border-emerald-300/30">
-                      Gemini 3.7
+                      AsaanSafar
                     </span>
                   </div>
                   <p className="text-xs text-emerald-100/90 font-medium">آن لائن • سمارٹ ٹریول گائیڈ</p>
@@ -359,7 +359,7 @@ export default function Chatbot() {
                 </button>
               </form>
               <div className="text-[10px] text-center text-slate-400 mt-1.5 font-medium">
-                AsaanSafar AI Travel Guide • Powered by Gemini Flash
+                AsaanSafar AI Travel Guide • Powered by AsaanSafar
               </div>
             </div>
           </motion.div>
