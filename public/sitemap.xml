@@ -17,13 +17,13 @@
     <loc>https://asaansafar.com/#/about</loc>
     <lastmod>2026-08-31</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://asaansafar.com/#/contact</loc>
     <lastmod>2026-08-31</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://asaansafar.com/#/blog</loc>
@@ -31,8 +31,58 @@
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://asaansafar.com/#/careers</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/team</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/faqs</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/sitemap</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
 
-  <!-- Popular Route Pages (SEO Optimized) -->
+  <!-- Legal & Compliance Pages -->
+  <url>
+    <loc>https://asaansafar.com/#/policy</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/privacy</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/terms</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/disclaimer</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Popular Route Pages (SEO Optimized for High Google Traffic) -->
   <url>
     <loc>https://asaansafar.com/#/lahore-to-faisalabad-bus-timing</loc>
     <lastmod>2026-08-31</lastmod>
@@ -59,6 +109,60 @@
   </url>
   <url>
     <loc>https://asaansafar.com/#/lahore-to-islamabad-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/islamabad-to-lahore-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/lahore-to-karachi-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/karachi-to-lahore-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/rawalpindi-to-lahore-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/lahore-to-rawalpindi-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/faisalabad-to-multan-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/multan-to-faisalabad-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/lahore-to-sargodha-bus-timing</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://asaansafar.com/#/sargodha-to-lahore-bus-timing</loc>
     <lastmod>2026-08-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
