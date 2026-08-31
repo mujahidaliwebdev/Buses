@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://asaanbussafar.com/sitemap.xml
+Sitemap: https://asaansafar.com/sitemap.xml
