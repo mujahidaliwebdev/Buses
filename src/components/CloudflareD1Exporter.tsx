@@ -39,8 +39,12 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
   // Cloudflare D1 Live State
   const [d1Status, setD1Status] = useState<any>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncingStatic, setIsSyncingStatic] = useState(false);
   const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null);
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showWorkerModal, setShowWorkerModal] = useState(false);
+  const [workerUrlInput, setWorkerUrlInput] = useState(staticDataService.getWorkerUrl());
+  const [workerCopied, setWorkerCopied] = useState(false);
   const [configForm, setConfigForm] = useState({
     accountId: '',
     databaseId: '',
@@ -57,6 +61,37 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
   const fetchD1Status = async () => {
     const status = await staticDataService.getD1Status();
     setD1Status(status);
+  };
+
+  const handleSyncToStatic = async () => {
+    setIsSyncingStatic(true);
+    setSyncResult(null);
+    try {
+      const res = await staticDataService.syncD1ToStatic();
+      if (res.success) {
+        setSyncResult({
+          success: true,
+          message: `Sync Complete: ${res.busCount} buses from Cloudflare D1 have been written into the app data files. You can now Push to GitHub and your live website will display all updated routes!`
+        });
+        fetchD1Status();
+      } else {
+        throw new Error(res.message || 'Sync failed');
+      }
+    } catch (err: any) {
+      setSyncResult({
+        success: false,
+        message: `Sync Error: ${err.message || 'Could not sync D1 to local files'}`
+      });
+    } finally {
+      setIsSyncingStatic(false);
+    }
+  };
+
+  const handleSaveWorkerUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    staticDataService.setWorkerUrl(workerUrlInput);
+    setShowWorkerModal(false);
+    alert('Cloudflare Worker URL saved! Your frontend will now query your Worker directly for live D1 searches.');
   };
 
   const handleDirectSync = async () => {
@@ -403,7 +438,7 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowConfigModal(true)}
@@ -413,16 +448,38 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
                 <span>{d1Status?.configured ? 'Edit Credentials' : 'Connect Cloudflare D1'}</span>
               </button>
 
+              <button
+                type="button"
+                onClick={() => setShowWorkerModal(true)}
+                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
+              >
+                <Globe className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{workerUrlInput ? 'Worker API Active' : 'Setup Live Edge Worker'}</span>
+              </button>
+
               {d1Status?.configured && (
-                <button
-                  type="button"
-                  onClick={handleSeedSchema}
-                  disabled={isSeeding}
-                  className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
-                  <span>{isSeeding ? 'Creating...' : 'Initialize Tables'}</span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSyncToStatic}
+                    disabled={isSyncingStatic}
+                    title="Copies all current Cloudflare D1 buses & fares directly into local data files so your GitHub Pages deployment has all latest routes"
+                    className="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncingStatic ? 'animate-spin text-amber-600' : 'text-amber-600'}`} />
+                    <span>{isSyncingStatic ? 'Syncing Files...' : 'Sync D1 to App Files'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSeedSchema}
+                    disabled={isSeeding}
+                    className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
+                    <span>{isSeeding ? 'Creating...' : 'Initialize Tables'}</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -734,6 +791,194 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
                     {isSavingConfig ? 'Connecting...' : 'Save & Connect'}
                   </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Cloudflare Worker Edge API Setup Modal */}
+      {showWorkerModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center px-4 bg-slate-900/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowWorkerModal(false)}
+              className="absolute top-6 right-6 p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Cloudflare Worker Live Edge API</h3>
+                <p className="text-xs text-emerald-700 font-bold">لائیو ویب سائٹ اور گٹ ہب پیجز کو 100% کلاؤڈ فلیر D1 سے جوڑیں</p>
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-xs text-emerald-950 mb-5 leading-relaxed">
+              <p className="font-bold mb-1">💡 یہ کس لیے ہے؟</p>
+              <p>
+                GitHub Pages ایک Static سرور ہے جہاں Node.js بیک اینڈ نہیں چلتا۔ 
+                کلاؤڈ فلیر کا مفت <strong>Worker</strong> آپ کی لائیو ویب سائٹ کو براہِ راست D1 ڈیٹا بیس سے لائیو ڈیٹا دیتا ہے۔ 
+                اس کے بعد ڈیٹا بیس میں کی گئی کوئی بھی تبدیلی بغیر کسی کوڈ پش یا ری ڈپلائی کے فوری لائیو نظر آئے گی!
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveWorkerUrl} className="space-y-5">
+              <div>
+                <label className="text-xs font-bold text-slate-800 block mb-1">
+                  1. Your Cloudflare Worker Public URL (ورکر کا لائیو لنک)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://asaansafar-api.your-subdomain.workers.dev"
+                    value={workerUrlInput}
+                    onChange={(e) => setWorkerUrlInput(e.target.value)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:border-emerald-500"
+                  />
+                  <button
+                    type="submit"
+                    className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-sm shrink-0"
+                  >
+                    Save URL
+                  </button>
+                </div>
+                <span className="text-[10px] text-slate-500">Leave blank to use local server proxy or static fallback.</span>
+              </div>
+
+              {/* Ready-to-use Worker Code */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-slate-800 block">
+                    2. Cloudflare Worker Code (کلاؤڈ فلیر ورکر کا کوڈ)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const code = `export default {
+  async fetch(request, env) {
+    const cors = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    };
+    if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+
+    const url = new URL(request.url);
+    if (url.pathname === '/api/search' || url.pathname === '/api/d1/search') {
+      const origin = (url.searchParams.get('origin') || '').trim();
+      const destination = (url.searchParams.get('destination') || '').trim();
+      if (!origin || !destination) {
+        return new Response(JSON.stringify({ live: false, count: 0, buses: [] }), { 
+          headers: { ...cors, 'Content-Type': 'application/json' } 
+        });
+      }
+
+      const query = \`
+        SELECT 
+          b.bus_id, b.company_name, b.vehicle_plate, b.contact_number, b.climate_control, b.service_type, b.route_map,
+          s1.city_name AS origin_city, s1.arrival_time AS origin_arrival_time, s1.departure_time AS origin_departure_time, s1.location AS origin_location, s1.stand AS origin_stand,
+          s2.city_name AS destination_city, s2.arrival_time AS destination_arrival_time, s2.departure_time AS destination_departure_time, s2.location AS destination_location, s2.stand AS destination_stand,
+          f.non_ac, f.ac, f.executive
+        FROM buses b
+        JOIN bus_stops s1 ON b.bus_id = s1.bus_id
+        JOIN bus_stops s2 ON b.bus_id = s2.bus_id
+        LEFT JOIN fares f ON (LOWER(TRIM(f.origin)) = LOWER(TRIM(s1.city_name)) AND LOWER(TRIM(f.destination)) = LOWER(TRIM(s2.city_name)))
+        WHERE LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
+          AND LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
+          AND s1.stop_sequence < s2.stop_sequence
+        ORDER BY s1.departure_time ASC;
+      \`;
+
+      try {
+        const { results } = await env.DB.prepare(query).bind(origin, destination).all();
+        const buses = (results || []).map(row => {
+          const isAc = (row.climate_control || '').toLowerCase().includes('ac') && !(row.climate_control || '').toLowerCase().includes('non-ac');
+          let fare = 0;
+          if (isAc) {
+            fare = row.ac !== null && row.ac !== undefined ? Number(row.ac) : (row.non_ac || 0);
+          } else {
+            fare = row.non_ac !== null && row.non_ac !== undefined ? Number(row.non_ac) : (row.ac || 0);
+          }
+          if (row.executive && fare === 0) fare = Number(row.executive);
+
+          return {
+            id: row.bus_id,
+            origin: row.origin_city,
+            destination: row.destination_city,
+            departureTime: row.origin_departure_time || row.origin_arrival_time || '12:00',
+            arrivalTime: row.destination_arrival_time || row.destination_departure_time || '18:00',
+            fare: isNaN(fare) ? 0 : fare,
+            companyName: row.company_name,
+            busNumber: row.vehicle_plate,
+            contactNumber: row.contact_number,
+            terminalLocation: row.origin_location || 'Main Bus Stand',
+            standNumber: row.origin_stand || '0',
+            isAC: isAc,
+            type: row.service_type || 'Standard',
+            routeMap: row.route_map || '',
+            remarks: 'Verified Live from Cloudflare D1 Edge Database'
+          };
+        });
+
+        return new Response(JSON.stringify({ live: true, source: 'cloudflare_d1_worker', count: buses.length, buses }), {
+          headers: { ...cors, 'Content-Type': 'application/json' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ live: false, error: err.message }), { 
+          status: 500, 
+          headers: { ...cors, 'Content-Type': 'application/json' } 
+        });
+      }
+    }
+    return new Response(JSON.stringify({ status: 'ok', app: 'AsaanSafar D1 API' }), { 
+      headers: { ...cors, 'Content-Type': 'application/json' } 
+    });
+  }
+};`;
+                      navigator.clipboard.writeText(code);
+                      setWorkerCopied(true);
+                      setTimeout(() => setWorkerCopied(false), 2000);
+                    }}
+                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>{workerCopied ? 'Copied! / کاپی ہو گیا' : 'Copy Worker Code'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-xl text-[11px] font-mono max-h-40 overflow-y-auto leading-relaxed">
+                  <pre>{`export default {
+  async fetch(request, env) {
+    // Zero-latency Cloudflare D1 query handler with CORS
+    ...
+  }
+}`}</pre>
+                </div>
+              </div>
+
+              {/* 3 Steps Guide */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <h4 className="text-xs font-bold text-slate-800 mb-2">طریقہ کار (3 آسان ترین مراحل):</h4>
+                <ol className="text-xs text-slate-600 space-y-2 list-decimal pl-4">
+                  <li>کلاؤڈ فلیر میں جائیں &gt; <strong>Workers & Pages</strong> &gt; <strong>Create Worker</strong> کریں۔</li>
+                  <li>اوپر والا <strong>Copy Worker Code</strong> بٹن دبا کر ورکر ایڈیٹر میں پیسٹ کریں اور Deploy کر دیں۔</li>
+                  <li>ورکر کی <strong>Settings &gt; Bindings</strong> میں جا کر D1 Database جوڑیں اور نام <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800 font-bold">DB</code> رکھیں، اور ورکر کا لنک اوپر پیسٹ کر دیں۔</li>
+                </ol>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowWorkerModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50"
+                >
+                  Close
+                </button>
               </div>
             </form>
           </div>

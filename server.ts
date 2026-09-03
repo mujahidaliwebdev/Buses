@@ -6,6 +6,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { getD1Config, saveD1Config, queryD1, executeBatchD1, testD1Connection } from "./server/d1";
+import { syncD1ToStaticData } from "./server/d1Sync";
 
 dotenv.config();
 
@@ -144,11 +145,30 @@ async function startServer() {
       }
 
       const result = await executeBatchD1(sql);
+
+      // Automatically sync D1 records to static partition files in background
+      syncD1ToStaticData().catch((syncErr) => {
+        console.warn("Background D1 static sync warning:", syncErr);
+      });
+
       return res.json(result);
     } catch (error: any) {
       return res.status(500).json({
         success: false,
         message: error.message || "Execution error",
+      });
+    }
+  });
+
+  // 4b. Explicit Sync from D1 to Static Partition files
+  app.post("/api/d1/sync-to-static", async (req, res) => {
+    try {
+      const syncResult = await syncD1ToStaticData();
+      return res.json(syncResult);
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to sync D1 to static partitions",
       });
     }
   });
