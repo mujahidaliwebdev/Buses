@@ -184,40 +184,60 @@ async function startServer() {
           const index = JSON.parse(fs.readFileSync(stopsIndexPath, "utf-8"));
           const stopsMap = index.stops || {};
           
-          const findStopId = (name: string) => {
-            const cleanName = name.toLowerCase().trim();
-            for (const [k, v] of Object.entries(stopsMap)) {
-              if (k.toLowerCase().trim() === cleanName) {
-                return (v as any).id;
+          const clean = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          const targetOriginClean = clean(origin);
+          const targetDestClean = clean(destination);
+
+          let origId: string | null = null;
+          let destId: string | null = null;
+
+          for (const [k, v] of Object.entries(stopsMap)) {
+            const kClean = clean(k);
+            if (kClean === targetOriginClean || kClean.includes(targetOriginClean) || targetOriginClean.includes(kClean)) {
+              if (!origId || kClean === targetOriginClean) {
+                origId = (v as any).id;
               }
             }
-            return null;
-          };
+            if (kClean === targetDestClean || kClean.includes(targetDestClean) || targetDestClean.includes(kClean)) {
+              if (!destId || kClean === targetDestClean) {
+                destId = (v as any).id;
+              }
+            }
+          }
 
-          const origId = findStopId(origin);
-          const destId = findStopId(destination);
           const targetFare = String(nonAcVal || acVal || execVal || bizVal || sleepVal || 0);
 
           const updateRouteFile = (baseDir: string, fromId: string, toId: string) => {
             if (!fromId || !toId) return;
-            const routeFilePath = path.join(baseDir, "data", "routes", `${fromId}.json`);
+            const routesDir = path.join(baseDir, "data", "routes");
+            if (!fs.existsSync(routesDir)) {
+              fs.mkdirSync(routesDir, { recursive: true });
+            }
+            const routeFilePath = path.join(routesDir, `${fromId}.json`);
+            let routeData: any[] = [];
             if (fs.existsSync(routeFilePath)) {
               try {
-                const routeData = JSON.parse(fs.readFileSync(routeFilePath, "utf-8"));
-                let modified = false;
-                for (const entry of routeData) {
-                  if (entry.to && entry.to.toLowerCase().trim() === toId.toLowerCase().trim()) {
-                    entry.fare = targetFare;
-                    modified = true;
-                  }
-                }
-                if (modified) {
-                  fs.writeFileSync(routeFilePath, JSON.stringify(routeData, null, 2), "utf-8");
-                }
-              } catch (e) {
-                console.warn(`Failed to update route file ${routeFilePath}:`, e);
+                routeData = JSON.parse(fs.readFileSync(routeFilePath, "utf-8"));
+              } catch {
+                routeData = [];
               }
             }
+
+            let found = false;
+            for (const entry of routeData) {
+              if (entry.to && entry.to.toLowerCase().trim() === toId.toLowerCase().trim()) {
+                entry.fare = targetFare;
+                found = true;
+              }
+            }
+            if (!found) {
+              routeData.push({
+                to: toId,
+                fare: targetFare,
+                buses_file: "B1-B500.json"
+              });
+            }
+            fs.writeFileSync(routeFilePath, JSON.stringify(routeData, null, 2), "utf-8");
           };
 
           if (origId && destId) {
@@ -225,7 +245,8 @@ async function startServer() {
             updateRouteFile(publicDir, destId, origId);
 
             const distDir = path.join(process.cwd(), "dist");
-            if (fs.existsSync(path.join(distDir, "data", "routes"))) {
+            const distRoutesDir = path.join(distDir, "data", "routes");
+            if (fs.existsSync(distRoutesDir) || fs.existsSync(distDir)) {
               updateRouteFile(distDir, origId, destId);
               updateRouteFile(distDir, destId, origId);
             }
@@ -395,89 +416,144 @@ async function startServer() {
     }
   });
 
-  // 7. Get All Unique Cities from Cloudflare D1
+  // 7. Get All Unique Cities from Cloudflare D1 (with local fallback)
   app.get("/api/d1/cities", async (req, res) => {
     try {
       const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ live: false, cities: [] });
+      if (config.accountId && config.databaseId && config.apiToken) {
+        const rows = await queryD1("SELECT DISTINCT city_name FROM bus_stops ORDER BY city_name ASC;");
+        const cities = rows.map((r: any) => r.city_name).filter(Boolean);
+        if (cities.length > 0) {
+          return res.json({ live: true, count: cities.length, cities });
+        }
       }
-
-      const rows = await queryD1("SELECT DISTINCT city_name FROM bus_stops ORDER BY city_name ASC;");
-      const cities = rows.map((r: any) => r.city_name).filter(Boolean);
-
-      return res.json({
-        live: true,
-        count: cities.length,
-        cities,
-      });
     } catch (error: any) {
-      return res.json({ live: false, cities: [] });
+      // Fallback
     }
+
+    try {
+      const stopsIndexPath = path.join(process.cwd(), "public", "data", "stops_index.json");
+      if (fs.existsSync(stopsIndexPath)) {
+        const indexData = JSON.parse(fs.readFileSync(stopsIndexPath, "utf-8"));
+        const cities = Object.keys(indexData.stops || {}).sort();
+        return res.json({ live: true, source: "local_partition", count: cities.length, cities });
+      }
+    } catch (err) {}
+
+    return res.json({ live: false, cities: [] });
   });
 
-  // 8. Get All Buses Overview from Cloudflare D1
+  // 8. Get All Buses Overview from Cloudflare D1 (with local fallback)
   app.get("/api/d1/buses", async (req, res) => {
     try {
       const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ live: false, buses: [] });
+      if (config.accountId && config.databaseId && config.apiToken) {
+        const rows = await queryD1(`
+          SELECT 
+            b.*,
+            (SELECT COUNT(*) FROM bus_stops WHERE bus_id = b.bus_id) as total_stops
+          FROM buses b
+          ORDER BY b.company_name, b.bus_id;
+        `);
+        if (rows && rows.length > 0) {
+          return res.json({ live: true, count: rows.length, buses: rows });
+        }
       }
-
-      const rows = await queryD1(`
-        SELECT 
-          b.*,
-          (SELECT COUNT(*) FROM bus_stops WHERE bus_id = b.bus_id) as total_stops
-        FROM buses b
-        ORDER BY b.company_name, b.bus_id;
-      `);
-
-      return res.json({
-        live: true,
-        count: rows.length,
-        buses: rows,
-      });
     } catch (error: any) {
-      return res.json({ live: false, buses: [] });
+      // Fallback
     }
+
+    try {
+      const partitionPath = path.join(process.cwd(), "public", "data", "buses", "B1-B500.json");
+      if (fs.existsSync(partitionPath)) {
+        const busesData = JSON.parse(fs.readFileSync(partitionPath, "utf-8"));
+        const formattedBuses = busesData.map((b: any) => ({
+          bus_id: b.busId || b.id,
+          company_name: b.company || b.companyName,
+          vehicle_plate: b.number || b.vehiclePlate || b.busNumber,
+          contact_number: b.contact || b.contactNumber,
+          climate_control: b.climateControl || "Non-AC",
+          service_type: b.serviceType || "Standard",
+          route_map: b.routeMap || "",
+          total_stops: b.stops ? b.stops.split(",").length : 0
+        }));
+        return res.json({ live: true, source: "local_partition", count: formattedBuses.length, buses: formattedBuses });
+      }
+    } catch (err) {}
+
+    return res.json({ live: false, buses: [] });
   });
 
-  // 9. Get Bus Stops from Cloudflare D1 (All 253 stops or by bus_id)
+  // 9. Get Bus Stops from Cloudflare D1 (with local fallback)
   app.get("/api/d1/bus-stops", async (req, res) => {
     try {
       const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ live: false, stops: [] });
-      }
-
-      const busId = req.query.bus_id ? String(req.query.bus_id).trim() : null;
-      let sql = `
-        SELECT s.*, b.company_name, b.vehicle_plate 
-        FROM bus_stops s
-        LEFT JOIN buses b ON b.bus_id = s.bus_id
-        ORDER BY s.bus_id ASC, s.stop_sequence ASC;
-      `;
-      let params: any[] = [];
-      if (busId) {
-        sql = `
+      if (config.accountId && config.databaseId && config.apiToken) {
+        const busId = req.query.bus_id ? String(req.query.bus_id).trim() : null;
+        let sql = `
           SELECT s.*, b.company_name, b.vehicle_plate 
           FROM bus_stops s
           LEFT JOIN buses b ON b.bus_id = s.bus_id
-          WHERE s.bus_id = ? 
-          ORDER BY s.stop_sequence ASC;
+          ORDER BY s.bus_id ASC, s.stop_sequence ASC;
         `;
-        params = [busId];
+        let params: any[] = [];
+        if (busId) {
+          sql = `
+            SELECT s.*, b.company_name, b.vehicle_plate 
+            FROM bus_stops s
+            LEFT JOIN buses b ON b.bus_id = s.bus_id
+            WHERE s.bus_id = ? 
+            ORDER BY s.stop_sequence ASC;
+          `;
+          params = [busId];
+        }
+
+        const rows = await queryD1(sql, params);
+        if (rows && rows.length > 0) {
+          return res.json({ live: true, count: rows.length, stops: rows });
+        }
+      }
+    } catch (error: any) {
+      // Fallback
+    }
+
+    try {
+      const busIdQuery = req.query.bus_id ? String(req.query.bus_id).trim().toLowerCase() : null;
+      const partitionPath = path.join(process.cwd(), "public", "data", "buses", "B1-B500.json");
+      const stopsIndexPath = path.join(process.cwd(), "public", "data", "stops_index.json");
+      
+      let stopsIndexMap: Record<string, string> = {};
+      if (fs.existsSync(stopsIndexPath)) {
+        const indexData = JSON.parse(fs.readFileSync(stopsIndexPath, "utf-8"));
+        for (const [name, obj] of Object.entries(indexData.stops || {})) {
+          stopsIndexMap[(obj as any).id] = name;
+        }
       }
 
-      const rows = await queryD1(sql, params);
-      return res.json({
-        live: true,
-        count: rows.length,
-        stops: rows,
-      });
-    } catch (error: any) {
-      return res.json({ live: false, error: error.message, stops: [] });
-    }
+      if (fs.existsSync(partitionPath)) {
+        const busesData = JSON.parse(fs.readFileSync(partitionPath, "utf-8"));
+        const allStops: any[] = [];
+        for (const b of busesData) {
+          const bId = b.busId || b.id;
+          if (busIdQuery && bId.toLowerCase() !== busIdQuery) continue;
+          
+          const stopIds = (b.stops || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+          stopIds.forEach((sId: string, idx: number) => {
+            const cityName = stopsIndexMap[sId] || sId;
+            allStops.push({
+              bus_id: bId,
+              stop_sequence: idx + 1,
+              city_name: cityName,
+              company_name: b.company || b.companyName,
+              vehicle_plate: b.number || b.vehiclePlate
+            });
+          });
+        }
+        return res.json({ live: true, source: "local_partition", count: allStops.length, stops: allStops });
+      }
+    } catch (err) {}
+
+    return res.json({ live: false, stops: [] });
   });
 
   // 10. Save Master Bus & All Its Sequential Stops in a single operation
