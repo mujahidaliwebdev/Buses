@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   MessageSquare,
   Briefcase,
-  FileText
+  FileText,
+  Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
@@ -31,6 +32,7 @@ import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { calculateDuration } from '../lib/timeUtils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import CloudflareD1Exporter from './CloudflareD1Exporter';
 
 interface AdminDashboardProps {
   buses: Bus[];
@@ -67,6 +69,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isJsonUploading, setIsJsonUploading] = useState(false);
+  const [isCloudflareD1Exporter, setIsCloudflareD1Exporter] = useState(false);
   const [selectedPartitionFile, setSelectedPartitionFile] = useState('B1-B500.json');
   const [customPartitionFile, setCustomPartitionFile] = useState('');
   const [uploadMode, setUploadMode] = useState<'merge' | 'overwrite'>('merge');
@@ -852,6 +855,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
               <FileSpreadsheet className="w-5 h-5 text-emerald-500" /> SEO & Analytics Settings
+            </button>
+            <button 
+              onClick={() => setIsCloudflareD1Exporter(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+            >
+              <Database className="w-5 h-5" /> Cloudflare CSV to SQL
             </button>
             <button 
               onClick={() => setIsAdding(true)}
@@ -2243,6 +2252,13 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </form>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Cloudflare D1 SQL Exporter Modal */}
+      <AnimatePresence>
+        {isCloudflareD1Exporter && (
+          <CloudflareD1Exporter onClose={() => setIsCloudflareD1Exporter(false)} />
         )}
       </AnimatePresence>
 
