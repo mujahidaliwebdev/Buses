@@ -108,6 +108,20 @@ export const staticDataService = {
    * 5. Filters and maps buses that pass through both stops in correct sequence, computing stop-specific timings.
    */
   searchBuses: async (originName: string, destinationName: string): Promise<Bus[]> => {
+    // 1. Try Cloudflare D1 Live Edge Database search first
+    try {
+      const liveRes = await fetch(`/api/d1/search?origin=${encodeURIComponent(originName.trim())}&destination=${encodeURIComponent(destinationName.trim())}`);
+      if (liveRes.ok) {
+        const liveData = await liveRes.json();
+        if (liveData.live && Array.isArray(liveData.buses) && liveData.buses.length > 0) {
+          console.log(`[AsaanSafar] Live Cloudflare D1 matched ${liveData.buses.length} buses.`);
+          return liveData.buses;
+        }
+      }
+    } catch (d1Err) {
+      // Non-blocking fallback to local partitioned data
+    }
+
     const index = await staticDataService.getStopsIndex();
     
     // Normalize names to find the closest match in the index keys
@@ -380,5 +394,50 @@ export const staticDataService = {
       console.error("Error in getAllBuses:", err);
       return [];
     }
+  },
+
+  /**
+   * Cloudflare D1 Management & Direct Edge DB Integration
+   */
+  getD1Status: async () => {
+    try {
+      const res = await fetch('/api/d1/status');
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Could not fetch D1 status:', e);
+    }
+    return { configured: false, connected: false, message: 'Could not connect to API server' };
+  },
+
+  saveD1Config: async (config: { accountId: string; databaseId: string; apiToken: string }) => {
+    const res = await fetch('/api/d1/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+    return await res.json();
+  },
+
+  testD1Connection: async () => {
+    const res = await fetch('/api/d1/test-connection', {
+      method: 'POST',
+    });
+    return await res.json();
+  },
+
+  seedD1Schema: async () => {
+    const res = await fetch('/api/d1/seed', {
+      method: 'POST',
+    });
+    return await res.json();
+  },
+
+  executeD1Sql: async (sql: string) => {
+    const res = await fetch('/api/d1/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sql }),
+    });
+    return await res.json();
   }
 };

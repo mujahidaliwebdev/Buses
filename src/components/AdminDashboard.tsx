@@ -54,6 +54,16 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [measurementId, setMeasurementId] = useState('');
   const [gscVerification, setGscVerification] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
+  const [d1Connected, setD1Connected] = useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/d1/status')
+      .then(r => r.json())
+      .then(data => {
+        if (data.connected) setD1Connected(true);
+      })
+      .catch(() => {});
+  }, []);
 
   React.useEffect(() => {
     const unsubscribe = settingsService.subscribeAnalyticsSettings((settings) => {
@@ -858,9 +868,11 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             </button>
             <button 
               onClick={() => setIsCloudflareD1Exporter(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
             >
-              <Database className="w-5 h-5" /> Cloudflare CSV to SQL
+              <Database className="w-5 h-5" /> 
+              <span>Cloudflare D1 Live</span>
+              <span className={`w-2.5 h-2.5 rounded-full ${d1Connected ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-300'}`} title={d1Connected ? 'Live Edge Database Connected' : 'Click to setup/connect D1'} />
             </button>
             <button 
               onClick={() => setIsAdding(true)}

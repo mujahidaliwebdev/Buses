@@ -1,9 +1,11 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { getD1Config, saveD1Config, queryD1, executeBatchD1, testD1Connection } from "./server/d1";
 
 dotenv.config();
 
@@ -19,6 +21,325 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", app: "AsaanSafar AI Server" });
+  });
+
+  // Helper for duration calculation
+  const calculateDuration = (depTime: string, arrTime: string): string => {
+    try {
+      const [depH, depM] = depTime.split(':').map(Number);
+      const [arrH, arrM] = arrTime.split(':').map(Number);
+      if (isNaN(depH) || isNaN(depM) || isNaN(arrH) || isNaN(arrM)) return '2h 30m';
+      let diffMins = (arrH * 60 + arrM) - (depH * 60 + depM);
+      if (diffMins < 0) {
+        diffMins += 24 * 60; // Overnight journey
+      }
+      const h = Math.floor(diffMins / 60);
+      const m = diffMins % 60;
+      return `${h}h ${m}m`;
+    } catch (e) {
+      return '2h 30m';
+    }
+  };
+
+  // ----------------------------------------------------
+  // CLOUDFLARE D1 (LIVE EDGE DATABASE) ENDPOINTS
+  // ----------------------------------------------------
+
+  // 1. Get D1 Connection Status and Configuration Summary
+  app.get("/api/d1/status", async (req, res) => {
+    try {
+      const config = getD1Config();
+      const isConfigured = Boolean(config.accountId && config.databaseId && config.apiToken);
+
+      if (!isConfigured) {
+        return res.json({
+          configured: false,
+          connected: false,
+          message: "Cloudflare D1 credentials not yet configured. Operating in local fallback mode.",
+          config: {
+            accountId: config.accountId ? `${config.accountId.substring(0, 6)}...` : "",
+            databaseId: config.databaseId ? `${config.databaseId.substring(0, 6)}...` : "",
+            hasToken: Boolean(config.apiToken),
+          },
+        });
+      }
+
+      const testResult = await testD1Connection();
+      return res.json({
+        configured: true,
+        connected: testResult.connected,
+        message: testResult.message,
+        busCount: testResult.busCount || 0,
+        config: {
+          accountId: config.accountId ? `${config.accountId.substring(0, 6)}...` : "",
+          databaseId: config.databaseId ? `${config.databaseId.substring(0, 6)}...` : "",
+          hasToken: Boolean(config.apiToken),
+        },
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        configured: false,
+        connected: false,
+        message: error.message || "Failed to check Cloudflare D1 status",
+      });
+    }
+  });
+
+  // 2. Save / Update D1 Configuration
+  app.post("/api/d1/config", async (req, res) => {
+    try {
+      const { accountId, databaseId, apiToken } = req.body;
+
+      if (!accountId || !databaseId || !apiToken) {
+        return res.status(400).json({
+          success: false,
+          message: "Account ID, Database ID, and API Token are all required.",
+        });
+      }
+
+      saveD1Config({
+        accountId: String(accountId).trim(),
+        databaseId: String(databaseId).trim(),
+        apiToken: String(apiToken).trim(),
+      });
+
+      const testResult = await testD1Connection();
+
+      return res.json({
+        success: true,
+        message: "Credentials saved successfully.",
+        connection: testResult,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to save configuration",
+      });
+    }
+  });
+
+  // 3. Test Connection
+  app.post("/api/d1/test-connection", async (req, res) => {
+    try {
+      const result = await testD1Connection();
+      return res.json(result);
+    } catch (error: any) {
+      return res.status(500).json({
+        connected: false,
+        message: error.message || "Connection test failed",
+      });
+    }
+  });
+
+  // 4. Direct SQL Batch Execution (For direct upload/sync from Admin Panel)
+  app.post("/api/d1/execute", async (req, res) => {
+    try {
+      const { sql } = req.body;
+
+      if (!sql || typeof sql !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "SQL string is required.",
+        });
+      }
+
+      const result = await executeBatchD1(sql);
+      return res.json(result);
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Execution error",
+      });
+    }
+  });
+
+  // 5. Initialize / Seed Cloudflare D1 Database Schema
+  app.post("/api/d1/seed", async (req, res) => {
+    try {
+      const schemaPath = path.join(process.cwd(), "cloudflare_d1_schema.sql");
+      if (!fs.existsSync(schemaPath)) {
+        return res.status(404).json({
+          success: false,
+          message: "cloudflare_d1_schema.sql file not found on server.",
+        });
+      }
+
+      const schemaSql = fs.readFileSync(schemaPath, "utf-8");
+      const result = await executeBatchD1(schemaSql);
+
+      return res.json({
+        success: true,
+        message: "Cloudflare D1 tables and seed routes successfully created/updated!",
+        result,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to initialize D1 schema",
+      });
+    }
+  });
+
+  // 6. Live Route Search from Cloudflare D1 (With zero-delay live matching)
+  app.get("/api/d1/search", async (req, res) => {
+    try {
+      const origin = String(req.query.origin || "").trim();
+      const destination = String(req.query.destination || "").trim();
+
+      if (!origin || !destination) {
+        return res.status(400).json({
+          live: false,
+          error: "Both origin and destination query parameters are required.",
+          buses: [],
+        });
+      }
+
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        // Fallback signal for frontend
+        return res.json({
+          live: false,
+          message: "D1 credentials not configured, falling back to partition JSON data.",
+          buses: [],
+        });
+      }
+
+      // SQL Query: matches buses where origin sequence < destination sequence
+      const sql = `
+        SELECT 
+          b.bus_id,
+          b.company_name,
+          b.vehicle_plate,
+          b.contact_number,
+          b.climate_control,
+          b.service_type,
+          b.route_map,
+          s1.departure_time as origin_departure_time,
+          s1.arrival_time as origin_arrival_time,
+          s1.location as origin_location,
+          s1.stand as origin_stand,
+          s2.departure_time as dest_departure_time,
+          s2.arrival_time as dest_arrival_time,
+          s2.location as dest_location,
+          s2.stand as dest_stand,
+          f.non_ac,
+          f.ac,
+          f.executive,
+          f.business,
+          f.sleeper
+        FROM bus_stops s1
+        JOIN bus_stops s2 ON s1.bus_id = s2.bus_id
+        JOIN buses b ON b.bus_id = s1.bus_id
+        LEFT JOIN fares f ON (
+          LOWER(TRIM(f.origin)) = LOWER(TRIM(s1.city_name)) 
+          AND LOWER(TRIM(f.destination)) = LOWER(TRIM(s2.city_name))
+        )
+        WHERE LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
+          AND LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
+          AND s1.stop_sequence < s2.stop_sequence
+        ORDER BY s1.departure_time ASC;
+      `;
+
+      const rawResults = await queryD1(sql, [origin, destination]);
+
+      // Map raw SQL rows into the application Bus interface
+      const buses = rawResults.map((row: any) => {
+        const isAc = (row.climate_control || "").toLowerCase().includes("ac") && !(row.climate_control || "").toLowerCase().includes("non-ac");
+        
+        // Select appropriate fare
+        let calculatedFare = 1200; // default
+        if (isAc && row.ac) {
+          calculatedFare = row.ac;
+        } else if (row.non_ac) {
+          calculatedFare = row.non_ac;
+        } else if (row.executive) {
+          calculatedFare = row.executive;
+        }
+
+        const depTime = row.origin_departure_time || row.origin_arrival_time || "12:00";
+        const arrTime = row.dest_arrival_time || row.dest_departure_time || "16:00";
+
+        return {
+          id: row.bus_id,
+          origin: origin,
+          destination: destination,
+          departureTime: depTime,
+          arrivalTime: arrTime,
+          duration: calculateDuration(depTime, arrTime),
+          fare: calculatedFare,
+          companyName: row.company_name || "Bus Service",
+          busNumber: row.vehicle_plate || row.bus_id,
+          contactNumber: row.contact_number || "",
+          terminalLocation: row.origin_location || "Main Terminal",
+          standNumber: row.origin_stand || "1",
+          isAC: isAc,
+          type: row.service_type || "Standard",
+          routeMap: row.route_map || "",
+          remarks: "Verified Live from Cloudflare D1 Edge Database",
+        };
+      });
+
+      return res.json({
+        live: true,
+        source: "cloudflare_d1",
+        count: buses.length,
+        buses,
+      });
+    } catch (error: any) {
+      console.warn("D1 Live search fallback triggered:", error.message);
+      return res.json({
+        live: false,
+        error: error.message,
+        buses: [],
+      });
+    }
+  });
+
+  // 7. Get All Unique Cities from Cloudflare D1
+  app.get("/api/d1/cities", async (req, res) => {
+    try {
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ live: false, cities: [] });
+      }
+
+      const rows = await queryD1("SELECT DISTINCT city_name FROM bus_stops ORDER BY city_name ASC;");
+      const cities = rows.map((r: any) => r.city_name).filter(Boolean);
+
+      return res.json({
+        live: true,
+        count: cities.length,
+        cities,
+      });
+    } catch (error: any) {
+      return res.json({ live: false, cities: [] });
+    }
+  });
+
+  // 8. Get All Buses Overview from Cloudflare D1
+  app.get("/api/d1/buses", async (req, res) => {
+    try {
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ live: false, buses: [] });
+      }
+
+      const rows = await queryD1(`
+        SELECT 
+          b.*,
+          (SELECT COUNT(*) FROM bus_stops WHERE bus_id = b.bus_id) as total_stops
+        FROM buses b
+        ORDER BY b.company_name, b.bus_id;
+      `);
+
+      return res.json({
+        live: true,
+        count: rows.length,
+        buses: rows,
+      });
+    } catch (error: any) {
+      return res.json({ live: false, buses: [] });
+    }
   });
 
   // Gemini AI Chatbot Route
