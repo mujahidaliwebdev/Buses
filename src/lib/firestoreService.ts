@@ -144,74 +144,44 @@ export const busService = {
     fareOrFares: number | { non_ac?: number; ac?: number; executive?: number; business?: number; sleeper?: number },
     category: string = 'all'
   ) => {
-    const path = 'buses';
+    const singleFare = typeof fareOrFares === 'number' ? fareOrFares : 0;
+    const faresObj = typeof fareOrFares === 'object' ? fareOrFares : {};
+
+    const nonAcFare = singleFare && (category === 'Non_AC' || category === 'all') ? singleFare : (faresObj.non_ac || 0);
+    const acFare = singleFare && (category === 'AC' || category === 'all') ? singleFare : (faresObj.ac || 0);
+    const execFare = singleFare && (category === 'Executive' || category === 'Exective' || category === 'all') ? singleFare : (faresObj.executive || 0);
+    const bizFare = singleFare && (category === 'Business' || category === 'all') ? singleFare : (faresObj.business || 0);
+    const sleepFare = singleFare && (category === 'Sleeper' || category === 'all') ? singleFare : (faresObj.sleeper || 0);
+
     try {
-      const q = query(
-        collection(db, path), 
-        where('origin', '==', origin),
-        where('destination', '==', destination)
-      );
-      const snapshot = await getDocs(q);
-      const batch = writeBatch(db);
-      let updatedCount = snapshot.size;
-
-      const singleFare = typeof fareOrFares === 'number' ? fareOrFares : 0;
-      const faresObj = typeof fareOrFares === 'object' ? fareOrFares : {};
-
-      const nonAcFare = singleFare && (category === 'Non_AC' || category === 'all') ? singleFare : (faresObj.non_ac || 0);
-      const acFare = singleFare && (category === 'AC' || category === 'all') ? singleFare : (faresObj.ac || 0);
-      const execFare = singleFare && (category === 'Executive' || category === 'Exective' || category === 'all') ? singleFare : (faresObj.executive || 0);
-      const bizFare = singleFare && (category === 'Business' || category === 'all') ? singleFare : (faresObj.business || 0);
-      const sleepFare = singleFare && (category === 'Sleeper' || category === 'all') ? singleFare : (faresObj.sleeper || 0);
-
-      snapshot.docs.forEach(docSnap => {
-        const bus = docSnap.data() as Bus;
-        let busNewFare = 0;
-
-        if (category === 'Non_AC') {
-          if (!bus.isAC || bus.type === 'Non-AC' || bus.type === 'Standard') {
-            busNewFare = singleFare || nonAcFare;
-          }
-        } else if (category === 'AC') {
-          if (bus.isAC && bus.type !== 'Executive' && bus.type !== 'Business' && bus.type !== 'Sleeper') {
-            busNewFare = singleFare || acFare;
-          }
-        } else if (category === 'Executive' || category === 'Exective') {
-          if (bus.type === 'Executive') {
-            busNewFare = singleFare || execFare;
-          }
-        } else if (category === 'Business') {
-          if (bus.type === 'Business') {
-            busNewFare = singleFare || bizFare;
-          }
-        } else if (category === 'Sleeper') {
-          if (bus.type === 'Sleeper') {
-            busNewFare = singleFare || sleepFare;
-          }
-        } else {
-          // 'all'
-          if (bus.type === 'Executive' && execFare > 0) busNewFare = execFare;
-          else if (bus.type === 'Business' && bizFare > 0) busNewFare = bizFare;
-          else if (bus.type === 'Sleeper' && sleepFare > 0) busNewFare = sleepFare;
-          else if (bus.isAC && acFare > 0) busNewFare = acFare;
-          else if (!bus.isAC && nonAcFare > 0) busNewFare = nonAcFare;
-          else if (singleFare > 0) busNewFare = singleFare;
-        }
-
-        if (busNewFare > 0) {
-          batch.update(docSnap.ref, { fare: busNewFare });
-        }
+      const response = await fetch('/api/fares/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin,
+          destination,
+          non_ac: nonAcFare,
+          ac: acFare,
+          executive: execFare,
+          business: bizFare,
+          sleeper: sleepFare,
+          category
+        })
       });
 
-      if (updatedCount > 0) {
-        await batch.commit().catch(() => {});
+      const responseText = await response.text();
+      let result;
+      try {
+        result = responseText ? JSON.parse(responseText) : { success: false, message: "Empty response" };
+      } catch (e) {
+        throw new Error(`Server returned invalid JSON (${response.status})`);
       }
 
-      if (updatedCount === 0) {
-        updatedCount = 1; // Default to 1 so route update confirms success
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to update fares');
       }
 
-      // Also update fares collection in Firestore for fast lookup
+      // Also update Firestore for compatibility
       try {
         const fareDocKey = `${origin.toLowerCase().trim()}_${destination.toLowerCase().trim()}`;
         const fareDocRef = doc(db, 'fares', fareDocKey);
@@ -230,23 +200,9 @@ export const busService = {
         console.warn('Could not update fares collection in Firestore:', fErr);
       }
 
-      // Also execute on Cloudflare D1 for both directions
-      try {
-        const sql1 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
-        const sql2 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${destination.replace(/'/g, "''")}', '${origin.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
-        
-        await fetch('/api/d1/execute', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sql: sql1 + " " + sql2 })
-        }).catch(() => {});
-      } catch (d1Err) {
-        console.warn('D1 execute fallback:', d1Err);
-      }
-
-      return updatedCount;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
+      return result.count || 1;
+    } catch (error: any) {
+      console.error('Bulk update fares error:', error);
       throw error;
     }
   },

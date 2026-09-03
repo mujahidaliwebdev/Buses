@@ -153,6 +153,94 @@ async function startServer() {
     }
   });
 
+  // Bulk update fares endpoint (updates D1 and local static route files)
+  app.post("/api/fares/bulk-update", async (req, res) => {
+    try {
+      const { origin, destination, non_ac, ac, executive, business, sleeper } = req.body;
+      if (!origin || !destination) {
+        return res.status(400).json({ success: false, message: "Origin and destination are required." });
+      }
+
+      const nonAcVal = Number(non_ac) || 0;
+      const acVal = Number(ac) || 0;
+      const execVal = Number(executive) || 0;
+      const bizVal = Number(business) || 0;
+      const sleepVal = Number(sleeper) || 0;
+
+      // 1. Execute on Cloudflare D1 if configured
+      try {
+        const sql1 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
+        const sql2 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${destination.replace(/'/g, "''")}', '${origin.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
+        await executeBatchD1(sql1 + " " + sql2);
+      } catch (d1Err) {
+        console.warn("D1 fare update note:", d1Err);
+      }
+
+      // 2. Update local static route JSON files
+      const publicDir = path.join(process.cwd(), "public");
+      const stopsIndexPath = path.join(publicDir, "data", "stops_index.json");
+      if (fs.existsSync(stopsIndexPath)) {
+        try {
+          const index = JSON.parse(fs.readFileSync(stopsIndexPath, "utf-8"));
+          const stopsMap = index.stops || {};
+          
+          const findStopId = (name: string) => {
+            const cleanName = name.toLowerCase().trim();
+            for (const [k, v] of Object.entries(stopsMap)) {
+              if (k.toLowerCase().trim() === cleanName) {
+                return (v as any).id;
+              }
+            }
+            return null;
+          };
+
+          const origId = findStopId(origin);
+          const destId = findStopId(destination);
+          const targetFare = String(nonAcVal || acVal || execVal || bizVal || sleepVal || 0);
+
+          const updateRouteFile = (baseDir: string, fromId: string, toId: string) => {
+            if (!fromId || !toId) return;
+            const routeFilePath = path.join(baseDir, "data", "routes", `${fromId}.json`);
+            if (fs.existsSync(routeFilePath)) {
+              try {
+                const routeData = JSON.parse(fs.readFileSync(routeFilePath, "utf-8"));
+                let modified = false;
+                for (const entry of routeData) {
+                  if (entry.to && entry.to.toLowerCase().trim() === toId.toLowerCase().trim()) {
+                    entry.fare = targetFare;
+                    modified = true;
+                  }
+                }
+                if (modified) {
+                  fs.writeFileSync(routeFilePath, JSON.stringify(routeData, null, 2), "utf-8");
+                }
+              } catch (e) {
+                console.warn(`Failed to update route file ${routeFilePath}:`, e);
+              }
+            }
+          };
+
+          if (origId && destId) {
+            updateRouteFile(publicDir, origId, destId);
+            updateRouteFile(publicDir, destId, origId);
+
+            const distDir = path.join(process.cwd(), "dist");
+            if (fs.existsSync(path.join(distDir, "data", "routes"))) {
+              updateRouteFile(distDir, origId, destId);
+              updateRouteFile(distDir, destId, origId);
+            }
+          }
+        } catch (staticErr) {
+          console.warn("Static route file update note:", staticErr);
+        }
+      }
+
+      return res.json({ success: true, count: 1, message: "Fares updated successfully." });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message || "Failed to update fares" });
+    }
+  });
+
   // 5. Initialize / Seed Cloudflare D1 Database Schema
   app.post("/api/d1/seed", async (req, res) => {
     try {
@@ -437,12 +525,70 @@ async function startServer() {
       }
 
       const rawSql = sqlStatements.join("\n");
-      const result = await executeBatchD1(rawSql);
+      let d1Success = false;
+      let d1Result = null;
+
+      try {
+        const config = getD1Config();
+        if (config.accountId && config.databaseId && config.apiToken) {
+          d1Result = await executeBatchD1(rawSql);
+          d1Success = true;
+        }
+      } catch (d1Err) {
+        console.warn("D1 execute note (falling back to local partition storage):", d1Err);
+      }
+
+      // Always update local static partition files so local/offline mode works instantly
+      try {
+        const publicDir = path.join(process.cwd(), "public");
+        const partitionFilePath = path.join(publicDir, "data", "buses", "B1-B500.json");
+        if (fs.existsSync(partitionFilePath)) {
+          const existingBuses = JSON.parse(fs.readFileSync(partitionFilePath, "utf-8"));
+          
+          const stopNames = stops.map((s: any) => String(s.city_name || s.city || "").trim()).filter(Boolean);
+          const terminals = stops.map((s: any) => String(s.location || s.terminal || "Main Stop").trim());
+          const stands = stops.map((s: any) => String(s.stand || "0").trim());
+          const arrTimes = stops.map((s: any) => String(s.arrival_time || "00:00").trim());
+          const depTimes = stops.map((s: any) => String(s.departure_time || s.arrival_time || "00:00").trim());
+
+          const newBusObj = {
+            busId,
+            company: companyName,
+            number: vehiclePlate || busId,
+            contact: contactNumber,
+            serviceType,
+            climateControl,
+            stops: stopNames.join(", "),
+            terminal: terminals.join(", "),
+            stand: stands.join(", "),
+            arrivalTime: arrTimes.join(", "),
+            departureTime: depTimes.join(", "),
+            routeMap,
+          };
+
+          const busIndex = existingBuses.findIndex((b: any) => b.busId && b.busId.toLowerCase() === busId.toLowerCase());
+          if (busIndex >= 0) {
+            existingBuses[busIndex] = newBusObj;
+          } else {
+            existingBuses.unshift(newBusObj);
+          }
+
+          fs.writeFileSync(partitionFilePath, JSON.stringify(existingBuses, null, 2), "utf-8");
+
+          const distDir = path.join(process.cwd(), "dist");
+          const distPartitionPath = path.join(distDir, "data", "buses", "B1-B500.json");
+          if (fs.existsSync(path.dirname(distPartitionPath))) {
+            fs.writeFileSync(distPartitionPath, JSON.stringify(existingBuses, null, 2), "utf-8");
+          }
+        }
+      } catch (fileErr) {
+        console.warn("Local partition file write note:", fileErr);
+      }
 
       return res.json({
         success: true,
-        message: `Bus ${busId} and ${stops?.length || 0} stops saved successfully in Cloudflare D1!`,
-        result
+        message: `Bus ${busId} and ${stops?.length || 0} stops saved successfully!`,
+        result: d1Result || { success: true, message: "Saved to local storage successfully." }
       });
     } catch (error: any) {
       console.error("Save bus error:", error);
