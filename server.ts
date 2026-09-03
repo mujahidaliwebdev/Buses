@@ -246,14 +246,26 @@ async function startServer() {
       const buses = rawResults.map((row: any) => {
         const isAc = (row.climate_control || "").toLowerCase().includes("ac") && !(row.climate_control || "").toLowerCase().includes("non-ac");
         
-        // Select appropriate fare
-        let calculatedFare = 1200; // default
-        if (isAc && row.ac) {
-          calculatedFare = row.ac;
-        } else if (row.non_ac) {
-          calculatedFare = row.non_ac;
-        } else if (row.executive) {
-          calculatedFare = row.executive;
+        // Select appropriate fare directly from database (respect 0 if 0 in DB)
+        let calculatedFare = 0;
+        if (isAc) {
+          if (row.ac !== null && row.ac !== undefined) {
+            calculatedFare = Number(row.ac);
+          } else if (row.non_ac !== null && row.non_ac !== undefined) {
+            calculatedFare = Number(row.non_ac);
+          }
+        } else {
+          if (row.non_ac !== null && row.non_ac !== undefined) {
+            calculatedFare = Number(row.non_ac);
+          } else if (row.ac !== null && row.ac !== undefined) {
+            calculatedFare = Number(row.ac);
+          }
+        }
+        if (row.executive !== null && row.executive !== undefined && calculatedFare === 0) {
+          calculatedFare = Number(row.executive);
+        }
+        if (isNaN(calculatedFare)) {
+          calculatedFare = 0;
         }
 
         const depTime = row.origin_departure_time || row.origin_arrival_time || "12:00";

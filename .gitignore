@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+.cloudflare_d1_config.json
+tmp/

@@ -162,7 +162,7 @@ export const staticDataService = {
 
     // Load the route file from routes folder to find the fare and buses_file
     let busesFile = 'B1-B500.json'; // Default fallback
-    let fare = 1200; // Default fallback
+    let fare = 0; // Default if not configured or 0 in data
     
     try {
       const routeResponse = await fetch(`${getBaseUrl()}/data/routes/${originId}.json?v=${Date.now()}`);
@@ -345,7 +345,7 @@ export const staticDataService = {
             
             const durationStr = calculateDuration(depTime, arrTime);
 
-            let fareVal = 1200; // Default fallback
+            let fareVal = 0; // Default fallback
             try {
               const routeData = await loadRouteFile(originId);
               const routeEntry = routeData.find(

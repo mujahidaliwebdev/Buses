@@ -8,6 +8,7 @@ interface D1Config {
 }
 
 const CONFIG_FILE_PATH = path.join(process.cwd(), 'tmp', 'cloudflare_d1_config.json');
+const ROOT_CONFIG_PATH = path.join(process.cwd(), '.cloudflare_d1_config.json');
 
 // Ensure tmp directory exists
 try {
@@ -24,6 +25,9 @@ export function getD1Config(): D1Config {
   try {
     if (fs.existsSync(CONFIG_FILE_PATH)) {
       const content = fs.readFileSync(CONFIG_FILE_PATH, 'utf-8');
+      fileConfig = JSON.parse(content);
+    } else if (fs.existsSync(ROOT_CONFIG_PATH)) {
+      const content = fs.readFileSync(ROOT_CONFIG_PATH, 'utf-8');
       fileConfig = JSON.parse(content);
     }
   } catch (e) {
@@ -44,6 +48,11 @@ export function saveD1Config(config: D1Config): void {
       fs.mkdirSync(tmpDir, { recursive: true });
     }
     fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(config, null, 2), 'utf-8');
+    try {
+      fs.writeFileSync(ROOT_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+    } catch (rootErr) {
+      // Non-blocking
+    }
   } catch (e) {
     console.error('Failed to write D1 config file:', e);
     throw new Error('Failed to save Cloudflare D1 credentials on disk.');
