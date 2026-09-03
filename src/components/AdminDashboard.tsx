@@ -22,7 +22,9 @@ import {
   MessageSquare,
   Briefcase,
   FileText,
-  Database
+  Database,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
@@ -33,6 +35,7 @@ import { calculateDuration } from '../lib/timeUtils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import CloudflareD1Exporter from './CloudflareD1Exporter';
+import BusEditorModal, { MasterBusData } from './BusEditorModal';
 
 interface AdminDashboardProps {
   buses: Bus[];
@@ -56,13 +59,44 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [savingSettings, setSavingSettings] = useState(false);
   const [d1Connected, setD1Connected] = useState(false);
 
+  // Active View Tab: 'master_buses' (30 Buses) or 'all_stops' (253 Stops)
+  const [activeDataTab, setActiveDataTab] = useState<'master_buses' | 'all_stops'>('master_buses');
+  const [d1Buses, setD1Buses] = useState<MasterBusData[]>([]);
+  const [d1Stops, setD1Stops] = useState<any[]>([]);
+  const [loadingD1Data, setLoadingD1Data] = useState(false);
+  const [isBusEditorOpen, setIsBusEditorOpen] = useState(false);
+  const [selectedBusForEdit, setSelectedBusForEdit] = useState<MasterBusData | null>(null);
+
+  const fetchD1MasterData = async () => {
+    setLoadingD1Data(true);
+    try {
+      const [busesRes, stopsRes, statusRes] = await Promise.all([
+        fetch('/api/d1/buses'),
+        fetch('/api/d1/bus-stops'),
+        fetch('/api/d1/status')
+      ]);
+      const busesData = await busesRes.json();
+      const stopsData = await stopsRes.json();
+      const statusData = await statusRes.json();
+
+      if (statusData.connected) {
+        setD1Connected(true);
+      }
+      if (busesData.live && Array.isArray(busesData.buses)) {
+        setD1Buses(busesData.buses);
+      }
+      if (stopsData.live && Array.isArray(stopsData.stops)) {
+        setD1Stops(stopsData.stops);
+      }
+    } catch (e) {
+      console.warn("Could not fetch live D1 data:", e);
+    } finally {
+      setLoadingD1Data(false);
+    }
+  };
+
   React.useEffect(() => {
-    fetch('/api/d1/status')
-      .then(r => r.json())
-      .then(data => {
-        if (data.connected) setD1Connected(true);
-      })
-      .catch(() => {});
+    fetchD1MasterData();
   }, []);
 
   React.useEffect(() => {
@@ -253,108 +287,165 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }
   }, [formData.departureTime, formData.arrivalTime, formData.duration]);
 
-  const filteredBuses = buses.filter(bus => 
-    bus.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    bus.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    bus.destination.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleOpenMasterBusEditor = (bus: MasterBusData) => {
+    setSelectedBusForEdit(bus);
+    setIsBusEditorOpen(true);
+  };
+
+  const handleAddNewMasterBus = () => {
+    setSelectedBusForEdit(null);
+    setIsBusEditorOpen(true);
+  };
+
+  const handleDeleteMasterBus = async (busId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm(`Are you sure you want to delete Bus ${busId} and all its sequential stops from the database?`)) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/d1/bus/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bus_id: busId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchD1MasterData();
+      } else {
+        alert(`Failed to delete bus: ${data.message || 'Error'}`);
+      }
+    } catch (err: any) {
+      alert(`Delete error: ${err.message || err}`);
+    }
+  };
+
+  // 30 Master Buses from D1 (or fallback to buses prop if loading/empty)
+  const masterBusesList: MasterBusData[] = d1Buses.length > 0 ? d1Buses : buses.map(b => ({
+    bus_id: b.id || b.busNumber || 'B-001',
+    company_name: b.companyName,
+    vehicle_plate: b.busNumber,
+    contact_number: b.contactNumber,
+    climate_control: b.isAC ? 'AC' : 'Non-AC',
+    service_type: b.type,
+    route_map: `${b.origin} -> ${b.destination}`,
+    total_stops: 2
+  }));
+
+  const filteredMasterBuses = masterBusesList.filter(bus => {
+    const s = searchTerm.toLowerCase().trim();
+    if (!s) return true;
+    return (
+      (bus.company_name || '').toLowerCase().includes(s) ||
+      (bus.bus_id || '').toLowerCase().includes(s) ||
+      (bus.vehicle_plate || '').toLowerCase().includes(s) ||
+      (bus.route_map || '').toLowerCase().includes(s) ||
+      (bus.service_type || '').toLowerCase().includes(s) ||
+      (bus.contact_number || '').toLowerCase().includes(s)
+    );
+  });
+
+  // 253 Stops from D1
+  const filteredStops = d1Stops.filter(stop => {
+    const s = searchTerm.toLowerCase().trim();
+    if (!s) return true;
+    return (
+      (stop.bus_id || '').toLowerCase().includes(s) ||
+      (stop.company_name || '').toLowerCase().includes(s) ||
+      (stop.city_name || '').toLowerCase().includes(s) ||
+      (stop.location || '').toLowerCase().includes(s) ||
+      (stop.vehicle_plate || '').toLowerCase().includes(s)
+    );
+  });
 
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, activeDataTab]);
 
-  const entriesPerPage = 20;
-  const totalPages = Math.ceil(filteredBuses.length / entriesPerPage);
+  const entriesPerPage = 30; // 30 entries per page as requested
+  const currentTotal = activeDataTab === 'master_buses' ? filteredMasterBuses.length : filteredStops.length;
+  const totalPages = Math.max(1, Math.ceil(currentTotal / entriesPerPage));
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = filteredBuses.slice(indexOfFirstEntry, indexOfLastEntry);
+  const currentMasterBuses = filteredMasterBuses.slice(indexOfFirstEntry, indexOfLastEntry);
+  const currentStops = filteredStops.slice(indexOfFirstEntry, indexOfLastEntry);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
-    const maxNeighbours = 1; // Number of pages to show before and after current
+    const maxNeighbours = 1;
     
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      
       const start = Math.max(2, currentPage - maxNeighbours);
       const end = Math.min(totalPages - 1, currentPage + maxNeighbours);
-      
-      if (start > 2) {
-        pages.push('...');
-      }
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      
-      if (end < totalPages - 1) {
-        pages.push('...');
-      }
-      
+      if (start > 2) pages.push('...');
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (end < totalPages - 1) pages.push('...');
       pages.push(totalPages);
     }
     return pages;
   };
 
   const renderPagination = (isTop: boolean) => {
-    if (totalPages <= 1) return null;
+    if (currentTotal === 0) return null;
     const pageNumbers = getPageNumbers();
     
     return (
       <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-4 bg-slate-50/75 ${isTop ? 'border-b' : 'border-t'} border-slate-100`}>
         <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-          Showing <span className="text-slate-800 font-extrabold">{indexOfFirstEntry + 1}-{Math.min(indexOfLastEntry, filteredBuses.length)}</span> of <span className="text-slate-800 font-extrabold">{filteredBuses.length}</span> routes
+          Showing <span className="text-slate-800 font-extrabold">{indexOfFirstEntry + 1}-{Math.min(indexOfLastEntry, currentTotal)}</span> of <span className="text-slate-800 font-extrabold">{currentTotal}</span> {activeDataTab === 'master_buses' ? 'Buses' : 'Stops'}
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1">
-          <button
-            onClick={() => {
-              setCurrentPage(prev => Math.max(prev - 1, 1));
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            disabled={currentPage === 1}
-            className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
-          >
-            Prev / پیچھے
-          </button>
-          {pageNumbers.map((page, idx) => {
-            if (page === '...') {
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1">
+            <button
+              onClick={() => {
+                setCurrentPage(prev => Math.max(prev - 1, 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
+            >
+              Prev / پیچھے
+            </button>
+            {pageNumbers.map((page, idx) => {
+              if (page === '...') {
+                return (
+                  <span key={`dots-${isTop ? 'top' : 'bottom'}-${idx}`} className="px-2 text-slate-400 font-bold col-span-1 text-center select-none">
+                    ...
+                  </span>
+                );
+              }
+              const isCurrent = page === currentPage;
               return (
-                <span key={`dots-${isTop ? 'top' : 'bottom'}-${idx}`} className="px-2 text-slate-400 font-bold col-span-1 text-center select-none">
-                  ...
-                </span>
+                <button
+                  key={`page-${isTop ? 'top' : 'bottom'}-${page}`}
+                  onClick={() => {
+                    setCurrentPage(page as number);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`w-9 h-9 text-xs font-black rounded-xl transition-all duration-150 flex items-center justify-center shrink-0 ${
+                    isCurrent
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {page}
+                </button>
               );
-            }
-            const isCurrent = page === currentPage;
-            return (
-              <button
-                key={`page-${isTop ? 'top' : 'bottom'}-${page}`}
-                onClick={() => {
-                  setCurrentPage(page as number);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`w-9 h-9 text-xs font-black rounded-xl transition-all duration-150 flex items-center justify-center shrink-0 ${
-                  isCurrent
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </button>
-            );
-          })}
-          <button
-            onClick={() => {
-              setCurrentPage(prev => Math.min(prev + 1, totalPages));
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
-          >
-            Next / آگے
-          </button>
-        </div>
+            })}
+            <button
+              onClick={() => {
+                setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-all duration-150 shrink-0"
+            >
+              Next / آگے
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -924,10 +1015,68 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               <span className={`w-2.5 h-2.5 rounded-full ${d1Connected ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-300'}`} title={d1Connected ? 'Live Edge Database Connected' : 'Click to setup/connect D1'} />
             </button>
             <button 
-              onClick={() => setIsAdding(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+              id="btn-open-bus-stops-editor"
+              onClick={handleAddNewMasterBus}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-lg shadow-emerald-600/25 transition-all active:scale-95"
             >
-              <Plus className="w-5 h-5" /> Add New Route
+              <Plus className="w-5 h-5" /> 
+              <span>Add Bus & Stops / نیا بس شامل کریں</span>
+            </button>
+          </div>
+        </div>
+
+        {/* View Switcher Tabs: 30 Master Buses vs. 253 Stops */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center p-1.5 bg-slate-200/80 rounded-2xl max-w-fit shadow-inner">
+            <button
+              id="tab-view-master-buses"
+              type="button"
+              onClick={() => setActiveDataTab('master_buses')}
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
+                activeDataTab === 'master_buses'
+                  ? 'bg-white text-emerald-700 shadow-md shadow-slate-900/5'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BusIcon className="w-4 h-4 text-emerald-600" />
+              <span>30 Master Buses / بسیں</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeDataTab === 'master_buses' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300/60 text-slate-700'
+              }`}>
+                {filteredMasterBuses.length}
+              </span>
+            </button>
+
+            <button
+              id="tab-view-all-stops"
+              type="button"
+              onClick={() => setActiveDataTab('all_stops')}
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
+                activeDataTab === 'all_stops'
+                  ? 'bg-white text-emerald-700 shadow-md shadow-slate-900/5'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers className="w-4 h-4 text-emerald-600" />
+              <span>All 253 Stops / تمام اسٹاپس</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeDataTab === 'all_stops' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300/60 text-slate-700'
+              }`}>
+                {filteredStops.length}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={fetchD1MasterData}
+              disabled={loadingD1Data}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold transition-all shadow-sm"
+              title="Refresh data from Cloudflare D1"
+            >
+              <Sparkles className={`w-3.5 h-3.5 text-emerald-600 ${loadingD1Data ? 'animate-spin' : ''}`} />
+              <span>{loadingD1Data ? 'Syncing D1...' : 'Refresh D1'}</span>
             </button>
           </div>
         </div>
@@ -937,7 +1086,11 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input 
             type="text"
-            placeholder="Search by company, origin or destination..."
+            placeholder={
+              activeDataTab === 'master_buses'
+                ? "Search 30 buses by company, bus ID, vehicle plate, route map..."
+                : "Search 253 stops by bus ID, city name, terminal location, stand..."
+            }
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-2xl py-5 pl-14 pr-6 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none font-medium shadow-sm"
@@ -947,72 +1100,180 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
         {/* Table/List */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
           {renderPagination(true)}
+          
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Company & Bus</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fare</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {currentEntries.map((bus) => (
-                  <tr key={bus.id} className="group hover:bg-slate-50/30 transition-colors">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-                          <BusIcon className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900">{bus.companyName}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{bus.busNumber}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                        {bus.origin} 
-                        <div className="w-4 h-px bg-slate-200" />
-                        {bus.destination}
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-600 flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" /> {bus.departureTime}
-                        </p>
-                        <p className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded inline-block font-bold">
-                          {bus.type} • {bus.isAC ? 'AC' : 'Non-AC'}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                       <p className="text-lg font-black text-emerald-700 tracking-tighter">Rs. {bus.fare}</p>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex justify-end gap-2">
-                        <button 
-                          onClick={() => handleEdit(bus)}
-                          className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                        >
-                          <Edit3 className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(bus.id)}
-                          className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
+            {activeDataTab === 'master_buses' ? (
+              /* ========================================================================= */
+              /* 30 MASTER BUSES TABLE VIEW */
+              /* ========================================================================= */
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/70 border-b border-slate-100">
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bus ID & Company</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle & Category</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Complete Route Map / راستہ</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Stops</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {currentMasterBuses.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-12 text-center text-slate-400 text-sm font-semibold">
+                        No buses matched your search criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    currentMasterBuses.map((bus) => (
+                      <tr 
+                        key={bus.bus_id} 
+                        onClick={() => handleOpenMasterBusEditor(bus)}
+                        className="group hover:bg-emerald-50/30 cursor-pointer transition-colors"
+                      >
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-11 h-11 bg-emerald-50 group-hover:bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 transition-colors shrink-0">
+                              <BusIcon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                {bus.company_name}
+                              </p>
+                              <span className="inline-block font-mono text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 mt-0.5">
+                                {bus.bus_id}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5">
+                          <div>
+                            <p className="text-xs font-mono font-bold text-slate-800">{bus.vehicle_plate || '-'}</p>
+                            <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                              {bus.service_type || 'Standard'} • <span className={bus.climate_control === 'AC' ? 'text-blue-600 font-bold' : 'text-slate-600'}>{bus.climate_control}</span>
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 max-w-sm">
+                          <div className="text-xs font-medium text-slate-700 line-clamp-2" title={bus.route_map}>
+                            {bus.route_map || 'No route map configured'}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 text-center">
+                          <span className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-100 group-hover:text-emerald-800 transition-colors">
+                            <Layers className="w-3.5 h-3.5" />
+                            {bus.total_stops || 0} Stops
+                          </span>
+                        </td>
+                        <td className="px-8 py-5">
+                          <p className="text-xs font-mono font-semibold text-slate-600">
+                            {bus.contact_number || '-'}
+                          </p>
+                        </td>
+                        <td className="px-8 py-5 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex justify-end gap-1.5">
+                            <button 
+                              onClick={() => handleOpenMasterBusEditor(bus)}
+                              title="Edit Bus & Sequenced Stops"
+                              className="p-2.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                            >
+                              <Edit3 className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={(e) => handleDeleteMasterBus(bus.bus_id, e)}
+                              title="Delete Bus & All Stops from D1"
+                              className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              /* ========================================================================= */
+              /* ALL 253 STOPS TABLE VIEW */
+              /* ========================================================================= */
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/70 border-b border-slate-100">
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bus ID & Operator</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Stop Seq #</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">City Name</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Schedule Timings</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Terminal & Stand</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {currentStops.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-12 text-center text-slate-400 text-sm font-semibold">
+                        No stops matched your search criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    currentStops.map((st, idx) => {
+                      const parentBus = masterBusesList.find(b => b.bus_id === st.bus_id);
+                      return (
+                        <tr 
+                          key={`${st.bus_id}-${st.stop_sequence}-${idx}`} 
+                          onClick={() => parentBus && handleOpenMasterBusEditor(parentBus)}
+                          className="group hover:bg-emerald-50/30 cursor-pointer transition-colors"
+                        >
+                          <td className="px-8 py-4">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-mono text-xs font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                {st.bus_id}
+                              </span>
+                              <span className="text-xs font-bold text-slate-800">
+                                {st.company_name || parentBus?.company_name || 'Bus Service'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-4 text-center">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg font-mono text-xs font-black bg-slate-100 text-slate-700">
+                              #{st.stop_sequence}
+                            </span>
+                          </td>
+                          <td className="px-8 py-4">
+                            <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                              {st.city_name}
+                            </span>
+                          </td>
+                          <td className="px-8 py-4">
+                            <div className="text-xs font-mono">
+                              <span className="text-slate-500">Dep:</span> <span className="font-bold text-slate-800">{st.departure_time || '-'}</span>
+                              <span className="mx-2 text-slate-300">|</span>
+                              <span className="text-slate-500">Arr:</span> <span className="font-bold text-slate-800">{st.arrival_time || '-'}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-4">
+                            <p className="text-xs font-semibold text-slate-700">{st.location || 'Main Terminal'}</p>
+                            {st.stand && <p className="text-[11px] text-slate-400 font-mono">Stand: {st.stand}</p>}
+                          </td>
+                          <td className="px-8 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                            <button 
+                              onClick={() => parentBus ? handleOpenMasterBusEditor(parentBus) : handleOpenMasterBusEditor({ bus_id: st.bus_id, company_name: st.company_name || '', vehicle_plate: st.vehicle_plate || '', contact_number: '', climate_control: 'Non-AC', service_type: 'Standard', route_map: '' })}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-all"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit Bus</span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
+
           {renderPagination(false)}
         </div>
       </div>
@@ -2480,6 +2741,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       <AnimatePresence>
         {isCloudflareD1Exporter && (
           <CloudflareD1Exporter onClose={() => setIsCloudflareD1Exporter(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Master Bus & Sequenced Stops Editor Modal */}
+      <AnimatePresence>
+        {isBusEditorOpen && (
+          <BusEditorModal 
+            isOpen={isBusEditorOpen}
+            busData={selectedBusForEdit}
+            onClose={() => setIsBusEditorOpen(false)}
+            onSaveSuccess={fetchD1MasterData}
+          />
         )}
       </AnimatePresence>
 

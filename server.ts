@@ -6,7 +6,6 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { getD1Config, saveD1Config, queryD1, executeBatchD1, testD1Connection } from "./server/d1";
-import { syncD1ToStaticData } from "./server/d1Sync";
 
 dotenv.config();
 
@@ -145,30 +144,11 @@ async function startServer() {
       }
 
       const result = await executeBatchD1(sql);
-
-      // Automatically sync D1 records to static partition files in background
-      syncD1ToStaticData().catch((syncErr) => {
-        console.warn("Background D1 static sync warning:", syncErr);
-      });
-
       return res.json(result);
     } catch (error: any) {
       return res.status(500).json({
         success: false,
         message: error.message || "Execution error",
-      });
-    }
-  });
-
-  // 4b. Explicit Sync from D1 to Static Partition files
-  app.post("/api/d1/sync-to-static", async (req, res) => {
-    try {
-      const syncResult = await syncD1ToStaticData();
-      return res.json(syncResult);
-    } catch (error: any) {
-      return res.status(500).json({
-        success: false,
-        message: error.message || "Failed to sync D1 to static partitions",
       });
     }
   });
@@ -371,6 +351,126 @@ async function startServer() {
       });
     } catch (error: any) {
       return res.json({ live: false, buses: [] });
+    }
+  });
+
+  // 9. Get Bus Stops from Cloudflare D1 (All 253 stops or by bus_id)
+  app.get("/api/d1/bus-stops", async (req, res) => {
+    try {
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ live: false, stops: [] });
+      }
+
+      const busId = req.query.bus_id ? String(req.query.bus_id).trim() : null;
+      let sql = `
+        SELECT s.*, b.company_name, b.vehicle_plate 
+        FROM bus_stops s
+        LEFT JOIN buses b ON b.bus_id = s.bus_id
+        ORDER BY s.bus_id ASC, s.stop_sequence ASC;
+      `;
+      let params: any[] = [];
+      if (busId) {
+        sql = `
+          SELECT s.*, b.company_name, b.vehicle_plate 
+          FROM bus_stops s
+          LEFT JOIN buses b ON b.bus_id = s.bus_id
+          WHERE s.bus_id = ? 
+          ORDER BY s.stop_sequence ASC;
+        `;
+        params = [busId];
+      }
+
+      const rows = await queryD1(sql, params);
+      return res.json({
+        live: true,
+        count: rows.length,
+        stops: rows,
+      });
+    } catch (error: any) {
+      return res.json({ live: false, error: error.message, stops: [] });
+    }
+  });
+
+  // 10. Save Master Bus & All Its Sequential Stops in a single operation
+  app.post("/api/d1/bus/save", async (req, res) => {
+    try {
+      const { bus, stops } = req.body;
+      if (!bus || !bus.bus_id || !bus.company_name) {
+        return res.status(400).json({ success: false, message: "bus_id and company_name are required." });
+      }
+
+      const escapeSql = (str: any) => {
+        if (str === null || str === undefined) return "NULL";
+        const val = String(str).trim();
+        return `'${val.replace(/'/g, "''")}'`;
+      };
+
+      const busId = String(bus.bus_id).trim();
+      const companyName = String(bus.company_name || "").trim();
+      const vehiclePlate = String(bus.vehicle_plate || bus.bus_number || bus.number || "").trim();
+      const contactNumber = String(bus.contact_number || bus.contact || "").trim();
+      const climateControl = String(bus.climate_control || (bus.isAC ? "AC" : "Non-AC")).trim();
+      const serviceType = String(bus.service_type || bus.type || "Standard").trim();
+      
+      let routeMap = String(bus.route_map || bus.routeMap || "").trim();
+      if ((!routeMap || routeMap === "") && Array.isArray(stops) && stops.length > 0) {
+        routeMap = stops.map((s: any) => s.city_name || s.city).filter(Boolean).join(" -> ");
+      }
+
+      const sqlStatements: string[] = [];
+      sqlStatements.push(`INSERT OR REPLACE INTO buses (bus_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES (${escapeSql(busId)}, ${escapeSql(companyName)}, ${escapeSql(vehiclePlate)}, ${escapeSql(contactNumber)}, ${escapeSql(climateControl)}, ${escapeSql(serviceType)}, ${escapeSql(routeMap)});`);
+      sqlStatements.push(`DELETE FROM bus_stops WHERE bus_id = ${escapeSql(busId)};`);
+
+      if (Array.isArray(stops)) {
+        stops.forEach((st: any, idx: number) => {
+          const cityName = String(st.city_name || st.city || "").trim();
+          if (!cityName) return;
+          const seq = typeof st.stop_sequence === 'number' ? st.stop_sequence : (idx + 1);
+          const arrTime = String(st.arrival_time || "").trim();
+          const depTime = String(st.departure_time || "").trim();
+          const location = String(st.location || st.terminal || "").trim();
+          const stand = String(st.stand || "").trim();
+
+          sqlStatements.push(`INSERT OR REPLACE INTO bus_stops (bus_id, city_name, stop_sequence, arrival_time, departure_time, location, stand) VALUES (${escapeSql(busId)}, ${escapeSql(cityName)}, ${seq}, ${escapeSql(arrTime)}, ${escapeSql(depTime)}, ${escapeSql(location)}, ${escapeSql(stand)});`);
+        });
+      }
+
+      const rawSql = sqlStatements.join("\n");
+      const result = await executeBatchD1(rawSql);
+
+      return res.json({
+        success: true,
+        message: `Bus ${busId} and ${stops?.length || 0} stops saved successfully in Cloudflare D1!`,
+        result
+      });
+    } catch (error: any) {
+      console.error("Save bus error:", error);
+      return res.status(500).json({ success: false, message: error.message || "Failed to save bus and stops" });
+    }
+  });
+
+  // 11. Delete Master Bus and its Stops
+  app.post("/api/d1/bus/delete", async (req, res) => {
+    try {
+      const { bus_id } = req.body;
+      if (!bus_id) {
+        return res.status(400).json({ success: false, message: "bus_id is required." });
+      }
+
+      const escapeSql = (str: any) => `'${String(str).trim().replace(/'/g, "''")}'`;
+      const rawSql = `
+        DELETE FROM bus_stops WHERE bus_id = ${escapeSql(bus_id)};
+        DELETE FROM buses WHERE bus_id = ${escapeSql(bus_id)};
+      `;
+      const result = await executeBatchD1(rawSql);
+      return res.json({
+        success: true,
+        message: `Bus ${bus_id} deleted successfully!`,
+        result
+      });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message || "Failed to delete bus" });
     }
   });
 
