@@ -213,11 +213,17 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     return unsubscribe;
   }, []);
 
-  // Bulk fare update state
+  // Fare update state
   const [bulkFareData, setBulkFareData] = useState({
     origin: '',
     destination: '',
-    fare: 0
+    category: 'Non_AC' as 'Non_AC' | 'AC' | 'Executive' | 'Business' | 'Sleeper' | 'all',
+    fare: 0,
+    non_ac: 0,
+    ac: 0,
+    executive: 0,
+    business: 0,
+    sleeper: 0
   });
 
   // Form State
@@ -372,7 +378,13 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     setBulkFareData({
       origin: '',
       destination: '',
-      fare: 0
+      category: 'Non_AC',
+      fare: 0,
+      non_ac: 0,
+      ac: 0,
+      executive: 0,
+      business: 0,
+      sleeper: 0
     });
     setEditingId(null);
     setIsAdding(false);
@@ -391,24 +403,61 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
 
   const handleBulkFareUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bulkFareData.origin || !bulkFareData.destination || bulkFareData.fare <= 0) {
-      alert('Please select both Origin and Destination, and enter a valid fare (greater than 0). / Baraye meharbani Origin, Destination aur durust Fare enter karain.');
+    if (!bulkFareData.origin || !bulkFareData.destination) {
+      alert('Please select both Origin and Destination. / Baraye meharbani Origin aur Destination select karain.');
       return;
     }
 
-    if (!confirm(`Are you sure you want to update the fare of ALL routes from ${bulkFareData.origin} to ${bulkFareData.destination} to Rs. ${bulkFareData.fare}? \n\nKya aap waqai ${bulkFareData.origin} se ${bulkFareData.destination} k tamam buses ka fare Rs. ${bulkFareData.fare} karna chahte hain?`)) {
+    const isAll = bulkFareData.category === 'all';
+    const activeCategory = bulkFareData.category === 'Executive' ? 'Exective' : bulkFareData.category;
+    
+    if (!isAll && (!bulkFareData.fare || bulkFareData.fare <= 0)) {
+      alert(`Please enter a valid fare for ${activeCategory} (greater than 0). / Baraye meharbani ${activeCategory} k liye durust fare enter karain.`);
+      return;
+    }
+
+    if (isAll) {
+      const hasAny = (bulkFareData.non_ac > 0) || (bulkFareData.ac > 0) || (bulkFareData.executive > 0) || (bulkFareData.business > 0) || (bulkFareData.sleeper > 0) || (bulkFareData.fare > 0);
+      if (!hasAny) {
+        alert('Please enter at least one category fare. / Baraye meharbani kam az kam ek category ka fare enter karain.');
+        return;
+      }
+    }
+
+    const confirmMsg = isAll
+      ? `Are you sure you want to update category fares for all buses from ${bulkFareData.origin} to ${bulkFareData.destination}? \n\nKya aap ${bulkFareData.origin} se ${bulkFareData.destination} k buses k category fares update karna chahte hain?`
+      : `Are you sure you want to update ${activeCategory} fare of buses from ${bulkFareData.origin} to ${bulkFareData.destination} to Rs. ${bulkFareData.fare}? \n\nKya aap ${bulkFareData.origin} se ${bulkFareData.destination} k ${activeCategory} buses ka fare Rs. ${bulkFareData.fare} karna chahte hain?`;
+
+    if (!confirm(confirmMsg)) {
       return;
     }
 
     setIsSaving(true);
     try {
-      const count = await busService.bulkUpdateFares(
-        bulkFareData.origin,
-        bulkFareData.destination,
-        bulkFareData.fare
-      );
+      let count = 0;
+      if (isAll) {
+        count = await busService.bulkUpdateFares(
+          bulkFareData.origin,
+          bulkFareData.destination,
+          {
+            non_ac: bulkFareData.non_ac,
+            ac: bulkFareData.ac,
+            executive: bulkFareData.executive,
+            business: bulkFareData.business,
+            sleeper: bulkFareData.sleeper,
+          },
+          'all'
+        );
+      } else {
+        count = await busService.bulkUpdateFares(
+          bulkFareData.origin,
+          bulkFareData.destination,
+          bulkFareData.fare,
+          bulkFareData.category
+        );
+      }
       
-      alert(`Success! Updated ${count} routes from ${bulkFareData.origin} to ${bulkFareData.destination} to Rs. ${bulkFareData.fare}. / Kamiyabi! Block k under majood ${count} routes ka fare tabdeel kar diya gya ha.`);
+      alert(`Success! Updated ${count} routes from ${bulkFareData.origin} to ${bulkFareData.destination}. / Kamiyabi! ${bulkFareData.origin} se ${bulkFareData.destination} k ${count} routes ka fare tabdeel kar diya gya ha.`);
       resetForm();
     } catch (error) {
       console.error(error);
@@ -846,7 +895,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               onClick={() => setIsBulkUpdatingFare(true)}
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
-              <Tag className="w-5 h-5 text-amber-500" /> bulk fare update
+              <Tag className="w-5 h-5 text-amber-500" /> Fare Update
             </button>
             <button 
               onClick={() => setIsBulkUploading(true)}
@@ -1222,7 +1271,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
         )}
       </AnimatePresence>
 
-      {/* Bulk Fare Update Modal */}
+      {/* Fare Update Modal */}
       <AnimatePresence>
         {isBulkUpdatingFare && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -1236,27 +1285,27 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             <motion.div 
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-10 md:p-14"
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden p-8 md:p-12 max-h-[90vh] overflow-y-auto"
             >
               <button 
                 onClick={resetForm} 
-                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all"
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
               >
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="text-center mb-10">
-                <div className="w-20 h-20 bg-amber-50 rounded-[2rem] flex items-center justify-center text-amber-600 mx-auto mb-6">
-                  <Tag className="w-10 h-10" />
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-amber-50 rounded-[1.8rem] flex items-center justify-center text-amber-600 mx-auto mb-4">
+                  <Tag className="w-8 h-8" />
                 </div>
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Bulk Fare Update</h2>
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-1">Fare Update</h2>
                 <p className="text-xs text-amber-600 font-extrabold uppercase tracking-widest">یک کلک سے کرایہ تبدیل کریں</p>
-                <p className="text-slate-500 mt-3 text-sm leading-relaxed">
-                  Select key cities and enter the new fare. This will update the ticket price for <span className="font-bold text-slate-900">all buses matching this route</span> simultaneously.
+                <p className="text-slate-500 mt-2 text-xs md:text-sm leading-relaxed">
+                  Select Origin & Destination, then choose category to update fares for all matching buses simultaneously.
                 </p>
               </div>
 
-              <form onSubmit={handleBulkFareUpdateSubmit} className="space-y-6">
+              <form onSubmit={handleBulkFareUpdateSubmit} className="space-y-5">
                 <InputGroup label="Origin City" icon={<MapPin className="w-4 h-4" />}>
                   <select 
                     required
@@ -1281,19 +1330,179 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   </select>
                 </InputGroup>
 
-                <InputGroup label="New Ticket Fare (RS)" icon={<ArrowLeft className="w-4 h-4 rotate-90" />}>
-                  <input 
-                    required
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 1500"
-                    value={bulkFareData.fare || ''}
-                    onChange={(e) => setBulkFareData({ ...bulkFareData, fare: parseInt(e.target.value) || 0 })}
-                    className="admin-input" 
-                  />
-                </InputGroup>
+                {/* Route Buses Info */}
+                {bulkFareData.origin && bulkFareData.destination && (
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <BusIcon className="w-4 h-4 text-emerald-600" />
+                      <span className="font-bold text-slate-800">
+                        {buses.filter(b => 
+                          b.origin.toLowerCase().trim() === bulkFareData.origin.toLowerCase().trim() &&
+                          b.destination.toLowerCase().trim() === bulkFareData.destination.toLowerCase().trim()
+                        ).length} buses found on route
+                      </span>
+                    </div>
+                    <span className="text-slate-500 font-medium text-[11px]">
+                      {buses.filter(b => b.origin.toLowerCase().trim() === bulkFareData.origin.toLowerCase().trim() && b.destination.toLowerCase().trim() === bulkFareData.destination.toLowerCase().trim() && !b.isAC).length} Non-AC | {buses.filter(b => b.origin.toLowerCase().trim() === bulkFareData.origin.toLowerCase().trim() && b.destination.toLowerCase().trim() === bulkFareData.destination.toLowerCase().trim() && b.isAC).length} AC
+                    </span>
+                  </div>
+                )}
 
-                <div className="flex gap-4 pt-4">
+                {/* Category Selection Options */}
+                <div>
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-2">
+                    Select Bus Category / کیٹیگری منتخب کریں
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { id: 'Non_AC', label: 'Non_AC', urdu: 'بغیر اے سی', icon: '🚌' },
+                      { id: 'AC', label: 'AC', urdu: 'اے سی', icon: '❄️' },
+                      { id: 'Executive', label: 'Exective', urdu: 'ایگزیکٹو', icon: '✨' },
+                      { id: 'Business', label: 'Business', urdu: 'بزنس', icon: '💼' },
+                      { id: 'Sleeper', label: 'Sleeper', urdu: 'سلیپر', icon: '🛏️' },
+                      { id: 'all', label: 'All Categories', urdu: 'سب ایک ساتھ', icon: '📋' }
+                    ].map((cat) => {
+                      const isSelected = bulkFareData.category === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => {
+                            setBulkFareData(prev => ({
+                              ...prev,
+                              category: cat.id as any,
+                              fare: cat.id === 'Non_AC' ? (prev.non_ac || prev.fare) :
+                                    cat.id === 'AC' ? (prev.ac || prev.fare) :
+                                    cat.id === 'Executive' ? (prev.executive || prev.fare) :
+                                    cat.id === 'Business' ? (prev.business || prev.fare) :
+                                    cat.id === 'Sleeper' ? (prev.sleeper || prev.fare) : prev.fare
+                            }));
+                          }}
+                          className={`px-3 py-2.5 rounded-2xl border text-left flex flex-col justify-between transition-all ${
+                            isSelected
+                              ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20 scale-[1.02]'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-sm">{cat.icon}</span>
+                            <span className={`text-[9px] font-black uppercase tracking-wider ${isSelected ? 'text-amber-100' : 'text-slate-400'}`}>
+                              {cat.urdu}
+                            </span>
+                          </div>
+                          <span className={`text-xs font-black ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                            {cat.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Fare Inputs based on selection */}
+                {bulkFareData.category !== 'all' ? (
+                  <InputGroup 
+                    label={`New ${bulkFareData.category === 'Executive' ? 'Exective' : bulkFareData.category} Fare (RS)`} 
+                    icon={<ArrowLeft className="w-4 h-4 rotate-90" />}
+                  >
+                    <input 
+                      required
+                      type="number"
+                      min="1"
+                      placeholder={`e.g. ${bulkFareData.category === 'Non_AC' ? '850' : bulkFareData.category === 'AC' ? '1200' : bulkFareData.category === 'Executive' ? '1600' : bulkFareData.category === 'Business' ? '2000' : '2500'}`}
+                      value={bulkFareData.fare || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        setBulkFareData(prev => ({
+                          ...prev,
+                          fare: val,
+                          ...(prev.category === 'Non_AC' ? { non_ac: val } : {}),
+                          ...(prev.category === 'AC' ? { ac: val } : {}),
+                          ...(prev.category === 'Executive' ? { executive: val } : {}),
+                          ...(prev.category === 'Business' ? { business: val } : {}),
+                          ...(prev.category === 'Sleeper' ? { sleeper: val } : {}),
+                        }));
+                      }}
+                      className="admin-input" 
+                    />
+                  </InputGroup>
+                ) : (
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-wider">All Categories Fares (Rs.)</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Leave 0 to skip category</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                          <span>🚌</span> Non_AC
+                        </label>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 850"
+                          value={bulkFareData.non_ac || ''}
+                          onChange={(e) => setBulkFareData({ ...bulkFareData, non_ac: parseInt(e.target.value) || 0 })}
+                          className="admin-input mt-1 py-2 text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                          <span>❄️</span> AC
+                        </label>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 1200"
+                          value={bulkFareData.ac || ''}
+                          onChange={(e) => setBulkFareData({ ...bulkFareData, ac: parseInt(e.target.value) || 0 })}
+                          className="admin-input mt-1 py-2 text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                          <span>✨</span> Exective
+                        </label>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 1600"
+                          value={bulkFareData.executive || ''}
+                          onChange={(e) => setBulkFareData({ ...bulkFareData, executive: parseInt(e.target.value) || 0 })}
+                          className="admin-input mt-1 py-2 text-sm bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                          <span>💼</span> Business
+                        </label>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 2000"
+                          value={bulkFareData.business || ''}
+                          onChange={(e) => setBulkFareData({ ...bulkFareData, business: parseInt(e.target.value) || 0 })}
+                          className="admin-input mt-1 py-2 text-sm bg-white"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                          <span>🛏️</span> Sleeper
+                        </label>
+                        <input 
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 2500"
+                          value={bulkFareData.sleeper || ''}
+                          onChange={(e) => setBulkFareData({ ...bulkFareData, sleeper: parseInt(e.target.value) || 0 })}
+                          className="admin-input mt-1 py-2 text-sm bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-4 pt-3">
                   <button 
                     type="button"
                     onClick={resetForm}
@@ -1311,7 +1520,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                     ) : (
                       <Save className="w-5 h-5" /> 
                     )}
-                    {isSaving ? 'Processing...' : 'Update All / تبدیل کریں'}
+                    {isSaving ? 'Processing...' : 'Update Fare / تبدیل کریں'}
                   </button>
                 </div>
               </form>

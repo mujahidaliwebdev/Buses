@@ -12,7 +12,7 @@ export interface Bus {
   terminalLocation: string;
   standNumber: string;
   isAC: boolean;
-  type: "Luxury" | "Executive" | "Non-AC" | "Standard";
+  type: "Luxury" | "Executive" | "Non-AC" | "Standard" | "Business" | "Sleeper";
   isDeleted?: boolean;
   routeMap?: string;
   remarks?: string;

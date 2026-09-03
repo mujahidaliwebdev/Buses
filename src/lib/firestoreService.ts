@@ -138,7 +138,12 @@ export const busService = {
     }
   },
 
-  bulkUpdateFares: async (origin: string, destination: string, newFare: number) => {
+  bulkUpdateFares: async (
+    origin: string, 
+    destination: string, 
+    fareOrFares: number | { non_ac?: number; ac?: number; executive?: number; business?: number; sleeper?: number },
+    category: string = 'all'
+  ) => {
     const path = 'buses';
     try {
       const q = query(
@@ -147,15 +152,94 @@ export const busService = {
         where('destination', '==', destination)
       );
       const snapshot = await getDocs(q);
-      const count = snapshot.size;
-      if (count === 0) return 0;
-
       const batch = writeBatch(db);
+      let updatedCount = 0;
+
+      const singleFare = typeof fareOrFares === 'number' ? fareOrFares : 0;
+      const faresObj = typeof fareOrFares === 'object' ? fareOrFares : {};
+
+      const nonAcFare = singleFare && (category === 'Non_AC' || category === 'all') ? singleFare : (faresObj.non_ac || 0);
+      const acFare = singleFare && (category === 'AC' || category === 'all') ? singleFare : (faresObj.ac || 0);
+      const execFare = singleFare && (category === 'Executive' || category === 'Exective' || category === 'all') ? singleFare : (faresObj.executive || 0);
+      const bizFare = singleFare && (category === 'Business' || category === 'all') ? singleFare : (faresObj.business || 0);
+      const sleepFare = singleFare && (category === 'Sleeper' || category === 'all') ? singleFare : (faresObj.sleeper || 0);
+
       snapshot.docs.forEach(docSnap => {
-        batch.update(docSnap.ref, { fare: newFare });
+        const bus = docSnap.data() as Bus;
+        let busNewFare = 0;
+
+        if (category === 'Non_AC') {
+          if (!bus.isAC || bus.type === 'Non-AC' || bus.type === 'Standard') {
+            busNewFare = singleFare || nonAcFare;
+          }
+        } else if (category === 'AC') {
+          if (bus.isAC && bus.type !== 'Executive' && bus.type !== 'Business' && bus.type !== 'Sleeper') {
+            busNewFare = singleFare || acFare;
+          }
+        } else if (category === 'Executive' || category === 'Exective') {
+          if (bus.type === 'Executive') {
+            busNewFare = singleFare || execFare;
+          }
+        } else if (category === 'Business') {
+          if (bus.type === 'Business') {
+            busNewFare = singleFare || bizFare;
+          }
+        } else if (category === 'Sleeper') {
+          if (bus.type === 'Sleeper') {
+            busNewFare = singleFare || sleepFare;
+          }
+        } else {
+          // 'all'
+          if (bus.type === 'Executive' && execFare > 0) busNewFare = execFare;
+          else if (bus.type === 'Business' && bizFare > 0) busNewFare = bizFare;
+          else if (bus.type === 'Sleeper' && sleepFare > 0) busNewFare = sleepFare;
+          else if (bus.isAC && acFare > 0) busNewFare = acFare;
+          else if (!bus.isAC && nonAcFare > 0) busNewFare = nonAcFare;
+          else if (singleFare > 0) busNewFare = singleFare;
+        }
+
+        if (busNewFare > 0) {
+          batch.update(docSnap.ref, { fare: busNewFare });
+          updatedCount++;
+        }
       });
-      await batch.commit();
-      return count;
+
+      if (updatedCount > 0) {
+        await batch.commit();
+      }
+
+      // Also update fares collection in Firestore for fast lookup
+      try {
+        const fareDocKey = `${origin.toLowerCase().trim()}_${destination.toLowerCase().trim()}`;
+        const fareDocRef = doc(db, 'fares', fareDocKey);
+        const fareRecord: any = {
+          origin,
+          destination,
+          updatedAt: new Date().toISOString()
+        };
+        if (nonAcFare > 0) fareRecord.non_ac = nonAcFare;
+        if (acFare > 0) fareRecord.ac = acFare;
+        if (execFare > 0) fareRecord.executive = execFare;
+        if (bizFare > 0) fareRecord.business = bizFare;
+        if (sleepFare > 0) fareRecord.sleeper = sleepFare;
+        await setDoc(fareDocRef, fareRecord, { merge: true });
+      } catch (fErr) {
+        console.warn('Could not update fares collection in Firestore:', fErr);
+      }
+
+      // Also execute on Cloudflare D1 if available
+      try {
+        const sql = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
+        fetch('/api/d1/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql })
+        }).catch(() => {});
+      } catch (d1Err) {
+        console.warn('D1 execute fallback:', d1Err);
+      }
+
+      return updatedCount;
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
       throw error;
