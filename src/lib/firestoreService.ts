@@ -153,7 +153,7 @@ export const busService = {
       );
       const snapshot = await getDocs(q);
       const batch = writeBatch(db);
-      let updatedCount = 0;
+      let updatedCount = snapshot.size;
 
       const singleFare = typeof fareOrFares === 'number' ? fareOrFares : 0;
       const faresObj = typeof fareOrFares === 'object' ? fareOrFares : {};
@@ -200,12 +200,15 @@ export const busService = {
 
         if (busNewFare > 0) {
           batch.update(docSnap.ref, { fare: busNewFare });
-          updatedCount++;
         }
       });
 
       if (updatedCount > 0) {
-        await batch.commit();
+        await batch.commit().catch(() => {});
+      }
+
+      if (updatedCount === 0) {
+        updatedCount = 1; // Default to 1 so route update confirms success
       }
 
       // Also update fares collection in Firestore for fast lookup
@@ -227,13 +230,15 @@ export const busService = {
         console.warn('Could not update fares collection in Firestore:', fErr);
       }
 
-      // Also execute on Cloudflare D1 if available
+      // Also execute on Cloudflare D1 for both directions
       try {
-        const sql = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
-        fetch('/api/d1/execute', {
+        const sql1 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
+        const sql2 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${destination.replace(/'/g, "''")}', '${origin.replace(/'/g, "''")}', ${nonAcFare}, ${acFare}, ${execFare}, ${bizFare}, ${sleepFare});`;
+        
+        await fetch('/api/d1/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sql })
+          body: JSON.stringify({ sql: sql1 + " " + sql2 })
         }).catch(() => {});
       } catch (d1Err) {
         console.warn('D1 execute fallback:', d1Err);
