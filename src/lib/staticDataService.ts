@@ -28,6 +28,8 @@ export interface StaticBus {
   remarks?: string;
 }
 
+const DEFAULT_WORKER_URL = 'https://assansafar-api.mujahidali-stf.workers.dev';
+
 const getBaseUrl = (): string => {
   const base = ((import.meta as any).env?.BASE_URL as string) || '';
   return base.endsWith('/') ? base.slice(0, -1) : base;
@@ -100,21 +102,6 @@ export const staticDataService = {
   },
 
   /**
-   * Cloudflare Worker API URL (Used when hosted statically on GitHub Pages or custom domain)
-   */
-  getWorkerUrl: (): string => {
-    return localStorage.getItem('asaansafar_worker_url') || ((import.meta as any).env?.VITE_CLOUDFLARE_WORKER_URL as string) || '';
-  },
-
-  setWorkerUrl: (url: string) => {
-    if (url && url.trim()) {
-      localStorage.setItem('asaansafar_worker_url', url.trim());
-    } else {
-      localStorage.removeItem('asaansafar_worker_url');
-    }
-  },
-
-  /**
    * Highly optimized search logic that:
    * 1. Looks up the origin and destination stop IDs from stops_index.json.
    * 2. Finds the origin city's routes JSON file (e.g., /data/routes/Lahore.json).
@@ -123,25 +110,25 @@ export const staticDataService = {
    * 5. Filters and maps buses that pass through both stops in correct sequence, computing stop-specific timings.
    */
   searchBuses: async (originName: string, destinationName: string): Promise<Bus[]> => {
-    // 1. If Cloudflare Worker URL is configured (for GitHub Pages / Live Website direct access to D1)
+    // 1. Try Cloudflare Worker Live Edge API first (works seamlessly on GitHub Pages & static web)
     const workerUrl = staticDataService.getWorkerUrl();
     if (workerUrl) {
       try {
-        const cleanBase = workerUrl.replace(/\/+$/, '');
-        const workerRes = await fetch(`${cleanBase}/api/search?origin=${encodeURIComponent(originName.trim())}&destination=${encodeURIComponent(destinationName.trim())}`);
-        if (workerRes.ok) {
-          const liveData = await workerRes.json();
+        const cleanWorkerUrl = workerUrl.endsWith('/') ? workerUrl.slice(0, -1) : workerUrl;
+        const liveRes = await fetch(`${cleanWorkerUrl}/api/search?origin=${encodeURIComponent(originName.trim())}&destination=${encodeURIComponent(destinationName.trim())}`);
+        if (liveRes.ok) {
+          const liveData = await liveRes.json();
           if (liveData.live && Array.isArray(liveData.buses) && liveData.buses.length > 0) {
-            console.log(`[AsaanSafar] Cloudflare Worker matched ${liveData.buses.length} live buses directly from D1.`);
+            console.log(`[AsaanSafar] Live Cloudflare Worker D1 matched ${liveData.buses.length} buses.`);
             return liveData.buses;
           }
         }
       } catch (workerErr) {
-        console.warn('Worker search failed, trying fallback:', workerErr);
+        console.warn('Worker search fallback:', workerErr);
       }
     }
 
-    // 2. Try Local / Express Cloudflare D1 Endpoint (/api/d1/search)
+    // 2. Try local server Cloudflare D1 proxy (when running fullstack/dev)
     try {
       const liveRes = await fetch(`/api/d1/search?origin=${encodeURIComponent(originName.trim())}&destination=${encodeURIComponent(destinationName.trim())}`);
       if (liveRes.ok) {
@@ -474,10 +461,24 @@ export const staticDataService = {
     return await res.json();
   },
 
+  getWorkerUrl: (): string => {
+    return localStorage.getItem('CF_WORKER_URL') || DEFAULT_WORKER_URL;
+  },
+
+  setWorkerUrl: (url: string): void => {
+    if (!url) {
+      localStorage.removeItem('CF_WORKER_URL');
+    } else {
+      localStorage.setItem('CF_WORKER_URL', url.trim());
+    }
+  },
+
   syncD1ToStatic: async () => {
-    const res = await fetch('/api/d1/sync-to-static', {
-      method: 'POST',
-    });
-    return await res.json();
+    try {
+      const res = await fetch('/api/d1/sync-to-static', { method: 'POST' });
+      return await res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message || 'Sync request failed' };
+    }
   }
 };
