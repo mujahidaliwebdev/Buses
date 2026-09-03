@@ -277,9 +277,15 @@ export default function BusEditorModal({
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      const responseText = await response.text();
+      let result;
+      try {
+        result = responseText ? JSON.parse(responseText) : { success: false, message: "Empty response from server" };
+      } catch (parseErr) {
+        throw new Error(`Server returned invalid JSON (${response.status}): ${responseText.substring(0, 100) || "Empty response"}`);
+      }
 
-      if (result.success) {
+      if (response.ok && result.success) {
         setSuccessMessage(`Success: Bus ${basicInfo.bus_id} and all ${stops.length} stops updated in Cloudflare D1!`);
         setTimeout(() => {
           onSaveSuccess();
