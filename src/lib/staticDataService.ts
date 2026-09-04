@@ -26,7 +26,8 @@ export const staticDataService = {
   },
 
   syncD1ToStatic: async (): Promise<any> => {
-    return { success: true, message: "Synced from Cloudflare D1" };
+    const res = await fetch('/api/d1/sync-static', { method: 'POST' });
+    return await res.json();
   },
 
   executeD1Sql: async (sql: string): Promise<any> => {

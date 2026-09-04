@@ -606,6 +606,87 @@ async function startServer() {
     return res.json({ live: false, stops: [] });
   });
 
+  // Sync D1 data into static JSON files for GitHub Pages / static deployment
+  app.post("/api/d1/sync-static", async (req, res) => {
+    try {
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.status(400).json({ success: false, message: "Cloudflare D1 credentials not configured." });
+      }
+
+      const busesRows = await queryD1("SELECT * FROM buses ORDER BY bus_id ASC;");
+      const stopsRows = await queryD1("SELECT * FROM bus_stops ORDER BY bus_id ASC, stop_sequence ASC;");
+
+      const stopsByBus: Record<string, any[]> = {};
+      for (const s of stopsRows) {
+        if (!stopsByBus[s.bus_id]) stopsByBus[s.bus_id] = [];
+        stopsByBus[s.bus_id].push(s);
+      }
+
+      const formattedBuses = busesRows.map((b: any) => {
+        const bStops = stopsByBus[b.bus_id] || [];
+        bStops.sort((x, y) => x.stop_sequence - y.stop_sequence);
+
+        const stopNames = bStops.map(s => s.city_name);
+        const terminals = bStops.map(s => s.location || "Main Terminal");
+        const stands = bStops.map(s => s.stand || "1");
+        const arrTimes = bStops.map(s => s.arrival_time || "00:00");
+        const depTimes = bStops.map(s => s.departure_time || "00:00");
+
+        return {
+          busId: b.bus_id,
+          company: b.company_name,
+          number: b.vehicle_plate,
+          contact: b.contact_number,
+          serviceType: b.service_type || "Standard",
+          climateControl: b.climate_control || "Non-AC",
+          stops: stopNames.join(", "),
+          terminal: terminals.join(", "),
+          stand: stands.join(", "),
+          arrivalTime: arrTimes.join(", "),
+          departureTime: depTimes.join(", "),
+          routeMap: b.route_map || stopNames.join(" -> ")
+        };
+      });
+
+      // Build stops index
+      const uniqueCities = new Set<string>();
+      stopsRows.forEach((s: any) => {
+        if (s.city_name) uniqueCities.add(s.city_name.trim());
+      });
+
+      const stopsIndexObj: Record<string, any> = { stops: {} };
+      Array.from(uniqueCities).sort().forEach((cityName, idx) => {
+        stopsIndexObj.stops[cityName] = { id: `S${idx + 1}` };
+      });
+
+      // Save to public and dist dirs
+      const targets = [
+        path.join(process.cwd(), "public"),
+        path.join(process.cwd(), "dist")
+      ];
+
+      for (const t of targets) {
+        const busesDir = path.join(t, "data", "buses");
+        if (!fs.existsSync(busesDir)) {
+          fs.mkdirSync(busesDir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(busesDir, "B1-B500.json"), JSON.stringify(formattedBuses, null, 2), "utf-8");
+        fs.writeFileSync(path.join(t, "data", "stops_index.json"), JSON.stringify(stopsIndexObj, null, 2), "utf-8");
+      }
+
+      return res.json({
+        success: true,
+        busCount: formattedBuses.length,
+        stopCount: uniqueCities.size,
+        message: `Successfully exported ${formattedBuses.length} buses and ${uniqueCities.size} stops from Cloudflare D1 to static JSON files!`
+      });
+    } catch (error: any) {
+      console.error("Sync D1 to static error:", error);
+      return res.status(500).json({ success: false, message: error.message || "Failed to sync D1 to static" });
+    }
+  });
+
   // 10. Save Master Bus & All Its Sequential Stops in a single operation
   app.post("/api/d1/bus/save", async (req, res) => {
     try {
