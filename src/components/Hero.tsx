@@ -125,10 +125,10 @@ export default function Hero({ onSearch, onAddRoute }: HeroProps) {
               className="flex gap-20 items-center px-10"
             >
               {[
-                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
-                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
+                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'AL-FAREED', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'AL-FAREED', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'AL-FAREED', 'WARAICH EXPRESS', 'NEW HABIB KHAN',
+                'BALOCH TRANSPORT', 'CHEEMA BROTHERS', 'MIAN SONS', 'NEW KHAN', 'WAHLA BROS', 'AL-REHMAN', 'AL-FAREED', 'WARAICH EXPRESS', 'NEW HABIB KHAN'
               ].map((name, i) => (
                 <div key={i} className="flex items-center gap-5">
                   <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-[0_0_15px_#34d399]" />
