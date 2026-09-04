@@ -51,7 +51,7 @@
   },
   {
     "to": "S11",
-    "fare": "0",
+    "fare": "1000",
     "buses_file": "B1-B500.json"
   },
   {
