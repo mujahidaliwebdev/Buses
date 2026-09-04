@@ -8,11 +8,10 @@ import {
   addDoc,
   query,
   where,
-  onSnapshot,
-  writeBatch
+  orderBy,
+  onSnapshot
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { Bus } from '../types';
 
 enum OperationType {
   CREATE = 'create',
@@ -41,7 +40,6 @@ interface FirestoreErrorInfo {
 }
 
 function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  // Check if it's a connection / offline / unavailable error
   if (error && typeof error === 'object') {
     const err = error as any;
     if (
@@ -78,66 +76,121 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(JSON.stringify(errInfo));
 }
 
+// 1. User Profile Service (Admin & User Login persistence)
+export const userService = {
+  saveUserProfile: async (user: { uid: string; email: string | null; displayName?: string | null; photoURL?: string | null; role?: string }) => {
+    const path = `users/${user.uid}`;
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || 'User',
+        photoURL: user.photoURL || '',
+        role: user.role || 'user',
+        lastLogin: new Date().toISOString()
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    }
+  }
+};
+
+// 2. Website Feedback & Complaints Service
+export const feedbackService = {
+  submitFeedback: async (data: { name: string; email?: string; message: string; type: 'complaint' | 'feedback'; subject?: string }) => {
+    const path = 'feedback';
+    try {
+      await addDoc(collection(db, path), {
+        ...data,
+        userId: auth.currentUser?.uid || 'anonymous',
+        userEmail: auth.currentUser?.email || data.email || 'anonymous',
+        submittedAt: new Date().toISOString(),
+        status: 'pending'
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  getFeedbackList: async () => {
+    const path = 'feedback';
+    try {
+      const q = query(collection(db, path), orderBy('submittedAt', 'desc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+      return [];
+    }
+  }
+};
+
+// 3. Route Add Query / Suggestion Service
+export const routeQueryService = {
+  submitRouteQuery: async (data: { origin: string; destination: string; notes?: string }) => {
+    const path = 'route_queries';
+    try {
+      await addDoc(collection(db, path), {
+        ...data,
+        userId: auth.currentUser?.uid || 'anonymous',
+        userEmail: auth.currentUser?.email || 'anonymous',
+        submittedAt: new Date().toISOString(),
+        status: 'pending'
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  getRouteQueries: async () => {
+    const path = 'route_queries';
+    try {
+      const q = query(collection(db, path), orderBy('submittedAt', 'desc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+      return [];
+    }
+  }
+};
+
+// 4. Bus Feedback & Reports Service (Tied to specific bus_id)
+export const busFeedbackService = {
+  submitBusFeedback: async (busId: string, data: { rating: number; comment: string; category?: string; reportType?: string }) => {
+    const path = 'bus_feedback';
+    try {
+      await addDoc(collection(db, path), {
+        busId: busId.trim().toUpperCase(),
+        ...data,
+        userId: auth.currentUser?.uid || 'anonymous',
+        userEmail: auth.currentUser?.email || 'anonymous',
+        submittedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  getBusFeedback: async (busId: string) => {
+    const path = 'bus_feedback';
+    try {
+      const q = query(
+        collection(db, path), 
+        where('busId', '==', busId.trim().toUpperCase())
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+      return [];
+    }
+  }
+};
+
+// 5. Bus Service (Cloudflare D1 / Server proxy)
 export const busService = {
-  subscribeBuses: (callback: (buses: Bus[]) => void) => {
-    const path = 'buses';
-    return onSnapshot(collection(db, path), (snapshot) => {
-      const buses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bus));
-      callback(buses);
-    }, (error) => {
-      try {
-        handleFirestoreError(error, OperationType.GET, path);
-      } catch (e) {
-        console.error("Subscription failed:", e);
-      }
-      // Pass an empty array so the app falls back to mock buses and stops loading infinitely
-      callback([]);
-    });
-  },
-
-  addBus: async (bus: Omit<Bus, 'id'>) => {
-    const path = 'buses';
-    try {
-      const docRef = await addDoc(collection(db, path), bus);
-      return docRef.id;
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
-  },
-
-  bulkAddBuses: async (buses: Omit<Bus, 'id'>[]) => {
-    const path = 'buses';
-    try {
-      const chunks = [];
-      const chunkSize = 500;
-      
-      for (let i = 0; i < buses.length; i += chunkSize) {
-        chunks.push(buses.slice(i, i + chunkSize));
-      }
-
-      for (const chunk of chunks) {
-        const batch = writeBatch(db);
-        chunk.forEach(bus => {
-          const newDocRef = doc(collection(db, path));
-          batch.set(newDocRef, bus);
-        });
-        await batch.commit();
-      }
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
-  },
-
-  updateBus: async (busId: string, busData: Partial<Bus>) => {
-    const path = `buses/${busId}`;
-    try {
-      const { id, ...data } = busData as any;
-      await setDoc(doc(db, 'buses', busId), data, { merge: true });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
-  },
-
   bulkUpdateFares: async (
     origin: string, 
     destination: string, 
@@ -181,25 +234,6 @@ export const busService = {
         throw new Error(result.message || 'Failed to update fares');
       }
 
-      // Also update Firestore for compatibility
-      try {
-        const fareDocKey = `${origin.toLowerCase().trim()}_${destination.toLowerCase().trim()}`;
-        const fareDocRef = doc(db, 'fares', fareDocKey);
-        const fareRecord: any = {
-          origin,
-          destination,
-          updatedAt: new Date().toISOString()
-        };
-        if (nonAcFare > 0) fareRecord.non_ac = nonAcFare;
-        if (acFare > 0) fareRecord.ac = acFare;
-        if (execFare > 0) fareRecord.executive = execFare;
-        if (bizFare > 0) fareRecord.business = bizFare;
-        if (sleepFare > 0) fareRecord.sleeper = sleepFare;
-        await setDoc(fareDocRef, fareRecord, { merge: true });
-      } catch (fErr) {
-        console.warn('Could not update fares collection in Firestore:', fErr);
-      }
-
       return result.count || 1;
     } catch (error: any) {
       console.error('Bulk update fares error:', error);
@@ -208,31 +242,74 @@ export const busService = {
   },
 
   deleteBus: async (busId: string) => {
-    const path = `buses/${busId}`;
     try {
-      if (busId.startsWith('B')) {
-        await setDoc(doc(db, 'buses', busId), { isDeleted: true }, { merge: true });
-      } else {
-        await deleteDoc(doc(db, 'buses', busId));
-      }
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, path);
+      const res = await fetch('/api/d1/bus/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ busId })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Failed to delete bus');
+    } catch (error: any) {
+      console.error('Delete bus error:', error);
+      throw error;
     }
   },
 
-  getBusesByRoute: async (origin: string, destination: string) => {
-    const path = 'buses';
+  updateBus: async (busId: string, busData: any) => {
     try {
-      const q = query(
-        collection(db, path), 
-        where('origin', '==', origin),
-        where('destination', '==', destination)
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bus));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.GET, path);
-      return [];
+      const stops = busData.stopsList || [];
+      const res = await fetch('/api/d1/bus/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          busId: busId || busData.busId,
+          companyName: busData.company || busData.companyName,
+          vehiclePlate: busData.number || busData.vehiclePlate,
+          contactNumber: busData.contact || busData.contactNumber,
+          serviceType: busData.serviceType || 'Standard',
+          climateControl: busData.climateControl || 'Non-AC',
+          routeMap: busData.routeMap || '',
+          stops
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Failed to update bus');
+    } catch (error: any) {
+      console.error('Update bus error:', error);
+      throw error;
+    }
+  },
+
+  addBus: async (busData: any) => {
+    try {
+      const stops = busData.stopsList || [];
+      const res = await fetch('/api/d1/bus/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          busId: busData.busId,
+          companyName: busData.company || busData.companyName,
+          vehiclePlate: busData.number || busData.vehiclePlate,
+          contactNumber: busData.contact || busData.contactNumber,
+          serviceType: busData.serviceType || 'Standard',
+          climateControl: busData.climateControl || 'Non-AC',
+          routeMap: busData.routeMap || '',
+          stops
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Failed to add bus');
+      return busData.busId;
+    } catch (error: any) {
+      console.error('Add bus error:', error);
+      throw error;
+    }
+  },
+
+  bulkAddBuses: async (busesList: any[]) => {
+    for (const b of busesList) {
+      await busService.addBus(b);
     }
   }
 };
@@ -278,7 +355,6 @@ export const settingsService = {
   getAnalyticsSettings: async () => {
     const path = 'settings/analytics';
     try {
-      const q = doc(db, 'settings', 'analytics');
       const snap = await getDocs(query(collection(db, 'settings')));
       const docSnap = snap.docs.find(d => d.id === 'analytics');
       if (docSnap && docSnap.exists()) {
@@ -319,4 +395,7 @@ export const settingsService = {
     });
   }
 };
+
+
+
 
