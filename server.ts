@@ -169,9 +169,12 @@ async function startServer() {
 
       // 1. Execute on Cloudflare D1 if configured
       try {
-        const sql1 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
-        const sql2 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${destination.replace(/'/g, "''")}', '${origin.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
-        await executeBatchD1(sql1 + " " + sql2);
+        const config = getD1Config();
+        if (config.accountId && config.databaseId && config.apiToken) {
+          const sql1 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${origin.replace(/'/g, "''")}', '${destination.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
+          const sql2 = `INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES ('${destination.replace(/'/g, "''")}', '${origin.replace(/'/g, "''")}', ${nonAcVal}, ${acVal}, ${execVal}, ${bizVal}, ${sleepVal});`;
+          await executeBatchD1(sql1 + " " + sql2);
+        }
       } catch (d1Err) {
         console.warn("D1 fare update note:", d1Err);
       }

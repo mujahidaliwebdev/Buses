@@ -281,6 +281,86 @@ export const staticDataService = {
    * Loads all partition files and maps them to full Bus objects.
    */
   getAllBuses: async (): Promise<Bus[]> => {
+    // 1. Try Cloudflare Worker / D1 API first
+    try {
+      const workerUrl = staticDataService.getWorkerUrl();
+      let d1Buses: any[] = [];
+      let d1Stops: any[] = [];
+
+      if (workerUrl) {
+        const cleanWorkerUrl = workerUrl.endsWith('/') ? workerUrl.slice(0, -1) : workerUrl;
+        const res = await fetch(`${cleanWorkerUrl}/api/buses`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.live && Array.isArray(data.buses)) {
+            d1Buses = data.buses;
+          }
+        }
+      }
+
+      if (d1Buses.length === 0) {
+        const res = await fetch('/api/d1/buses');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.live && Array.isArray(data.buses)) {
+            d1Buses = data.buses;
+          }
+        }
+      }
+
+      if (d1Buses.length > 0) {
+        let stopsRes = await fetch('/api/d1/bus-stops').catch(() => null);
+        if (stopsRes && stopsRes.ok) {
+          const stopsData = await stopsRes.json();
+          if (stopsData.live && Array.isArray(stopsData.stops)) {
+            d1Stops = stopsData.stops;
+          }
+        }
+
+        const stopsByBus: Record<string, any[]> = {};
+        for (const s of d1Stops) {
+          const bId = s.bus_id;
+          if (!stopsByBus[bId]) stopsByBus[bId] = [];
+          stopsByBus[bId].push(s);
+        }
+
+        const mappedD1Buses: Bus[] = d1Buses.map((b: any) => {
+          const bId = b.bus_id || b.id;
+          const stops = stopsByBus[bId] || [];
+          stops.sort((a, b) => a.stop_sequence - b.stop_sequence);
+
+          const origin = stops.length > 0 ? (stops[0].city_name || 'Origin') : (b.origin || 'Lahore');
+          const destination = stops.length > 1 ? (stops[stops.length - 1].city_name || 'Destination') : (b.destination || 'Multan');
+
+          return {
+            id: bId,
+            origin: origin,
+            destination: destination,
+            departureTime: b.departure_time || '08:00',
+            arrivalTime: b.arrival_time || '12:00',
+            duration: '3h 00m',
+            fare: Number(b.fare || 1000),
+            companyName: b.company_name || 'Asaan Safar Express',
+            busNumber: b.vehicle_plate || 'ABC-123',
+            contactNumber: b.contact_number || '0300-0000000',
+            terminalLocation: b.terminal_location || 'Main Terminal',
+            standNumber: b.stand_number || '1',
+            isAC: (b.climate_control || '').toLowerCase() === 'ac',
+            type: (b.service_type as any) || 'Standard',
+            routeMap: b.route_map || '',
+            remarks: b.remarks || ''
+          };
+        });
+
+        if (mappedD1Buses.length > 0) {
+          console.log(`[AsaanSafar] Loaded ${mappedD1Buses.length} buses directly from Cloudflare D1 Edge.`);
+          return mappedD1Buses;
+        }
+      }
+    } catch (d1Error) {
+      console.warn('Cloudflare D1 getAllBuses fallback to static:', d1Error);
+    }
+
     try {
       const index = await staticDataService.getStopsIndex();
       const reverseStops: { [id: string]: string } = {};
