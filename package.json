@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "tsx -e \"import { syncD1ToStaticData } from './server/d1Sync.js'; syncD1ToStaticData().catch(() => {});\" && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "node --import tsx/esm -e \"import { syncD1ToStaticData } from './server/d1Sync.ts'; syncD1ToStaticData().catch(err => console.error('Sync notice:', err.message));\" && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist",
