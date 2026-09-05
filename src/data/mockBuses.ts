@@ -453,6 +453,7 @@ export const PAKISTAN_CITIES = [
   "Pir Mahal",
   "Pishin",
   "Pithoro",
+  "Pull Qamber",
   "Punial",
   "Puran",
   "Qadirabad",
