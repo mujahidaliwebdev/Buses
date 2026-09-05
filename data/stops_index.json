@@ -1,0 +1,1795 @@
+{
+  "stops": {
+    "18 Hazari": {
+      "id": "S16"
+    },
+    "90 Morr": {
+      "id": "S594"
+    },
+    "Abbaspur": {
+      "id": "S533"
+    },
+    "Abbottabad": {
+      "id": "S232"
+    },
+    "Adda Machian Wala": {
+      "id": "S595"
+    },
+    "Adda Mangatanwala": {
+      "id": "S61"
+    },
+    "Adenzai": {
+      "id": "S284"
+    },
+    "Ahmadpur East": {
+      "id": "S23"
+    },
+    "Ahmedpur Sial": {
+      "id": "S88"
+    },
+    "Aliabad": {
+      "id": "S534"
+    },
+    "Alipur": {
+      "id": "S86"
+    },
+    "Alipur Chatha": {
+      "id": "S176"
+    },
+    "Allahabad": {
+      "id": "S113"
+    },
+    "Allai": {
+      "id": "S246"
+    },
+    "Alpuri": {
+      "id": "S310"
+    },
+    "Aminpur Bangla": {
+      "id": "S192"
+    },
+    "Anambar": {
+      "id": "S436"
+    },
+    "Aram Bagh": {
+      "id": "S354"
+    },
+    "Arifwala": {
+      "id": "S95"
+    },
+    "Ashwat": {
+      "id": "S437"
+    },
+    "Astore": {
+      "id": "S535"
+    },
+    "Athmuqam": {
+      "id": "S536"
+    },
+    "Attock": {
+      "id": "S209"
+    },
+    "Awaran": {
+      "id": "S438"
+    },
+    "Baba Kot": {
+      "id": "S439"
+    },
+    "Babusar": {
+      "id": "S537"
+    },
+    "Babuzai (Saidu Sharif/Mingora)": {
+      "id": "S317"
+    },
+    "Badaber": {
+      "id": "S307"
+    },
+    "Baddomalhi": {
+      "id": "S138"
+    },
+    "Badin": {
+      "id": "S330"
+    },
+    "Bagh": {
+      "id": "S160"
+    },
+    "Bahawalnagar": {
+      "id": "S104"
+    },
+    "Bahawalpur": {
+      "id": "S89"
+    },
+    "Bahrain": {
+      "id": "S321"
+    },
+    "Bakot": {
+      "id": "S235"
+    },
+    "Bakrani": {
+      "id": "S367"
+    },
+    "Balakot": {
+      "id": "S291"
+    },
+    "Balambat": {
+      "id": "S285"
+    },
+    "Balanari": {
+      "id": "S440"
+    },
+    "Balouch": {
+      "id": "S539"
+    },
+    "Banda Daud Shah": {
+      "id": "S264"
+    },
+    "Bangla Gogera": {
+      "id": "S74"
+    },
+    "Bannu": {
+      "id": "S236"
+    },
+    "Bara": {
+      "id": "S272"
+    },
+    "Barang": {
+      "id": "S244"
+    },
+    "Barikot": {
+      "id": "S322"
+    },
+    "Barnala": {
+      "id": "S153"
+    },
+    "Basirpur": {
+      "id": "S110"
+    },
+    "Batkhela": {
+      "id": "S287"
+    },
+    "Battagram": {
+      "id": "S245"
+    },
+    "Behal": {
+      "id": "S230"
+    },
+    "Bela": {
+      "id": "S441"
+    },
+    "Besma": {
+      "id": "S442"
+    },
+    "Bhakkar": {
+      "id": "S229"
+    },
+    "Bhalwal": {
+      "id": "S146"
+    },
+    "Bhawana": {
+      "id": "S191"
+    },
+    "Bhikhi": {
+      "id": "S4"
+    },
+    "Bhimber": {
+      "id": "S154"
+    },
+    "Bhiria": {
+      "id": "S380"
+    },
+    "Bisham": {
+      "id": "S311"
+    },
+    "Bucheki": {
+      "id": "S575"
+    },
+    "Buleda": {
+      "id": "S443"
+    },
+    "Bulri Shah Karim": {
+      "id": "S415"
+    },
+    "Burewala": {
+      "id": "S94"
+    },
+    "Central Kurram": {
+      "id": "S277"
+    },
+    "Chachro": {
+      "id": "S417"
+    },
+    "Chak Aamru": {
+      "id": "S136"
+    },
+    "Chak Jhumra": {
+      "id": "S189"
+    },
+    "Chakwal": {
+      "id": "S166"
+    },
+    "Chalt": {
+      "id": "S541"
+    },
+    "Chaman": {
+      "id": "S444"
+    },
+    "Chamber": {
+      "id": "S413"
+    },
+    "Chamkani": {
+      "id": "S309"
+    },
+    "Chamla": {
+      "id": "S249"
+    },
+    "Changa Manga": {
+      "id": "S69"
+    },
+    "Charhoi": {
+      "id": "S540"
+    },
+    "Charsadda": {
+      "id": "S252"
+    },
+    "Chattar": {
+      "id": "S445"
+    },
+    "Chaubara": {
+      "id": "S202"
+    },
+    "Chawinda": {
+      "id": "S131"
+    },
+    "Chichawatni": {
+      "id": "S77"
+    },
+    "Chikar": {
+      "id": "S542"
+    },
+    "Chilas": {
+      "id": "S543"
+    },
+    "Chiniot": {
+      "id": "S190"
+    },
+    "Chishtian": {
+      "id": "S99"
+    },
+    "Chitral": {
+      "id": "S281"
+    },
+    "Choa Saidan Shah": {
+      "id": "S167"
+    },
+    "Chorasta Mian Khan": {
+      "id": "S109"
+    },
+    "Chorbat": {
+      "id": "S544"
+    },
+    "Chowk Azam": {
+      "id": "S18"
+    },
+    "Chowk Munda": {
+      "id": "S25"
+    },
+    "Chowki Bhagat": {
+      "id": "S185"
+    },
+    "Chund Bharwana": {
+      "id": "S195"
+    },
+    "Chunian": {
+      "id": "S70"
+    },
+    "Dadu": {
+      "id": "S334"
+    },
+    "Dadyal": {
+      "id": "S545"
+    },
+    "Daggar": {
+      "id": "S247"
+    },
+    "Daghoni": {
+      "id": "S546"
+    },
+    "Daharki": {
+      "id": "S339"
+    },
+    "Dahli": {
+      "id": "S418"
+    },
+    "Daira Din Panah": {
+      "id": "S29"
+    },
+    "Dajal": {
+      "id": "S41"
+    },
+    "Dalbandin": {
+      "id": "S446"
+    },
+    "Danyor": {
+      "id": "S547"
+    },
+    "Dara Adamkhel": {
+      "id": "S212"
+    },
+    "Daraban": {
+      "id": "S257"
+    },
+    "Daran": {
+      "id": "S447"
+    },
+    "Darel": {
+      "id": "S548"
+    },
+    "Dargai": {
+      "id": "S288"
+    },
+    "Darya Khan": {
+      "id": "S225"
+    },
+    "Dasht": {
+      "id": "S448"
+    },
+    "Daska": {
+      "id": "S128"
+    },
+    "Dassu": {
+      "id": "S267"
+    },
+    "Daud Khel": {
+      "id": "S217"
+    },
+    "Daulat Nagar": {
+      "id": "S142"
+    },
+    "Daur": {
+      "id": "S397"
+    },
+    "Depalpur": {
+      "id": "S107"
+    },
+    "Dera Allah Yar": {
+      "id": "S449"
+    },
+    "Dera Bugti": {
+      "id": "S450"
+    },
+    "Dera Ghazi Khan": {
+      "id": "S37"
+    },
+    "Dera Ismail Khan": {
+      "id": "S228"
+    },
+    "Dera Murad Jamali": {
+      "id": "S451"
+    },
+    "Dhadar": {
+      "id": "S452"
+    },
+    "Dhirkot": {
+      "id": "S161"
+    },
+    "Digkot": {
+      "id": "S58"
+    },
+    "Digri": {
+      "id": "S374"
+    },
+    "Dina": {
+      "id": "S150"
+    },
+    "Dinga": {
+      "id": "S173"
+    },
+    "Diplo": {
+      "id": "S419"
+    },
+    "Dir": {
+      "id": "S327"
+    },
+    "Dobandi": {
+      "id": "S453"
+    },
+    "Dokri": {
+      "id": "S368"
+    },
+    "Domel": {
+      "id": "S237"
+    },
+    "Drosh": {
+      "id": "S282"
+    },
+    "Drug": {
+      "id": "S454"
+    },
+    "Dubair": {
+      "id": "S274"
+    },
+    "Duki": {
+      "id": "S455"
+    },
+    "Dunga Bunga": {
+      "id": "S103"
+    },
+    "Dunyapur": {
+      "id": "S82"
+    },
+    "Dureji": {
+      "id": "S456"
+    },
+    "Ekka Ghund": {
+      "id": "S299"
+    },
+    "Eminabad": {
+      "id": "S120"
+    },
+    "Eminabad More": {
+      "id": "S121"
+    },
+    "Essa": {
+      "id": "S530"
+    },
+    "Faisalabad": {
+      "id": "S11"
+    },
+    "Faiz Ganj": {
+      "id": "S361"
+    },
+    "Faqir Wali": {
+      "id": "S101"
+    },
+    "Farooqabad": {
+      "id": "S531"
+    },
+    "Fateh Jang": {
+      "id": "S208"
+    },
+    "Fatehpur": {
+      "id": "S19"
+    },
+    "Fatehpur Thakiala (Nakyal)": {
+      "id": "S549"
+    },
+    "Feroze Wattwan": {
+      "id": "S5"
+    },
+    "Fort Abbas": {
+      "id": "S100"
+    },
+    "Fort Monroe": {
+      "id": "S40"
+    },
+    "Gadani": {
+      "id": "S457"
+    },
+    "Gagra": {
+      "id": "S248"
+    },
+    "Gajjar": {
+      "id": "S458"
+    },
+    "Gamba": {
+      "id": "S550"
+    },
+    "Gambat": {
+      "id": "S362"
+    },
+    "Gandakha": {
+      "id": "S459"
+    },
+    "Gandawah": {
+      "id": "S460"
+    },
+    "Garh Moor": {
+      "id": "S22"
+    },
+    "Garha More": {
+      "id": "S597"
+    },
+    "Garhi Khairo": {
+      "id": "S347"
+    },
+    "Garhi Yasin": {
+      "id": "S401"
+    },
+    "Gawadar": {
+      "id": "S528"
+    },
+    "Gazg": {
+      "id": "S461"
+    },
+    "Ghalanai": {
+      "id": "S296"
+    },
+    "Gharo": {
+      "id": "S424"
+    },
+    "Ghazi": {
+      "id": "S261"
+    },
+    "Ghizer": {
+      "id": "S551"
+    },
+    "Ghorabari": {
+      "id": "S425"
+    },
+    "Ghotki": {
+      "id": "S338"
+    },
+    "Ghowari/Haldi": {
+      "id": "S553"
+    },
+    "Gichk": {
+      "id": "S462"
+    },
+    "Gilgit": {
+      "id": "S552"
+    },
+    "Girot": {
+      "id": "S198"
+    },
+    "Goharabad": {
+      "id": "S555"
+    },
+    "Gojal": {
+      "id": "S554"
+    },
+    "Gojra": {
+      "id": "S13"
+    },
+    "Gujar Khan": {
+      "id": "S152"
+    },
+    "Gujranwala": {
+      "id": "S122"
+    },
+    "Gujrat": {
+      "id": "S125"
+    },
+    "Gulabpur": {
+      "id": "S556"
+    },
+    "Gulistan": {
+      "id": "S463"
+    },
+    "Gultari": {
+      "id": "S557"
+    },
+    "Gumbat": {
+      "id": "S266"
+    },
+    "Gupis": {
+      "id": "S558"
+    },
+    "Gurjura": {
+      "id": "S434"
+    },
+    "Hafizabad": {
+      "id": "S178"
+    },
+    "Hajira": {
+      "id": "S158"
+    },
+    "Hala": {
+      "id": "S371"
+    },
+    "Hangu": {
+      "id": "S214"
+    },
+    "Harapa": {
+      "id": "S76"
+    },
+    "Harbour": {
+      "id": "S356"
+    },
+    "Hari Ghel": {
+      "id": "S560"
+    },
+    "Haripur": {
+      "id": "S260"
+    },
+    "Harnai": {
+      "id": "S464"
+    },
+    "Harnoli": {
+      "id": "S222"
+    },
+    "Haroonabad": {
+      "id": "S102"
+    },
+    "Hasilpur": {
+      "id": "S98"
+    },
+    "Hassan Abdal": {
+      "id": "S210"
+    },
+    "Hattian Bala": {
+      "id": "S561"
+    },
+    "Haveli": {
+      "id": "S562"
+    },
+    "Haveli Azad Kashmir": {
+      "id": "S162"
+    },
+    "Haveli Lakha": {
+      "id": "S106"
+    },
+    "Havelian": {
+      "id": "S233"
+    },
+    "Hazara": {
+      "id": "S141"
+    },
+    "Head Balloki": {
+      "id": "S577"
+    },
+    "Head Trimmu": {
+      "id": "S559"
+    },
+    "Heera Adda": {
+      "id": "S26"
+    },
+    "Hub": {
+      "id": "S465"
+    },
+    "Hujra Shah Muqeem": {
+      "id": "S108"
+    },
+    "Hunza": {
+      "id": "S563"
+    },
+    "Huramzai": {
+      "id": "S466"
+    },
+    "Hussain Bux Mari": {
+      "id": "S375"
+    },
+    "Hyderabad": {
+      "id": "S343"
+    },
+    "Hyderabad Thal": {
+      "id": "S200"
+    },
+    "Isa Khel": {
+      "id": "S220"
+    },
+    "Ishkoman": {
+      "id": "S565"
+    },
+    "Islamabad/Rawalpindi": {
+      "id": "S165"
+    },
+    "Islamgarh": {
+      "id": "S564"
+    },
+    "Islamkot": {
+      "id": "S420"
+    },
+    "Jacobabad": {
+      "id": "S346"
+    },
+    "Jaglot": {
+      "id": "S566"
+    },
+    "Jahanian": {
+      "id": "S81"
+    },
+    "Jalalpur Bhattian": {
+      "id": "S180"
+    },
+    "Jalalpur Jattan": {
+      "id": "S140"
+    },
+    "Jalalpur Pirwala": {
+      "id": "S84"
+    },
+    "Jam Nawaz Ali": {
+      "id": "S391"
+    },
+    "Jampur": {
+      "id": "S42"
+    },
+    "Jamrud": {
+      "id": "S270"
+    },
+    "Jamshed": {
+      "id": "S353"
+    },
+    "Jand": {
+      "id": "S207"
+    },
+    "Jaranwala": {
+      "id": "S574"
+    },
+    "Jati": {
+      "id": "S403"
+    },
+    "Jatoi": {
+      "id": "S87"
+    },
+    "Jehangira": {
+      "id": "S301"
+    },
+    "Jhal Jhao": {
+      "id": "S467"
+    },
+    "Jhal Magsi": {
+      "id": "S468"
+    },
+    "Jhang": {
+      "id": "S15"
+    },
+    "Jhawarian": {
+      "id": "S182"
+    },
+    "Jhelum": {
+      "id": "S149"
+    },
+    "Jhuddo": {
+      "id": "S376"
+    },
+    "Jiwani": {
+      "id": "S469"
+    },
+    "Johi": {
+      "id": "S335"
+    },
+    "Judba": {
+      "id": "S324"
+    },
+    "Kabal": {
+      "id": "S318"
+    },
+    "Kabirwala": {
+      "id": "S48"
+    },
+    "Kacha Khuh": {
+      "id": "S79"
+    },
+    "Kakki": {
+      "id": "S238"
+    },
+    "Kala Bagh": {
+      "id": "S216"
+    },
+    "Kala Shah Kaku": {
+      "id": "S116"
+    },
+    "Kalat": {
+      "id": "S470"
+    },
+    "Kallar Kahar": {
+      "id": "S168"
+    },
+    "Kallar Syedan": {
+      "id": "S156"
+    },
+    "Kallur Kot": {
+      "id": "S224"
+    },
+    "Kaloi": {
+      "id": "S421"
+    },
+    "Kalri": {
+      "id": "S193"
+    },
+    "Kamalia": {
+      "id": "S54"
+    },
+    "Kamoke": {
+      "id": "S119"
+    },
+    "Kamran Kalan": {
+      "id": "S211"
+    },
+    "Kandhkot": {
+      "id": "S357"
+    },
+    "Kandia": {
+      "id": "S268"
+    },
+    "Kandiaro": {
+      "id": "S381"
+    },
+    "Kangan Pur": {
+      "id": "S112"
+    },
+    "Kanjrur": {
+      "id": "S529"
+    },
+    "Karak": {
+      "id": "S262"
+    },
+    "Kardigap": {
+      "id": "S471"
+    },
+    "Karezat": {
+      "id": "S472"
+    },
+    "Karor": {
+      "id": "S20"
+    },
+    "Karor Pakka": {
+      "id": "S91"
+    },
+    "Kashmore": {
+      "id": "S358"
+    },
+    "Kasur": {
+      "id": "S64"
+    },
+    "Katlang": {
+      "id": "S295"
+    },
+    "Keris": {
+      "id": "S567"
+    },
+    "Keti Bunder": {
+      "id": "S426"
+    },
+    "Khairpur": {
+      "id": "S360"
+    },
+    "Khairpur Nathan Shah": {
+      "id": "S336"
+    },
+    "Khanewal": {
+      "id": "S80"
+    },
+    "Khangarh": {
+      "id": "S340"
+    },
+    "Khanpur": {
+      "id": "S47"
+    },
+    "Khanqah Dogran": {
+      "id": "S532"
+    },
+    "Khansar": {
+      "id": "S227"
+    },
+    "Khaplu": {
+      "id": "S568"
+    },
+    "Khar": {
+      "id": "S239"
+    },
+    "Kharan": {
+      "id": "S473"
+    },
+    "Kharian": {
+      "id": "S145"
+    },
+    "Kharianwala": {
+      "id": "S3"
+    },
+    "Kharmang": {
+      "id": "S569"
+    },
+    "Kharo Chan": {
+      "id": "S404"
+    },
+    "Khewra": {
+      "id": "S169"
+    },
+    "Khichi Wala": {
+      "id": "S592"
+    },
+    "Khipro": {
+      "id": "S392"
+    },
+    "Khudian Khas": {
+      "id": "S115"
+    },
+    "Khuiratta": {
+      "id": "S570"
+    },
+    "Khurrianwala": {
+      "id": "S10"
+    },
+    "Khushab": {
+      "id": "S197"
+    },
+    "Khuzdar": {
+      "id": "S474"
+    },
+    "Khwazakhela": {
+      "id": "S319"
+    },
+    "Killa Abdullah": {
+      "id": "S475"
+    },
+    "Killa Saifullah": {
+      "id": "S476"
+    },
+    "Kingra Mor": {
+      "id": "S129"
+    },
+    "Kingri": {
+      "id": "S363"
+    },
+    "Kohat": {
+      "id": "S213"
+    },
+    "Kohlu": {
+      "id": "S477"
+    },
+    "Kot Addu": {
+      "id": "S30"
+    },
+    "Kot Arab Ali Khan": {
+      "id": "S143"
+    },
+    "Kot Chutta": {
+      "id": "S43"
+    },
+    "Kot Diji": {
+      "id": "S364"
+    },
+    "Kot Ghulam Muhammad": {
+      "id": "S377"
+    },
+    "Kot Momin": {
+      "id": "S181"
+    },
+    "Kot Radha Kishan": {
+      "id": "S66"
+    },
+    "Kot Sultan": {
+      "id": "S28"
+    },
+    "Kotla Jam": {
+      "id": "S226"
+    },
+    "Kotli": {
+      "id": "S157"
+    },
+    "Kotri": {
+      "id": "S349"
+    },
+    "Kulachi": {
+      "id": "S256"
+    },
+    "Kumrat Vally": {
+      "id": "S538"
+    },
+    "Kundian": {
+      "id": "S221"
+    },
+    "Kunri": {
+      "id": "S429"
+    },
+    "Lachi": {
+      "id": "S265"
+    },
+    "Lahor": {
+      "id": "S315"
+    },
+    "Lahore": {
+      "id": "S1"
+    },
+    "Lakki Marwat": {
+      "id": "S279"
+    },
+    "Lala Musa": {
+      "id": "S144"
+    },
+    "Lalian": {
+      "id": "S184"
+    },
+    "Landi Kotal": {
+      "id": "S271"
+    },
+    "Latifabad": {
+      "id": "S344"
+    },
+    "Layyah": {
+      "id": "S21"
+    },
+    "Leepa": {
+      "id": "S572"
+    },
+    "Lehri": {
+      "id": "S478"
+    },
+    "Liaquatpur": {
+      "id": "S49"
+    },
+    "Lodhran": {
+      "id": "S90"
+    },
+    "Loiband": {
+      "id": "S479"
+    },
+    "Lora": {
+      "id": "S234"
+    },
+    "Loralai": {
+      "id": "S480"
+    },
+    "Lower Kurram": {
+      "id": "S278"
+    },
+    "Lower Orakzai": {
+      "id": "S304"
+    },
+    "Luddan": {
+      "id": "S97"
+    },
+    "Luni": {
+      "id": "S481"
+    },
+    "Mach": {
+      "id": "S482"
+    },
+    "Mailsi": {
+      "id": "S92"
+    },
+    "Maiwand": {
+      "id": "S483"
+    },
+    "Malakwal": {
+      "id": "S171"
+    },
+    "Mamu Kanjan": {
+      "id": "S55"
+    },
+    "Mamund": {
+      "id": "S240"
+    },
+    "Manawala": {
+      "id": "S7"
+    },
+    "Mand": {
+      "id": "S484"
+    },
+    "Mandanr": {
+      "id": "S250"
+    },
+    "Mandi Ahmed Abad": {
+      "id": "S111"
+    },
+    "Mandi Bahauddin": {
+      "id": "S172"
+    },
+    "Mandi Bhalwal": {
+      "id": "S147"
+    },
+    "Mandi Faizabad": {
+      "id": "S62"
+    },
+    "Manga Mandi": {
+      "id": "S67"
+    },
+    "Mangochar": {
+      "id": "S485"
+    },
+    "Manjhand": {
+      "id": "S351"
+    },
+    "Manjhipur": {
+      "id": "S486"
+    },
+    "Mankera": {
+      "id": "S201"
+    },
+    "Mansehra": {
+      "id": "S290"
+    },
+    "Mardan": {
+      "id": "S293"
+    },
+    "Mashabrum": {
+      "id": "S573"
+    },
+    "Mashkai": {
+      "id": "S487"
+    },
+    "Mastuj": {
+      "id": "S325"
+    },
+    "Mastung": {
+      "id": "S488"
+    },
+    "Mathra": {
+      "id": "S308"
+    },
+    "Matiari": {
+      "id": "S370"
+    },
+    "Matli": {
+      "id": "S331"
+    },
+    "Matta": {
+      "id": "S320"
+    },
+    "Mauripur": {
+      "id": "S355"
+    },
+    "Mehar": {
+      "id": "S337"
+    },
+    "Mekhtar": {
+      "id": "S489"
+    },
+    "Mian Channu": {
+      "id": "S78"
+    },
+    "Miani": {
+      "id": "S170"
+    },
+    "Mianwali": {
+      "id": "S219"
+    },
+    "Minchinabad": {
+      "id": "S105"
+    },
+    "Miro Khan": {
+      "id": "S385"
+    },
+    "Mirpur": {
+      "id": "S155"
+    },
+    "Mirpur Bathoro": {
+      "id": "S405"
+    },
+    "Mirpur Mathelo": {
+      "id": "S341"
+    },
+    "Mirpur Sakro": {
+      "id": "S427"
+    },
+    "Mirpurkhas": {
+      "id": "S373"
+    },
+    "Mithi": {
+      "id": "S416"
+    },
+    "Moola": {
+      "id": "S490"
+    },
+    "More Khunda": {
+      "id": "S576"
+    },
+    "Moro": {
+      "id": "S382"
+    },
+    "Mulkhow": {
+      "id": "S326"
+    },
+    "Multan": {
+      "id": "S46"
+    },
+    "Muridke": {
+      "id": "S117"
+    },
+    "Murree": {
+      "id": "S164"
+    },
+    "Musakhel": {
+      "id": "S491"
+    },
+    "Muslim Bagh": {
+      "id": "S492"
+    },
+    "Muzaffarabad": {
+      "id": "S163"
+    },
+    "Muzaffargarh": {
+      "id": "S44"
+    },
+    "Naal": {
+      "id": "S493"
+    },
+    "Nag": {
+      "id": "S494"
+    },
+    "Nagarparkar": {
+      "id": "S422"
+    },
+    "Nainan Kot": {
+      "id": "S135"
+    },
+    "Nankana Sahib": {
+      "id": "S60"
+    },
+    "Nara": {
+      "id": "S365"
+    },
+    "Narang Mandi": {
+      "id": "S139"
+    },
+    "Narowal": {
+      "id": "S137"
+    },
+    "Nasirabad": {
+      "id": "S386"
+    },
+    "Naushahro Feroze": {
+      "id": "S379"
+    },
+    "Naushehra": {
+      "id": "S204"
+    },
+    "Nawabshah": {
+      "id": "S396"
+    },
+    "Nawagai": {
+      "id": "S242"
+    },
+    "Nawan Kot": {
+      "id": "S17"
+    },
+    "New Sukkur": {
+      "id": "S408"
+    },
+    "Nok Kundi": {
+      "id": "S495"
+    },
+    "Noorpur Thal": {
+      "id": "S199"
+    },
+    "Notak": {
+      "id": "S593"
+    },
+    "Nowshera": {
+      "id": "S300"
+    },
+    "Nowshera Virkan": {
+      "id": "S179"
+    },
+    "Nurkot": {
+      "id": "S134"
+    },
+    "Oghi": {
+      "id": "S292"
+    },
+    "Okara": {
+      "id": "S73"
+    },
+    "Ormara": {
+      "id": "S496"
+    },
+    "Ornach": {
+      "id": "S497"
+    },
+    "Pabbi": {
+      "id": "S302"
+    },
+    "Paharpur": {
+      "id": "S255"
+    },
+    "Painsra": {
+      "id": "S12"
+    },
+    "Pakpattan": {
+      "id": "S96"
+    },
+    "Pallandri": {
+      "id": "S578"
+    },
+    "Panjgur": {
+      "id": "S498"
+    },
+    "Pano Aqil": {
+      "id": "S409"
+    },
+    "Panwan": {
+      "id": "S8"
+    },
+    "Paroa": {
+      "id": "S258"
+    },
+    "Paroom": {
+      "id": "S499"
+    },
+    "Pasni": {
+      "id": "S500"
+    },
+    "Pasrur": {
+      "id": "S132"
+    },
+    "Patika": {
+      "id": "S579"
+    },
+    "Pattan": {
+      "id": "S269"
+    },
+    "Pattoki": {
+      "id": "S71"
+    },
+    "Peer Jaggi": {
+      "id": "S27"
+    },
+    "Peshawar City": {
+      "id": "S305"
+    },
+    "Phalia": {
+      "id": "S174"
+    },
+    "Phander": {
+      "id": "S580"
+    },
+    "Phelawagh": {
+      "id": "S501"
+    },
+    "Phool Nagar": {
+      "id": "S68"
+    },
+    "Pindi Bhattian": {
+      "id": "S186"
+    },
+    "Pindi Gheb": {
+      "id": "S206"
+    },
+    "Pindiali": {
+      "id": "S297"
+    },
+    "Piplan": {
+      "id": "S223"
+    },
+    "Pir Mahal": {
+      "id": "S52"
+    },
+    "Pishin": {
+      "id": "S502"
+    },
+    "Pithoro": {
+      "id": "S430"
+    },
+    "Punial": {
+      "id": "S581"
+    },
+    "Puran": {
+      "id": "S312"
+    },
+    "Qadirabad": {
+      "id": "S175"
+    },
+    "Qamar Din Karez": {
+      "id": "S503"
+    },
+    "Qambar": {
+      "id": "S383"
+    },
+    "Qasba Gujrat": {
+      "id": "S32"
+    },
+    "Qasimabad": {
+      "id": "S345"
+    },
+    "Qazi Ahmed": {
+      "id": "S398"
+    },
+    "Qila Didar Singh": {
+      "id": "S177"
+    },
+    "Qubo Saeed Khan": {
+      "id": "S387"
+    },
+    "Rahim Yar Khan": {
+      "id": "S45"
+    },
+    "Rahwali": {
+      "id": "S123"
+    },
+    "Raiwind": {
+      "id": "S65"
+    },
+    "Rajana": {
+      "id": "S53"
+    },
+    "Rajanpur": {
+      "id": "S34"
+    },
+    "Rang Pur": {
+      "id": "S24"
+    },
+    "Ranolia": {
+      "id": "S275"
+    },
+    "Ratodero": {
+      "id": "S369"
+    },
+    "Rawalakot": {
+      "id": "S159"
+    },
+    "Rawat": {
+      "id": "S596"
+    },
+    "Razar": {
+      "id": "S316"
+    },
+    "Renala Khurd": {
+      "id": "S72"
+    },
+    "Rohri": {
+      "id": "S410"
+    },
+    "Rojhan": {
+      "id": "S36"
+    },
+    "Rokhri": {
+      "id": "S218"
+    },
+    "Roundu": {
+      "id": "S582"
+    },
+    "Sadhoke": {
+      "id": "S118"
+    },
+    "Sadiqabad": {
+      "id": "S38"
+    },
+    "Saeedabad": {
+      "id": "S372"
+    },
+    "Safdarabad": {
+      "id": "S187"
+    },
+    "Safi": {
+      "id": "S298"
+    },
+    "Sahiwal": {
+      "id": "S75"
+    },
+    "Sakhi Sarwer": {
+      "id": "S39"
+    },
+    "Sakran": {
+      "id": "S504"
+    },
+    "Sakrand": {
+      "id": "S399"
+    },
+    "Salarzai": {
+      "id": "S241"
+    },
+    "Saleh Pat": {
+      "id": "S411"
+    },
+    "Samahni": {
+      "id": "S583"
+    },
+    "Samar Bagh": {
+      "id": "S286"
+    },
+    "Samaro": {
+      "id": "S431"
+    },
+    "Sambaza": {
+      "id": "S505"
+    },
+    "Sambrial": {
+      "id": "S126"
+    },
+    "Samundri": {
+      "id": "S59"
+    },
+    "Sanawan": {
+      "id": "S31"
+    },
+    "Sanghar": {
+      "id": "S390"
+    },
+    "Sangla Hill": {
+      "id": "S188"
+    },
+    "Sangsillah": {
+      "id": "S506"
+    },
+    "Sanjavi": {
+      "id": "S507"
+    },
+    "Sarai Alamgir": {
+      "id": "S148"
+    },
+    "Sarai Mahajir": {
+      "id": "S231"
+    },
+    "Sarai Naurang": {
+      "id": "S280"
+    },
+    "Saranan": {
+      "id": "S508"
+    },
+    "Sarawan": {
+      "id": "S509"
+    },
+    "Satiana": {
+      "id": "S57"
+    },
+    "Sayedwala": {
+      "id": "S571"
+    },
+    "Sehnsa": {
+      "id": "S584"
+    },
+    "Sehwan": {
+      "id": "S350"
+    },
+    "Seo": {
+      "id": "S273"
+    },
+    "Shabqadar": {
+      "id": "S254"
+    },
+    "Shah Alam": {
+      "id": "S306"
+    },
+    "Shah Bandar": {
+      "id": "S406"
+    },
+    "Shah Jeewna": {
+      "id": "S194"
+    },
+    "Shahdadkot": {
+      "id": "S384"
+    },
+    "Shahdadpur": {
+      "id": "S393"
+    },
+    "Shahkot": {
+      "id": "S9"
+    },
+    "Shahrag": {
+      "id": "S510"
+    },
+    "Shakardara": {
+      "id": "S215"
+    },
+    "Shakargarh": {
+      "id": "S133"
+    },
+    "Shalkani": {
+      "id": "S435"
+    },
+    "Sharaqpur": {
+      "id": "S63"
+    },
+    "Sharda": {
+      "id": "S585"
+    },
+    "Sharingal": {
+      "id": "S329"
+    },
+    "Sheikhupura": {
+      "id": "S2"
+    },
+    "Sherani": {
+      "id": "S511"
+    },
+    "Shigar": {
+      "id": "S586"
+    },
+    "Shikarpur": {
+      "id": "S400"
+    },
+    "Shinaki": {
+      "id": "S587"
+    },
+    "Shorkot": {
+      "id": "S50"
+    },
+    "Shorkot Cantt": {
+      "id": "S51"
+    },
+    "Shujabad": {
+      "id": "S83"
+    },
+    "Sial Sharif": {
+      "id": "S196"
+    },
+    "Sialkot": {
+      "id": "S127"
+    },
+    "Sibi": {
+      "id": "S512"
+    },
+    "Sijawal Junejo": {
+      "id": "S388"
+    },
+    "Sillanwali": {
+      "id": "S183"
+    },
+    "Sindhri": {
+      "id": "S378"
+    },
+    "Sinjhoro": {
+      "id": "S394"
+    },
+    "Skardu": {
+      "id": "S588"
+    },
+    "Sobhodero": {
+      "id": "S366"
+    },
+    "Sohawa": {
+      "id": "S151"
+    },
+    "Sohbatpur": {
+      "id": "S513"
+    },
+    "Sonmiani": {
+      "id": "S514"
+    },
+    "Sui": {
+      "id": "S515"
+    },
+    "Sujawal": {
+      "id": "S402"
+    },
+    "Sukkur": {
+      "id": "S407"
+    },
+    "Swabi": {
+      "id": "S313"
+    },
+    "Taftan": {
+      "id": "S516"
+    },
+    "Takht Bhai": {
+      "id": "S294"
+    },
+    "Takht-e-Nasrati": {
+      "id": "S263"
+    },
+    "Talagang": {
+      "id": "S205"
+    },
+    "Talhar": {
+      "id": "S332"
+    },
+    "Tall": {
+      "id": "S259"
+    },
+    "Talwandi": {
+      "id": "S114"
+    },
+    "Tamboo": {
+      "id": "S517"
+    },
+    "Tandlianwala": {
+      "id": "S56"
+    },
+    "Tando Adam": {
+      "id": "S395"
+    },
+    "Tando Allahyar": {
+      "id": "S412"
+    },
+    "Tando Bago": {
+      "id": "S333"
+    },
+    "Tando Muhammad Khan": {
+      "id": "S414"
+    },
+    "Tangi": {
+      "id": "S253"
+    },
+    "Tangir": {
+      "id": "S589"
+    },
+    "Tangwani": {
+      "id": "S359"
+    },
+    "Tank": {
+      "id": "S323"
+    },
+    "Taunsa": {
+      "id": "S35"
+    },
+    "Thana": {
+      "id": "S289"
+    },
+    "Thano Bula Khan": {
+      "id": "S352"
+    },
+    "Thatta": {
+      "id": "S423"
+    },
+    "Thorar": {
+      "id": "S590"
+    },
+    "Thul": {
+      "id": "S348"
+    },
+    "Timergara": {
+      "id": "S283"
+    },
+    "Toba Tek Singh": {
+      "id": "S14"
+    },
+    "Toisar": {
+      "id": "S518"
+    },
+    "Topi": {
+      "id": "S314"
+    },
+    "Torkham": {
+      "id": "S432"
+    },
+    "Totalai": {
+      "id": "S251"
+    },
+    "Trarkhal": {
+      "id": "S591"
+    },
+    "Tump": {
+      "id": "S519"
+    },
+    "Turbat": {
+      "id": "S520"
+    },
+    "Ubauro": {
+      "id": "S342"
+    },
+    "Uch Sharif": {
+      "id": "S85"
+    },
+    "Umerkot": {
+      "id": "S428"
+    },
+    "Upper Kurram": {
+      "id": "S276"
+    },
+    "Upper Orakzai": {
+      "id": "S303"
+    },
+    "Usta Muhammad": {
+      "id": "S521"
+    },
+    "Uthal": {
+      "id": "S522"
+    },
+    "Utman Khel": {
+      "id": "S243"
+    },
+    "Vehari": {
+      "id": "S93"
+    },
+    "Vehova": {
+      "id": "S33"
+    },
+    "Wadh": {
+      "id": "S523"
+    },
+    "Wali Khel": {
+      "id": "S433"
+    },
+    "Wan Bhachran": {
+      "id": "S203"
+    },
+    "Warah": {
+      "id": "S389"
+    },
+    "Warburton": {
+      "id": "S6"
+    },
+    "Wari": {
+      "id": "S328"
+    },
+    "Wazirabad": {
+      "id": "S124"
+    },
+    "Zafarwal": {
+      "id": "S130"
+    },
+    "Zarghoon": {
+      "id": "S524"
+    },
+    "Zehri": {
+      "id": "S525"
+    },
+    "Zhob": {
+      "id": "S526"
+    },
+    "Ziarat": {
+      "id": "S527"
+    }
+  }
+}
