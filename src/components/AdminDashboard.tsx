@@ -59,7 +59,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [savingSettings, setSavingSettings] = useState(false);
   const [d1Connected, setD1Connected] = useState(false);
 
-  // Active View Tab: 'master_buses' (30 Buses) or 'all_stops' (253 Stops)
+  // Active View Tab: 'master_buses' (Buses) or 'all_stops' (Stops)
   const [activeDataTab, setActiveDataTab] = useState<'master_buses' | 'all_stops'>('master_buses');
   const [d1Buses, setD1Buses] = useState<MasterBusData[]>([]);
   const [d1Stops, setD1Stops] = useState<any[]>([]);
@@ -319,7 +319,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }
   };
 
-  // 30 Master Buses from D1 (or fallback to buses prop if loading/empty)
+  // Master Buses from D1 (or fallback to buses prop if loading/empty)
   const masterBusesList: MasterBusData[] = d1Buses.length > 0 ? d1Buses : buses.map(b => ({
     bus_id: b.id || b.busNumber || 'B-001',
     company_name: b.companyName,
@@ -344,7 +344,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     );
   });
 
-  // 253 Stops from D1
+  // Stops from D1
   const filteredStops = d1Stops.filter(stop => {
     const s = searchTerm.toLowerCase().trim();
     if (!s) return true;
@@ -1025,7 +1025,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           </div>
         </div>
 
-        {/* View Switcher Tabs: 30 Master Buses vs. 253 Stops */}
+        {/* View Switcher Tabs: Master Buses vs. Stops */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center p-1.5 bg-slate-200/80 rounded-2xl max-w-fit shadow-inner">
             <button
@@ -1039,7 +1039,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               }`}
             >
               <BusIcon className="w-4 h-4 text-emerald-600" />
-              <span>30 Master Buses / بسیں</span>
+              <span>Master Buses / بسیں</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                 activeDataTab === 'master_buses' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300/60 text-slate-700'
               }`}>
@@ -1058,7 +1058,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               }`}
             >
               <Layers className="w-4 h-4 text-emerald-600" />
-              <span>All 253 Stops / تمام اسٹاپس</span>
+              <span>All Stops / تمام اسٹاپس</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                 activeDataTab === 'all_stops' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300/60 text-slate-700'
               }`}>
@@ -1088,8 +1088,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             type="text"
             placeholder={
               activeDataTab === 'master_buses'
-                ? "Search 30 buses by company, bus ID, vehicle plate, route map..."
-                : "Search 253 stops by bus ID, city name, terminal location, stand..."
+                ? "Search buses by company, bus ID, vehicle plate, route map..."
+                : "Search stops by bus ID, city name, terminal location, stand..."
             }
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -1104,7 +1104,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           <div className="overflow-x-auto">
             {activeDataTab === 'master_buses' ? (
               /* ========================================================================= */
-              /* 30 MASTER BUSES TABLE VIEW */
+              /* MASTER BUSES TABLE VIEW */
               /* ========================================================================= */
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -1195,7 +1195,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </table>
             ) : (
               /* ========================================================================= */
-              /* ALL 253 STOPS TABLE VIEW */
+              /* ALL STOPS TABLE VIEW */
               /* ========================================================================= */
               <table className="w-full text-left border-collapse">
                 <thead>
