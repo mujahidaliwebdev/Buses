@@ -887,17 +887,27 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
         FROM buses b
         JOIN bus_stops s1 ON b.bus_id = s1.bus_id
         JOIN bus_stops s2 ON b.bus_id = s2.bus_id
-        LEFT JOIN fares f ON (LOWER(TRIM(f.origin)) = LOWER(TRIM(s1.city_name)) AND LOWER(TRIM(f.destination)) = LOWER(TRIM(s2.city_name)))
-        WHERE LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
-          AND LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
-          AND s1.stop_sequence < s2.stop_sequence
+        LEFT JOIN fares f ON (
+          LOWER(REPLACE(REPLACE(TRIM(f.origin), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(s1.city_name), '-', ''), ' ', '')) 
+          AND LOWER(REPLACE(REPLACE(TRIM(f.destination), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(s2.city_name), '-', ''), ' ', ''))
+        )
+        WHERE (
+          LOWER(REPLACE(REPLACE(TRIM(s1.city_name), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(?), '-', ''), ' ', ''))
+          OR LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
+        )
+        AND (
+          LOWER(REPLACE(REPLACE(TRIM(s2.city_name), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(?), '-', ''), ' ', ''))
+          OR LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
+        )
+        AND s1.stop_sequence < s2.stop_sequence
         ORDER BY s1.departure_time ASC;
       \`;
 
       try {
-        const { results } = await env.DB.prepare(query).bind(origin, destination).all();
+        const { results } = await env.DB.prepare(query).bind(origin, origin, destination, destination).all();
         const buses = (results || []).map(row => {
-          const isAc = (row.climate_control || '').toLowerCase().includes('ac') && !(row.climate_control || '').toLowerCase().includes('non-ac');
+          const isNonAc = (row.climate_control || '').toLowerCase().includes('non');
+          const isAc = !isNonAc && (row.climate_control || '').toLowerCase().includes('ac');
           let fare = 0;
           if (isAc) {
             fare = row.ac !== null && row.ac !== undefined ? Number(row.ac) : (row.non_ac || 0);
@@ -906,12 +916,29 @@ export default function CloudflareD1Exporter({ onClose }: CloudflareD1ExporterPr
           }
           if (row.executive && fare === 0) fare = Number(row.executive);
 
+          const depTime = row.origin_departure_time || row.origin_arrival_time || '18:15';
+          const arrTime = row.destination_arrival_time || row.destination_departure_time || '06:40';
+
+          const calculateDuration = (t1, t2) => {
+            try {
+              const [h1, m1] = (t1 || '').split(':').map(Number);
+              const [h2, m2] = (t2 || '').split(':').map(Number);
+              if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2)) return '8h 00m';
+              let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+              if (diff < 0) diff += 24 * 60;
+              return Math.floor(diff / 60) + 'h ' + (diff % 60) + 'm';
+            } catch {
+              return '8h 00m';
+            }
+          };
+
           return {
             id: row.bus_id,
             origin: row.origin_city,
             destination: row.destination_city,
-            departureTime: row.origin_departure_time || row.origin_arrival_time || '12:00',
-            arrivalTime: row.destination_arrival_time || row.destination_departure_time || '18:00',
+            departureTime: depTime,
+            arrivalTime: arrTime,
+            duration: calculateDuration(depTime, arrTime),
             fare: isNaN(fare) ? 0 : fare,
             companyName: row.company_name,
             busNumber: row.vehicle_plate,

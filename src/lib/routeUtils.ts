@@ -1,3 +1,5 @@
+import { PAKISTAN_CITIES } from '../data/mockBuses';
+
 export const getRouteSlug = (origin: string, destination: string): string => {
   const cleanOrigin = origin.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const cleanDest = destination.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -29,16 +31,24 @@ export const parseRouteSlug = (slug: string): { origin: string; destination: str
 
   if (!originPart || !destPart) return null;
 
-  const origin = originPart.replace(/-/g, ' ').trim();
-  const destination = destPart.replace(/-/g, ' ').trim();
+  const cleanForMatch = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const origClean = cleanForMatch(originPart);
+  const destClean = cleanForMatch(destPart);
 
-  if (!origin || !destination) return null;
+  // Match against canonical cities list to accurately preserve hyphens (e.g. Islamabad-Rawalpindi, Bagh-Jhang)
+  const matchedOrigin = PAKISTAN_CITIES.find(c => cleanForMatch(c) === origClean);
+  const matchedDest = PAKISTAN_CITIES.find(c => cleanForMatch(c) === destClean);
 
   const capitalize = (str: string) =>
     str.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
 
+  const origin = matchedOrigin || capitalize(originPart.replace(/-/g, ' ').trim());
+  const destination = matchedDest || capitalize(destPart.replace(/-/g, ' ').trim());
+
+  if (!origin || !destination) return null;
+
   return {
-    origin: capitalize(origin),
-    destination: capitalize(destination)
+    origin,
+    destination
   };
 };

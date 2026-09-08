@@ -52,7 +52,7 @@ export default function RouteSpecificPage() {
             const filteredStatic = allStaticBuses.filter(b => {
               const bOrigNorm = norm(b.origin);
               const bDestNorm = norm(b.destination);
-              const stopsNorm = norm(b.stops || '');
+              const stopsNorm = norm(b.stops || b.routeMap || '');
 
               const matchesOrig = bOrigNorm.includes(origNorm) || origNorm.includes(bOrigNorm) || stopsNorm.includes(origNorm);
               const matchesDest = bDestNorm.includes(destNorm) || destNorm.includes(bDestNorm) || stopsNorm.includes(destNorm);
@@ -239,7 +239,7 @@ export default function RouteSpecificPage() {
                         <BusIcon className="w-8 h-8" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">{bus.operator}</h3>
+                        <h3 className="text-xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">{(bus as any).operator || bus.companyName}</h3>
                         <div className="flex items-center gap-2 text-slate-500 text-xs font-bold mt-1">
                           <MapPin className="w-3.5 h-3.5" />
                           {bus.type} Service

@@ -373,10 +373,12 @@ async function startServer() {
           b.climate_control,
           b.service_type,
           b.route_map,
+          s1.city_name as origin_city,
           s1.departure_time as origin_departure_time,
           s1.arrival_time as origin_arrival_time,
           s1.location as origin_location,
           s1.stand as origin_stand,
+          s2.city_name as dest_city,
           s2.departure_time as dest_departure_time,
           s2.arrival_time as dest_arrival_time,
           s2.location as dest_location,
@@ -390,20 +392,27 @@ async function startServer() {
         JOIN bus_stops s2 ON s1.bus_id = s2.bus_id
         JOIN buses b ON b.bus_id = s1.bus_id
         LEFT JOIN fares f ON (
-          LOWER(TRIM(f.origin)) = LOWER(TRIM(s1.city_name)) 
-          AND LOWER(TRIM(f.destination)) = LOWER(TRIM(s2.city_name))
+          LOWER(REPLACE(REPLACE(TRIM(f.origin), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(s1.city_name), '-', ''), ' ', '')) 
+          AND LOWER(REPLACE(REPLACE(TRIM(f.destination), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(s2.city_name), '-', ''), ' ', ''))
         )
-        WHERE LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
-          AND LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
-          AND s1.stop_sequence < s2.stop_sequence
+        WHERE (
+          LOWER(REPLACE(REPLACE(TRIM(s1.city_name), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(?), '-', ''), ' ', ''))
+          OR LOWER(TRIM(s1.city_name)) = LOWER(TRIM(?))
+        )
+        AND (
+          LOWER(REPLACE(REPLACE(TRIM(s2.city_name), '-', ''), ' ', '')) = LOWER(REPLACE(REPLACE(TRIM(?), '-', ''), ' ', ''))
+          OR LOWER(TRIM(s2.city_name)) = LOWER(TRIM(?))
+        )
+        AND s1.stop_sequence < s2.stop_sequence
         ORDER BY s1.departure_time ASC;
       `;
 
-      const rawResults = await queryD1(sql, [origin, destination]);
+      const rawResults = await queryD1(sql, [origin, origin, destination, destination]);
 
       // Map raw SQL rows into the application Bus interface
       const buses = rawResults.map((row: any) => {
-        const isAc = (row.climate_control || "").toLowerCase().includes("ac") && !(row.climate_control || "").toLowerCase().includes("non-ac");
+        const isNonAc = (row.climate_control || "").toLowerCase().includes("non");
+        const isAc = !isNonAc && (row.climate_control || "").toLowerCase().includes("ac");
         
         // Select appropriate fare directly from database (respect 0 if 0 in DB)
         let calculatedFare = 0;
@@ -427,13 +436,13 @@ async function startServer() {
           calculatedFare = 0;
         }
 
-        const depTime = row.origin_departure_time || row.origin_arrival_time || "12:00";
-        const arrTime = row.dest_arrival_time || row.dest_departure_time || "16:00";
+        const depTime = row.origin_departure_time || row.origin_arrival_time || "18:15";
+        const arrTime = row.dest_arrival_time || row.dest_departure_time || "06:40";
 
         return {
           id: row.bus_id,
-          origin: origin,
-          destination: destination,
+          origin: row.origin_city || origin,
+          destination: row.dest_city || destination,
           departureTime: depTime,
           arrivalTime: arrTime,
           duration: calculateDuration(depTime, arrTime),
@@ -442,7 +451,7 @@ async function startServer() {
           busNumber: row.vehicle_plate || row.bus_id,
           contactNumber: row.contact_number || "",
           terminalLocation: row.origin_location || "Main Terminal",
-          standNumber: row.origin_stand || "1",
+          standNumber: row.origin_stand || "0",
           isAC: isAc,
           type: row.service_type || "Standard",
           routeMap: row.route_map || "",
