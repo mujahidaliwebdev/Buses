@@ -152,6 +152,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loadingUsersList, setLoadingUsersList] = useState(true);
 
+  const filteredUsers = React.useMemo(() => {
+    return usersList.filter(user => {
+      const q = userSearchTerm.toLowerCase();
+      return (
+        (user.displayName && user.displayName.toLowerCase().includes(q)) ||
+        (user.email && user.email.toLowerCase().includes(q)) ||
+        (user.mobile && user.mobile.toLowerCase().includes(q)) ||
+        (user.homeCity && user.homeCity.toLowerCase().includes(q))
+      );
+    });
+  }, [usersList, userSearchTerm]);
+
   React.useEffect(() => {
     const q = query(collection(db, 'users'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
