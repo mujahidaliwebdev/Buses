@@ -102,7 +102,7 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create: if isOwner(userId) && isValidUser(incoming());
       allow update: if isOwner(userId) && isValidUser(incoming()) && 
-                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'mobile', 'updatedAt']);
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'mobile', 'homeCity', 'gender', 'bio', 'emergencyContactName', 'emergencyContactNumber', 'updatedAt']);
     }
 
     // 2. Buses Collection

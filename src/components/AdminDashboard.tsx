@@ -24,7 +24,8 @@ import {
   FileText,
   Database,
   Layers,
-  Sparkles
+  Sparkles,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
@@ -52,6 +53,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [isViewingProposals, setIsViewingProposals] = useState(false);
   const [isViewingFeedbacks, setIsViewingFeedbacks] = useState(false);
   const [isViewingCareers, setIsViewingCareers] = useState(false);
+  const [isViewingUsers, setIsViewingUsers] = useState(false);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
   const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
   const [isViewingSettings, setIsViewingSettings] = useState(false);
   const [measurementId, setMeasurementId] = useState('');
@@ -141,6 +144,31 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }, (error) => {
       console.error("Error subscribing to careers in admin: ", error);
       setLoadingCareersList(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Users Bio-Data real-time subscription
+  const [usersList, setUsersList] = useState<any[]>([]);
+  const [loadingUsersList, setLoadingUsersList] = useState(true);
+
+  React.useEffect(() => {
+    const q = query(collection(db, 'users'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched: any[] = [];
+      snapshot.forEach(docSnap => {
+        fetched.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      fetched.sort((a, b) => {
+        const timeA = new Date(a.lastLogin || a.updatedAt || 0).getTime();
+        const timeB = new Date(b.lastLogin || b.updatedAt || 0).getTime();
+        return timeB - timeA;
+      });
+      setUsersList(fetched);
+      setLoadingUsersList(false);
+    }, (error) => {
+      console.error("Error subscribing to users in admin: ", error);
+      setLoadingUsersList(false);
     });
     return unsubscribe;
   }, []);
@@ -979,6 +1007,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               {careersList.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
                   {careersList.length}
+                </span>
+              )}
+            </button>
+            <button 
+              onClick={() => setIsViewingUsers(true)}
+              className="relative bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            >
+              <Users className="w-5 h-5 text-indigo-500" /> 
+              <span>Users Bio-Data</span>
+              {usersList.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-indigo-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                  {usersList.length}
                 </span>
               )}
             </button>
@@ -2046,6 +2086,161 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                             <Download className="w-3.5 h-3.5" /> Download CV File
                           </button>
                         </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Users Bio-Data Modal */}
+      <AnimatePresence>
+        {isViewingUsers && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingUsers(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="relative w-full max-w-5xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] p-8 md:p-12"
+            >
+              <button 
+                onClick={() => setIsViewingUsers(false)} 
+                className="absolute top-8 right-8 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-6">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                    <Users className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Registered Users Bio-Data</h2>
+                    <p className="text-xs text-indigo-600 font-extrabold uppercase tracking-widest">تمام رجسٹرڈ صارفین کا مکمل بائیو ڈیٹا اور لاگ ان کی تفصیلات</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  View complete profiles, login timestamps, home cities, mobile numbers, and emergency contact details of all users who have signed into Asaan Safar.
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mb-6 relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, phone or city..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="w-full h-12 pl-11 pr-4 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                />
+              </div>
+
+              {/* Users List */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                {loadingUsersList ? (
+                  <div className="text-center py-20 text-slate-400 font-semibold flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+                    <span>Loading registered users...</span>
+                  </div>
+                ) : usersList.length === 0 ? (
+                  <div className="text-center py-20 bg-slate-50 rounded-[2rem] border border-slate-105 p-8">
+                    <Users className="w-10 h-10 text-slate-350 mx-auto mb-4" />
+                    <p className="text-slate-500 font-black text-lg">No Users Found</p>
+                    <p className="text-slate-400 text-xs mt-1">Users will appear here as soon as they sign in.</p>
+                  </div>
+                ) : filteredUsers.length === 0 ? (
+                  <div className="text-center py-16 bg-slate-50 rounded-[2rem]">
+                    <p className="text-slate-500 font-bold text-sm">No users match your search "{userSearchTerm}".</p>
+                  </div>
+                ) : (
+                  filteredUsers.map((user) => {
+                    const lastLoginFormatted = user.lastLogin 
+                      ? new Date(user.lastLogin).toLocaleString() 
+                      : user.updatedAt 
+                      ? new Date(user.updatedAt).toLocaleString() 
+                      : 'Not recorded';
+
+                    return (
+                      <div key={user.id || user.uid} className="p-6 bg-slate-50/70 hover:bg-slate-50 border border-slate-105 rounded-[2rem] transition-all space-y-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-indigo-600 text-white font-black text-xl flex items-center justify-center overflow-hidden shrink-0 shadow-md">
+                              {user.photoURL ? (
+                                <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                              ) : (
+                                (user.displayName || user.email || 'U').charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-lg font-black text-slate-900">{user.displayName || 'Anonymous User'}</h4>
+                                <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-lg ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                                  {user.role || 'user'}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 font-semibold">{user.email || 'No email provided'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {user.mobile && (
+                              <a 
+                                href={`tel:${user.mobile}`}
+                                className="px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all"
+                              >
+                                📞 {user.mobile}
+                              </a>
+                            )}
+                            {user.email && (
+                              <a 
+                                href={`mailto:${user.email}`}
+                                className="px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all"
+                              >
+                                ✉ Email
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bio-Data Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-slate-100">
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Home City / شہر</span>
+                            <span className="text-xs font-bold text-slate-800">{user.homeCity || 'Not specified'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Gender / صنف</span>
+                            <span className="text-xs font-bold text-slate-800">{user.gender || 'Not specified'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Last Sign-in / آخری لاگ ان</span>
+                            <span className="text-xs font-bold text-indigo-600">{lastLoginFormatted}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Emergency Contact</span>
+                            <span className="text-xs font-bold text-slate-800">
+                              {user.emergencyContactName ? `${user.emergencyContactName} (${user.emergencyContactNumber || 'No #'})` : 'Not added'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {user.bio && (
+                          <div className="bg-indigo-50/30 border border-indigo-100/40 p-3 rounded-xl text-xs text-slate-700">
+                            <span className="font-bold text-indigo-700 uppercase tracking-wider text-[9px] block mb-0.5">Bio / تعارف:</span>
+                            {user.bio}
+                          </div>
+                        )}
                       </div>
                     );
                   })
