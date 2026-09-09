@@ -44,7 +44,7 @@ import { MOCK_BUSES } from './data/mockBuses';
 import { MOCK_COMPANIES } from './data/mockCompanies';
 import { auth } from './lib/firebase';
 import { staticDataService } from './lib/staticDataService';
-import { settingsService } from './lib/firestoreService';
+import { settingsService, userService } from './lib/firestoreService';
 import { getRouteSlug } from './lib/routeUtils';
 import { User as FirebaseUser } from 'firebase/auth';
 
@@ -109,6 +109,17 @@ function AppContent() {
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((u) => {
       setUser(u);
+      if (u) {
+        userService.saveUserProfile({
+          uid: u.uid,
+          email: u.email,
+          displayName: u.displayName,
+          photoURL: u.photoURL,
+          role: u.email === 'mujahidalikhaskheli786@gmail.com' || u.email === 'mujahidali.webdev@gmail.com' ? 'admin' : 'user'
+        }).catch(err => {
+          console.error("Failed to auto-save user profile:", err);
+        });
+      }
     });
 
     // Load static partition buses as the absolute and only source of truth (no Firestore reads/writes for buses)

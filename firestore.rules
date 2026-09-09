@@ -99,10 +99,8 @@ service cloud.firestore {
     // 1. Users Collection
     match /users/{userId} {
       allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
-      allow list: if isAdmin();
-      allow create: if isOwner(userId) && isValidUser(incoming());
-      allow update: if isOwner(userId) && isValidUser(incoming()) && 
-                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'mobile', 'homeCity', 'gender', 'bio', 'emergencyContactName', 'emergencyContactNumber', 'updatedAt']);
+      allow list: if isSignedIn();
+      allow create, update: if isOwner(userId) || isAdmin();
     }
 
     // 2. Buses Collection

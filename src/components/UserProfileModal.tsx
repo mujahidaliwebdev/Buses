@@ -156,16 +156,16 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
         className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 my-8 max-h-[92vh] flex flex-col"
       >
         {/* Header banner */}
-        <div className="relative bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-500 px-8 sm:px-10 pt-10 pb-16 text-center shrink-0">
+        <div className="relative bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-500 px-6 sm:px-8 pt-6 pb-6 text-center shrink-0">
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="relative w-24 h-24 mx-auto mb-4">
-            <div className="w-full h-full rounded-full bg-emerald-800 flex items-center justify-center text-white font-black text-3xl border-4 border-white/80 shadow-xl overflow-hidden">
+          <div className="relative w-16 h-16 mx-auto mb-3">
+            <div className="w-full h-full rounded-full bg-emerald-800 flex items-center justify-center text-white font-black text-2xl border-2 border-white/80 shadow-xl overflow-hidden">
               {photoURL ? (
                 <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -174,20 +174,20 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
             </div>
           </div>
 
-          <h2 className="text-2xl font-black text-white mb-1 tracking-tight">Edit Profile / پروفائل ایڈٹ کریں</h2>
-          <p className="text-emerald-50/90 font-medium text-xs">
-            Update your personal profile information for safe travels and contributions.
+          <h2 className="text-xl font-black text-white mb-0.5 tracking-tight">Edit Profile / پروفائل ایڈٹ کریں</h2>
+          <p className="text-emerald-50/90 font-medium text-[11px]">
+            Update your personal profile information for safe travels.
           </p>
           {memberSince && (
-            <p className="text-emerald-100/70 font-bold text-[10px] uppercase tracking-widest mt-3">
+            <p className="text-emerald-100/70 font-bold text-[9px] uppercase tracking-widest mt-2">
               Member since {memberSince}
             </p>
           )}
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-8 sm:px-10 pb-10 -mt-8">
-          <div className="bg-white rounded-[2rem] shadow-lg border border-slate-100 p-6 sm:p-8">
+        <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6">
+          <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 sm:p-8">
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
