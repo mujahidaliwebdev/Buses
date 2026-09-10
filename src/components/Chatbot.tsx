@@ -191,12 +191,14 @@ export default function Chatbot() {
     if (!customPrompt) setInput('');
     setLoading(true);
 
-    // Abort controller to prevent infinite hanging/loading state on the client side
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 seconds maximum wait before failing over
+    // Simulate natural thinking delay for realism (400ms)
+    await new Promise(resolve => setTimeout(resolve, 400));
 
     try {
-      // Format history for server API
+      // Try server API first with a fast timeout (1.5 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+
       const historyPayload = messages.slice(-6).map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         content: m.content
@@ -214,14 +216,14 @@ export default function Chatbot() {
 
       clearTimeout(timeoutId);
 
-      // Verify content-type to fail-fast if static host redirected the API route to index.html
       const contentType = res.headers.get('content-type');
       if (!res.ok || !contentType || !contentType.includes('application/json')) {
-        throw new Error('Server API not available (static host fallback active)');
+        throw new Error('Static hosting environment detected');
       }
 
       const data = await res.json();
-      const botReply = data.reply || data.error || 'معذرت، رابطہ قائم نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
+      const botReply = data.reply || data.error;
+      if (!botReply) throw new Error('Empty reply');
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -232,10 +234,7 @@ export default function Chatbot() {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      clearTimeout(timeoutId);
-      console.log('Chat fallback activated (running intelligent offline engine):', err);
-      
-      // Get beautiful localized offline Urdu travel reply matching the user intent
+      // Instant intelligent offline Urdu travel response for static hosting (Cloudflare Pages / GitHub Pages)
       const botReply = getLocalResponse(textToSend);
 
       const assistantMessage: ChatMessage = {
