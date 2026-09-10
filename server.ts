@@ -6,6 +6,8 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { getD1Config, saveD1Config, queryD1, executeBatchD1, testD1Connection } from "./server/d1";
+import { STATIC_SITEMAP_PAGES } from "./src/data/sitemapConfig";
+import { MOCK_BLOGS } from "./src/data/mockBlogs";
 
 dotenv.config();
 
@@ -21,6 +23,48 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", app: "AsaanSafar AI Server" });
+  });
+
+  // Dynamic Sitemap XML Route (Automatically includes all static pages, popular routes, and dynamic blogs)
+  app.get("/sitemap.xml", (req, res) => {
+    try {
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+      // Add static and route pages
+      for (const page of STATIC_SITEMAP_PAGES) {
+        xml += `  <url>\n`;
+        xml += `    <loc>${page.loc}</loc>\n`;
+        xml += `    <lastmod>${page.lastmod}</lastmod>\n`;
+        xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
+        xml += `    <priority>${page.priority}</priority>\n`;
+        xml += `  </url>\n`;
+      }
+
+      // Add dynamic blog posts from MOCK_BLOGS
+      for (const blog of MOCK_BLOGS) {
+        let modDate = "2026-09-10";
+        if (blog.date) {
+          const parsed = new Date(blog.date);
+          if (!isNaN(parsed.getTime())) {
+            modDate = parsed.toISOString().split('T')[0];
+          }
+        }
+        xml += `  <url>\n`;
+        xml += `    <loc>https://asaansafar.com/blog/${blog.slug}</loc>\n`;
+        xml += `    <lastmod>${modDate}</lastmod>\n`;
+        xml += `    <changefreq>weekly</changefreq>\n`;
+        xml += `    <priority>0.7</priority>\n`;
+        xml += `  </url>\n`;
+      }
+
+      xml += `</urlset>`;
+
+      res.header('Content-Type', 'application/xml');
+      res.send(xml);
+    } catch (e: any) {
+      res.status(500).send("Error generating sitemap");
+    }
   });
 
   // Helper for duration calculation
