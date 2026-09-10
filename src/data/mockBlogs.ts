@@ -947,5 +947,203 @@ export const MOCK_BLOGS: BlogPost[] = [
         "text": "جب آپ کے سفر کی تفصیلات—بشمول بس کے اوقات، کمپنی اور روٹ—پہلے سے تصدیق شدہ ہوں، تو یہ آپ کے اہل خانہ کو ذہنی سکون فراہم کرتی ہیں۔ انہیں معلوم ہوتا ہے کہ آپ کب روانہ ہوئے اور کب بخیریت پہنچیں گے۔"
       }
     ]
+  },
+  {
+    "id": 11,
+    "title": "Top 5 Tips for Safe and Comfortable Night Bus Travel in Pakistan",
+    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "imageOverlayText": "NIGHT BUS TRAVEL GUIDE",
+    "date": "05 September 2026",
+    "slug": "top-tips-for-safe-comfortable-night-bus-travel-pakistan",
+    "author": "AsaanSafar Editorial",
+    "readTime": "7 min read",
+    "category": "Travel Guide",
+    "keyTakeaway": "Night bus journeys across Pakistan's motorways offer faster transit and less traffic, but require proper seating choices, warm layers, and security awareness. / پاکستان کی موٹر ویز پر رات کا بس سفر کم ٹریفک اور تیز رفتاری کا باعث بنتا ہے، تاہم مناسب سیٹ کا انتخاب، گرم ملبوسات اور حفاظتی احتیاط بہت ضروری ہیں۔",
+    "excerpt": "Traveling by bus at night is a popular choice for long-distance commuters in Pakistan to beat daytime traffic. Discover essential tips for a safe, secure, and restful night journey.",
+    "sections": [
+      {
+        "type": "paragraph",
+        "text": "Night bus travel is a staple for intercity commuters in Pakistan. Whether you are traveling from Lahore to Islamabad, Multan to Faisalabad, or across provincial boundaries, catching a night bus allows you to save daytime hours for work or family. However, nighttime transit requires unique preparations to ensure maximum comfort and safety."
+      },
+      {
+        "type": "heading",
+        "text": "1. Book Middle-Row Seats for a Smoother Sleep"
+      },
+      {
+        "type": "paragraph",
+        "text": "When sleeping on a moving bus, road vibrations and wheel bumps are felt most intensely at the very back and directly over the wheel axles. Always aim for seats in the middle third of the bus cabin, where the ride is noticeably smoother and quieter."
+      },
+      {
+        "type": "heading",
+        "text": "2. Carry Light Warm Clothing and a Travel Pillow"
+      },
+      {
+        "type": "paragraph",
+        "text": "Even during warmer months, bus air conditioning systems can run quite chilly during late-night highway stretches. Carrying a light jacket, scarf, or travel blanket along with a supportive neck pillow will help you stay warm and get deep, uninterrupted rest."
+      },
+      {
+        "type": "heading",
+        "text": "3. Keep Valuables Secure and Close"
+      },
+      {
+        "type": "paragraph",
+        "text": "While most reputable bus services maintain secure terminals and safe coaches, it is always wise to keep your wallet, phone, and travel documents in a small bag placed right under your feet or securely zipped in your inner coat pocket rather than overhead luggage racks."
+      },
+      {
+        "type": "heading",
+        "text": "4. Confirm Arrival Time and Destination Drop-Off"
+      },
+      {
+        "type": "paragraph",
+        "text": "Always clarify the exact terminal drop-off point with your bus conductor before departure. Arriving at your destination city in the dead of night requires knowing whether you will land at a central terminal or a roadside bypass stop."
+      },
+      {
+        "type": "heading",
+        "text": "5. Stay Connected with Family"
+      },
+      {
+        "type": "paragraph",
+        "text": "Before boarding, share your bus company name, departure time, and expected arrival schedule with a family member or friend. Knowing someone is tracking your milestone gives immense reassurance during late-night transits."
+      },
+      {
+        "type": "heading",
+        "text": "پاکستان میں رات کے وقت بس کے سفر کو محفوظ اور آرام دہ بنانے کے 5 طریقے"
+      },
+      {
+        "type": "paragraph",
+        "text": "پاکستان میں طویل فاصلے کے مسافروں کے لیے رات کا بس سفر دن کی ٹریفک اور گرمی سے بچنے کا بہترین ذریعہ ہے۔ چاہے آپ لاہور سے اسلام آباد جا رہے ہوں یا ملتان سے فیصل آباد، رات کے سفر سے آپ کا دن ضائع نہیں ہوتا۔ تاہم، رات کے سفر میں کچھ خاص احتیاطی تدابیر اختیار کرنا بہت ضروری ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "1. پرسکون نیند کے لیے درمیان کی سیٹیں منتخب کریں"
+      },
+      {
+        "type": "paragraph",
+        "text": "چلتی ہوئی بس میں سڑک کے جھٹکے سب سے زیادہ پچھلی سیٹوں پر محسوس ہوتے ہیں۔ کوشش کریں کہ بس کے درمیان والی قطار میں سیٹ بک کریں جہاں سفر سب سے زیادہ ہموار اور پرسکون ہوتا ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "2. ہلکے گرم کپڑے اور ٹریول پلو ساتھ رکھیں"
+      },
+      {
+        "type": "paragraph",
+        "text": "رات کے وقت موٹر ویز پر اکثر اے سی کا درجہ حرارت کافی کم ہو جاتا ہے۔ ایک ہلکی جیکٹ، چادر اور گردن کا تکیہ (Neck Pillow) ساتھ رکھنے سے آپ کو سردی نہیں لگے گی اور آپ پرسکون نیند لے سکیں گے۔"
+      },
+      {
+        "type": "heading",
+        "text": "3. اپنی قیمتی اشیاء کو محفوظ رکھیں"
+      },
+      {
+        "type": "paragraph",
+        "text": "اپنا پرس، موبائل فون اور شناختی کارڈ ہمیشہ اپنے پاس رکھیں (یا اپنے پیروں کے نیچے چھوٹے بیگ میں رکھیں) اور اوپر والے کیبن یا سامان میں نہ چھوڑیں۔"
+      },
+      {
+        "type": "heading",
+        "text": "4. منزل پر پہنچنے کے وقت کی پیشگی معلومات"
+      },
+      {
+        "type": "paragraph",
+        "text": "ڈرائیور یا بس اٹینڈنٹ سے پوچھ لیں کہ بس منزل پر کس وقت پہنچے گی، خاص طور پر اگر آپ رات گئے یا فجر کے وقت اتر رہے ہوں تاکہ اگلی سواری کا بندوبست پہلے سے ہو۔"
+      },
+      {
+        "type": "heading",
+        "text": "5. اپنے اہل خانہ کے ساتھ رابطے میں رہیں"
+      },
+      {
+        "type": "paragraph",
+        "text": "روانگی سے پہلے اپنے گھر والوں کو بس کمپنی اور روانگی کے وقت سے آگاہ کریں۔ سفر کے دوران کسی اہم اسٹاپ پر مختصر کال کر کے خیریت بتانا گھر والوں کے لیے اطمینان کا باعث بنتا ہے۔"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "How to Find Cheap Bus Fares and Avoid Overcharging at Terminals in Pakistan",
+    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "imageOverlayText": "CHEAP FARES & TERMINAL TIPS",
+    "date": "10 September 2026",
+    "slug": "how-to-find-cheap-bus-fares-avoid-overcharging-pakistan",
+    "author": "AsaanSafar Editorial",
+    "readTime": "6 min read",
+    "category": "Travel Tips",
+    "keyTakeaway": "Knowing official fare charts, checking verified platforms before arriving at bus terminals, and booking early protects travelers from seasonal price hiking. / سرکاری کرایوں سے آگاہی، بس اڈے پر جانے سے پہلے تصدیق شدہ پلیٹ فارمز کا استعمال، اور بروقت بکنگ مسافروں کو زائد کرائے اور دھوکہ دہی سے محفوظ رکھتی ہے۔",
+    "excerpt": "Navigating intercity bus fares during holidays and peak seasons can be challenging. Learn proven strategies to find affordable bus tickets and protect yourself from terminal overcharging in Pakistan.",
+    "sections": [
+      {
+        "type": "paragraph",
+        "text": "For millions of daily commuters and holiday travelers in Pakistan, managing travel expenses is a top priority. However, arriving at bustling bus terminals without knowing official ticket rates can often leave travelers vulnerable to overcharging by middlemen and unauthorized agents, especially during peak seasons like Eid or summer vacations."
+      },
+      {
+        "type": "heading",
+        "text": "1. Check Official Fares Before Reaching the Terminal"
+      },
+      {
+        "type": "paragraph",
+        "text": "The most effective defense against overcharging is pre-trip research. Before heading to any terminal, check verified platforms like AsaanSafar to compare standard non-AC and AC bus fares for popular routes like Lahore to Islamabad, Rawalpindi, or Multan."
+      },
+      {
+        "type": "heading",
+        "text": "2. Beware of Unlicensed Commission Agents"
+      },
+      {
+        "type": "paragraph",
+        "text": "At major bus stations, informal agents often approach passengers right at the entrance, claiming official buses are full and offering alternative rides at inflated prices. Always purchase your tickets directly from official company booking counters or authorized online channels."
+      },
+      {
+        "type": "heading",
+        "text": "3. Travel Mid-Week for Discounted Rates"
+      },
+      {
+        "type": "paragraph",
+        "text": "Weekend travel (Friday evenings and Sundays) experiences the highest demand, prompting some operators to increase rates or fill seats rapidly. Whenever possible, schedule your trips on Tuesdays, Wednesdays, or Thursdays to secure better seating and more relaxed travel conditions."
+      },
+      {
+        "type": "heading",
+        "text": "4. Verify Luggage and Extra Charges in Advance"
+      },
+      {
+        "type": "paragraph",
+        "text": "Standard baggage allowance is usually included in your ticket price, but bulky or heavy cargo may incur extra fees. Clarify baggage policies at the counter before boarding to avoid unnecessary arguments at the luggage loading bay."
+      },
+      {
+        "type": "heading",
+        "text": "پاکستان میں سستے بس ٹکٹ تلاش کرنے اور اڈوں پر زائد کرائے سے بچنے کے طریقے"
+      },
+      {
+        "type": "paragraph",
+        "text": "پاکستان میں روزانہ سفر کرنے والے اور تعطیلات پر جانے والے لاکھوں مسافروں کے لیے سفری اخراجات کو کنٹرول کرنا بہت اہم ہے۔ تاہم، عید یا گرمیوں کی تعطیلات جیسے سیزن میں بغیر معلومات کے بس اڈوں پر پہنچنا مسافروں کو اضافی کرائے اور دھوکہ دہی کا شکار بنا سکتا ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "1. اڈے پر جانے سے پہلے سرکاری کرایوں کی جانچ کریں"
+      },
+      {
+        "type": "paragraph",
+        "text": "زائد کرائے سے بچنے کا سب سے مؤثر طریقہ سفر سے پہلے تحقیق ہے۔ بس اڈے پر جانے سے پہلے آسان سفر جیسے تصدیق شدہ پلیٹ فارمز پر لاہور سے اسلام آباد، راولپنڈی یا ملتان کے سرکاری نان اے سی اور اے سی کرایوں کا موازنہ ضرور کریں۔"
+      },
+      {
+        "type": "heading",
+        "text": "2. غیر رجسٹرڈ ایجنٹوں اور دلالوں سے ہوشیار رہیں"
+      },
+      {
+        "type": "paragraph",
+        "text": "بڑے بس اڈوں پر اکثر غیر سرکاری ایجنٹ دروازے پر ہی مسافروں کو گھیر لیتے ہیں اور یہ کہہ کر مہنگے ٹکٹ بیچتے ہیں کہ سرکاری بسیں بھر چکی ہیں۔ ہمیشہ آفیشل کاؤنٹر سے ہی ٹکٹ خریدیں۔"
+      },
+      {
+        "type": "heading",
+        "text": "3. ہفتے کے درمیان (Mid-Week) سفر کو ترجیح دیں"
+      },
+      {
+        "type": "paragraph",
+        "text": "جمعہ کی شام اور اتوار کو سفر کا رش سب سے زیادہ ہوتا ہے۔ اگر ممکن ہو تو منگل، بدھ یا جمعرات کے روز سفر کی منصوبہ بندی کریں تاکہ آپ کو آرام دہ سیٹ اور پرسکون ماحول مل سکے۔"
+      },
+      {
+        "type": "heading",
+        "text": "4. سامان کے اضافی چارجز کی پہلے سے تصدیق کریں"
+      },
+      {
+        "type": "paragraph",
+        "text": "عام مسافرانہ سامان ٹکٹ میں شامل ہوتا ہے، لیکن بھاری یا اضافی کارگو پر کچھ کمپنیاں چارج کرتی ہیں۔ کاؤنٹر پر ہی سامان کے حوالے سے اصول واضح کر لیں۔"
+      }
+    ]
   }
 ];
