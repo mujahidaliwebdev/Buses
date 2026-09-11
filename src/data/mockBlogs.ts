@@ -23,9 +23,9 @@ export interface BlogPost {
 
 export const MOCK_BLOGS: BlogPost[] = [
   {
-    "id": 999,
+    "id": 13,
     "title": "Save Time, Book Early: Why Advance Seat Reservation Matters in Intercity Travel",
-    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "image": "https://lh3.googleusercontent.com/d/12PPiLGxYO0orCzQCMzki9CkiQJZO-ISL",
     "imageOverlayText": "TRAVEL TIPS & STRATEGY 2026",
     "date": "11 September 2026",
     "slug": "save-time-book-early-advance-seat-reservation",
@@ -1024,7 +1024,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     "id": 11,
     "title": "Top 5 Tips for Safe and Comfortable Night Bus Travel in Pakistan",
-    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "image": "https://lh3.googleusercontent.com/d/1Vv7ZCV5x88L8a8cySgWioLYmXburFex1",
     "imageOverlayText": "NIGHT BUS TRAVEL GUIDE",
     "date": "05 September 2026",
     "slug": "top-tips-for-safe-comfortable-night-bus-travel-pakistan",
@@ -1131,7 +1131,7 @@ export const MOCK_BLOGS: BlogPost[] = [
   {
     "id": 12,
     "title": "How to Find Cheap Bus Fares and Avoid Overcharging at Terminals in Pakistan",
-    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "image": "https://lh3.googleusercontent.com/d/1H-Qt8rQG-xa_7XKgAqiWGzZO7oGASxtm",
     "imageOverlayText": "CHEAP FARES & TERMINAL TIPS",
     "date": "10 September 2026",
     "slug": "how-to-find-cheap-bus-fares-avoid-overcharging-pakistan",
