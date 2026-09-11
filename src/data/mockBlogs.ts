@@ -23,6 +23,79 @@ export interface BlogPost {
 
 export const MOCK_BLOGS: BlogPost[] = [
   {
+    "id": 999,
+    "title": "Save Time, Book Early: Why Advance Seat Reservation Matters in Intercity Travel",
+    "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
+    "imageOverlayText": "TRAVEL TIPS & STRATEGY 2026",
+    "date": "11 September 2026",
+    "slug": "save-time-book-early-advance-seat-reservation",
+    "excerpt": "Discover why calling the bus operator at least 30 minutes before departure and securing advance reservations saves time and guarantees stress-free journeys.",
+    "author": "AsaanSafar Travel Team",
+    "readTime": "4 min read",
+    "category": "Travel Tips",
+    "keyTakeaway": "Advance planning and a quick confirmation call to the bus operator 30 minutes before departure guarantees zero hassle and absolute peace of mind during your intercity travel. / پیشگی منصوبہ بندی اور روانگی سے 30 منٹ پہلے بس آپریٹر کو ایک تصدیقی کال کرنا آپ کے سفر کو بالکل پریشانی سے پاک اور پرسکون بناتا ہے۔",
+    "sections": [
+      {
+        "type": "paragraph",
+        "text": "When traveling across major cities in Pakistan such as Lahore, Faisalabad, Multan, and Rawalpindi, managing your schedule efficiently is the key to a stress-free trip. Whether you are commuting for business, university, or family visits, unexpected rush hours at bus terminals can throw off your entire day."
+      },
+      {
+        "type": "heading",
+        "text": "Why Early Booking Saves Your Precious Time"
+      },
+      {
+        "type": "paragraph",
+        "text": "Waiting in long queues at ticket counters just minutes before bus departure often leads to missing your preferred service. By booking or reserving your seats in advance through AsaanSafar verified timetables, you lock in your departure slot and avoid last-minute ticket exhaustion."
+      },
+      {
+        "type": "quote",
+        "text": "We recommend calling the bus operator at least 30 minutes before departure to confirm seat availability and terminal boarding gates."
+      },
+      {
+        "type": "heading",
+        "text": "Key Steps for a Seamless Terminal Experience"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Check verified bus timings on AsaanSafar before leaving home.",
+          "Call the bus operator or terminal coordinator 30 minutes prior to departure.",
+          "Arrive at the boarding station 15 minutes before departure for baggage loading.",
+          "Keep digital or printed reservation details handy for quick verification."
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "وقت کی بچت اور بروقت بکنگ: بس کے سفر میں ایڈوانس سیٹ ریزرویشن کیوں ضروری ہے؟"
+      },
+      {
+        "type": "paragraph",
+        "text": "پاکستان کے بڑے شہروں جیسے لاہور، فیصل آباد، ملتان اور راولپنڈی کے درمیان سفر کرتے وقت اپنے وقت کو مؤثر طریقے سے منظم کرنا ایک پرسکون سفر کی کلید ہے۔ خواہ آپ بزنس، یونیورسٹی یا خاندانی دورے کے لیے سفر کر رہے ہوں، بس اڈوں پر اچانک رش آپ کا پورا دن خراب کر سکتا ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "بروقت بکنگ آپ کا قیمتی وقت کیوں بچاتی ہے؟"
+      },
+      {
+        "type": "paragraph",
+        "text": "بس روانگی سے چند منٹ پہلے ٹکٹ کاؤنٹر پر لمبی قطاروں میں انتظار کرنا اکثر آپ کی مطلوبہ بس چھوٹنے کا سبب بنتا ہے۔ آسان سفر کے تصدیق شدہ ٹائم ٹیبل کے ذریعے اپنے ٹکٹ یا سیٹیں ایڈوانس بک کر کے آپ اپنا ٹائم سلاٹ محفوظ کر لیتے ہیں اور آخری وقت کی پریشانی سے بچ جاتے ہیں۔"
+      },
+      {
+        "type": "heading",
+        "text": "ٹرمینل پر آسان اور بہترین تجربے کے لیے اہم اقدامات"
+      },
+      {
+        "type": "list",
+        "items": [
+          "گھر سے نکلنے سے پہلے آسان سفر پر تصدیق شدہ بس کے اوقات ضرور دیکھیں۔",
+          "روانگی سے 30 منٹ پہلے بس آپریٹر یا ٹرمینل کوآڈینٹر سے رابطہ کریں۔",
+          "سامان لوڈ کروانے کے لیے بس روانگی سے 15 منٹ پہلے بورڈنگ اسٹیشن پر پہنچیں۔",
+          "فوری تصدیق کے لیے اپنی ڈیجیٹل یا پرنٹ شدہ ریزرویشن کی تفصیلات پاس رکھیں۔"
+        ]
+      }
+    ]
+  },
+  {
     "id": 1,
     "title": "How to Choose a Reliable Non-AC Bus Service in Pakistan",
     "image": "https://lh3.googleusercontent.com/d/1huSEYwl_CFNgp9jkCnU2c_CJx2RNueIC",
@@ -1147,3 +1220,7 @@ export const MOCK_BLOGS: BlogPost[] = [
     ]
   }
 ];
+
+// Sort blogs descending by ID so newest blogs appear first (ID 999 first, ID 1 last)
+MOCK_BLOGS.sort((a, b) => b.id - a.id);
+

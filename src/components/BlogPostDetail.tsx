@@ -42,8 +42,32 @@ export default function BlogPostDetail() {
       updateMetaTag('twitter:description', post.excerpt || 'Read this helpful travel story on AsaanSafar Pakistan.');
       updateMetaTag('twitter:image', post.image);
 
+      // Inject BlogPosting JSON-LD Schema
+      const scriptId = 'blog-jsonld-schema';
+      let scriptElement = document.getElementById(scriptId);
+      if (!scriptElement) {
+        scriptElement = document.createElement('script');
+        scriptElement.id = scriptId;
+        scriptElement.type = 'application/ld+json';
+        document.head.appendChild(scriptElement);
+      }
+      scriptElement.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "image": post.image,
+        "author": {
+          "@type": "Person",
+          "name": post.author
+        },
+        "datePublished": post.date,
+        "description": post.excerpt
+      });
+
       return () => {
         document.title = originalTitle;
+        const el = document.getElementById(scriptId);
+        if (el) el.remove();
       };
     }
   }, [slug, post]);
