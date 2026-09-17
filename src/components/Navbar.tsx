@@ -1,4 +1,4 @@
-import { BusFront, User, LogOut, Menu, X, Smartphone } from 'lucide-react';
+import { BusFront, User, LogOut, Menu, X, Smartphone, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, logout } from '../lib/firebase';
 import { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ interface NavbarProps {
   isAdmin?: boolean;
   activeTab?: string;
   onDownloadAppClick?: () => void;
+  onJoinUsClick?: () => void;
 }
 
 // Helper to get the correct path to the logo in any hosting environment
@@ -33,7 +34,8 @@ export default function Navbar({
   onFeaturesClick,
   isAdmin,
   activeTab,
-  onDownloadAppClick
+  onDownloadAppClick,
+  onJoinUsClick
 }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -99,7 +101,16 @@ export default function Navbar({
             )}
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Blinking Join Us Button */}
+            <button
+              onClick={onJoinUsClick}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 sm:px-5 py-2.5 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 border-2 border-emerald-400 animate-pulse cursor-pointer"
+            >
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white fill-white" />
+              <span>Join Us</span>
+            </button>
+
             {/* Download App Action Button */}
             {onDownloadAppClick && isAdmin && (
               <button

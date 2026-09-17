@@ -38,6 +38,7 @@ import FAQs from './components/FAQs';
 import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
 import AppDownloadModal from './components/AppDownloadModal';
+import VolunteerModal from './components/VolunteerModal';
 import Chatbot from './components/Chatbot';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -62,6 +63,7 @@ function AppContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showVolunteerModal, setShowVolunteerModal] = useState(false);
 
   // Load dynamic Google Analytics and Google Search Console settings from Firestore
   useEffect(() => {
@@ -234,6 +236,7 @@ function AppContent() {
         isAdmin={isAdmin}
         activeTab={location.pathname === '/' ? 'home' : ''}
         onDownloadAppClick={() => setShowDownloadModal(true)}
+        onJoinUsClick={() => setShowVolunteerModal(true)}
       />
       
       <main>
@@ -357,6 +360,11 @@ function AppContent() {
         isOpen={showDownloadModal} 
         onClose={() => setShowDownloadModal(false)} 
         isAdmin={isAdmin}
+      />
+
+      <VolunteerModal
+        isOpen={showVolunteerModal}
+        onClose={() => setShowVolunteerModal(false)}
       />
     </div>
   );

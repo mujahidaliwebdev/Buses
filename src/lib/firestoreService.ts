@@ -396,6 +396,31 @@ export const settingsService = {
   }
 };
 
+export const volunteerService = {
+  submitVolunteerApplication: async (data: {
+    fullName: string;
+    email: string;
+    phone: string;
+    city: string;
+    interestArea: string;
+    motivation: string;
+    cnic?: string;
+  }) => {
+    const path = 'volunteers';
+    try {
+      await addDoc(collection(db, path), {
+        ...data,
+        userId: auth.currentUser?.uid || 'anonymous',
+        submittedAt: new Date().toISOString(),
+        status: 'approved'
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  }
+};
+
+
 
 
 
