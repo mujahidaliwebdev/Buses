@@ -44,7 +44,6 @@ interface FooterProps {
   onSchedulesClick: () => void;
   onFeaturesClick: () => void;
   onRoutesClick: () => void;
-  onCareersClick: () => void;
   onTeamClick: () => void;
   onFAQsClick: () => void;
   onSitemapClick: () => void;
@@ -69,7 +68,6 @@ export default function Footer({
   onSchedulesClick,
   onFeaturesClick,
   onRoutesClick,
-  onCareersClick,
   onTeamClick,
   onFAQsClick,
   onSitemapClick,
@@ -95,7 +93,6 @@ export default function Footer({
         { label: 'Our Mission', onClick: () => onAboutClick('mission') },
         { label: 'Our Vision', onClick: () => onAboutClick('vision') },
         { label: 'Our Team', onClick: onTeamClick },
-        { label: 'Careers', onClick: onCareersClick },
       ]
     },
     {

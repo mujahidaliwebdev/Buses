@@ -72,7 +72,6 @@ export default function Sitemap() {
     { name: 'Our Mission (ہمارا مشن)', path: '/about?tab=mission', desc: 'Connecting Pakistan with transparent transport information.', icon: Compass },
     { name: 'Our Vision (ہمارا وژن)', path: '/about?tab=vision', desc: 'Promoting organized and reliable travel for everyone.', icon: Globe },
     { name: 'Our Team (ہماری ٹیم)', path: '/team', desc: 'Meet the hard-working developers and researchers behind the app.', icon: Users },
-    { name: 'Careers (ملازمت کے مواقع)', path: '/careers', desc: 'Join us and build the future of travel information.', icon: Briefcase },
     { name: 'FAQs (سوالات و جوابات)', path: '/faqs', desc: 'Frequently asked questions about transport schedules.', icon: HelpCircle },
     { name: 'Contact Us (رابطہ کریں)', path: '/contact', desc: 'Get in touch for feedback, queries, and cooperation.', icon: Phone },
   ];

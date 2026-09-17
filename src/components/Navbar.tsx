@@ -1,9 +1,12 @@
-import { BusFront, User, LogOut, Menu, X, Smartphone, Heart } from 'lucide-react';
+import { BusFront, User, LogOut, Menu, X, Smartphone, Heart, LayoutDashboard, Award, FileText, ChevronRight, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, logout } from '../lib/firebase';
 import { useEffect, useState } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
 import UserProfileModal from './UserProfileModal';
+import UserDashboardModal from './UserDashboardModal';
+import VolunteerCardModal from './VolunteerCardModal';
+import ExperienceLetterModal from './ExperienceLetterModal';
 
 interface NavbarProps {
   onLoginClick: () => void;
@@ -40,6 +43,9 @@ export default function Navbar({
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showDashboardModal, setShowDashboardModal] = useState(false);
+  const [showVolunteerCardModal, setShowVolunteerCardModal] = useState(false);
+  const [showExperienceLetterModal, setShowExperienceLetterModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -153,31 +159,82 @@ export default function Navbar({
                         onClick={() => setIsProfileMenuOpen(false)}
                       />
                       
-                      <div className="absolute top-full right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-40 py-2 overflow-hidden text-left animate-in slide-in-from-top-2 duration-150">
-                        <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
-                          <p className="text-xs font-black text-slate-800 truncate">{user.displayName || 'AsaanSafar User'}</p>
-                          <p className="text-[10px] font-bold text-slate-400 truncate">{user.email}</p>
+                      <div className="absolute top-full right-0 mt-3 w-64 bg-white rounded-3xl shadow-2xl border border-slate-100 z-40 py-3 overflow-hidden text-left animate-in slide-in-from-top-2 duration-150">
+                        {/* Title: Volunteer */}
+                        <div className="px-6 py-2 pb-3 border-b border-slate-100 flex items-center justify-between">
+                          <span className="text-xl font-black text-emerald-700 tracking-tight">Volunteer</span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
                         </div>
-                        
-                        <button 
-                          onClick={() => {
-                            setIsProfileMenuOpen(false);
-                            setShowProfileModal(true);
-                          }}
-                          className="w-full text-left px-5 py-3 hover:bg-slate-50 text-xs font-black uppercase tracking-widest text-slate-700 flex items-center gap-2 transition-all"
-                        >
-                          <User className="w-4 h-4 text-emerald-600" /> My Profile
-                        </button>
-                        
-                        <button 
-                          onClick={() => {
-                            setIsProfileMenuOpen(false);
-                            logout();
-                          }}
-                          className="w-full text-left px-5 py-3 hover:bg-rose-50 border-t border-slate-50 text-xs font-black uppercase tracking-widest text-rose-600 flex items-center gap-2 transition-all"
-                        >
-                          <LogOut className="w-4 h-4" /> Sign Out
-                        </button>
+
+                        {/* MENU heading */}
+                        <div className="px-6 pt-3 pb-1">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">MENU</span>
+                        </div>
+
+                        <div className="px-2 space-y-0.5">
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              setShowDashboardModal(true);
+                            }}
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-black text-slate-700 flex items-center justify-between transition-all cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <LayoutDashboard className="w-4 h-4 text-emerald-600" /> Dashboard
+                            </span>
+                          </button>
+
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              setShowProfileModal(true);
+                            }}
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-black text-slate-700 flex items-center justify-between transition-all cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <User className="w-4 h-4 text-emerald-600" /> Profile
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                          </button>
+
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              setShowVolunteerCardModal(true);
+                            }}
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-black text-slate-700 flex items-center justify-between transition-all cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <Award className="w-4 h-4 text-emerald-600" /> Volunteer Card
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                          </button>
+
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              setShowExperienceLetterModal(true);
+                            }}
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-black text-slate-700 flex items-center justify-between transition-all cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <FileText className="w-4 h-4 text-emerald-600" /> Experience Letter
+                            </span>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                          </button>
+                        </div>
+
+                        <div className="mt-2 pt-2 border-t border-slate-100 px-2">
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              logout();
+                            }}
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-rose-50 text-xs font-black uppercase tracking-wider text-rose-600 flex items-center gap-2.5 transition-all cursor-pointer"
+                          >
+                            <LogOut className="w-4 h-4" /> Sign Out
+                          </button>
+                        </div>
                       </div>
                     </>
                   )}
@@ -266,6 +323,24 @@ export default function Navbar({
           <UserProfileModal 
             onClose={() => setShowProfileModal(false)} 
             onProfileUpdated={handleProfileUpdated}
+          />
+        )}
+        {showDashboardModal && (
+          <UserDashboardModal 
+            onClose={() => setShowDashboardModal(false)}
+            onOpenProfile={() => setShowProfileModal(true)}
+            onOpenVolunteerCard={() => setShowVolunteerCardModal(true)}
+            onOpenExperienceLetter={() => setShowExperienceLetterModal(true)}
+          />
+        )}
+        {showVolunteerCardModal && (
+          <VolunteerCardModal 
+            onClose={() => setShowVolunteerCardModal(false)}
+          />
+        )}
+        {showExperienceLetterModal && (
+          <ExperienceLetterModal 
+            onClose={() => setShowExperienceLetterModal(false)}
           />
         )}
       </AnimatePresence>

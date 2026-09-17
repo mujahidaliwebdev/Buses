@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { X, Heart, ShieldCheck, Target, Users, CheckCircle2, Sparkles, Send, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { volunteerService } from '../lib/firestoreService';
-import { signUpWithEmail } from '../lib/firebase';
+import { signUpWithEmail, db, auth } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface VolunteerModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
     email: '',
     phone: '',
     city: '',
+    gender: 'Male',
     motivation: '',
     cnic: ''
   });
@@ -69,7 +71,19 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
 
     try {
       // 1. Create Firebase auth account for login
-      await signUpWithEmail(formData.email, password, formData.fullName);
+      const newUser = await signUpWithEmail(formData.email, password, formData.fullName);
+      const uid = newUser?.uid || auth.currentUser?.uid;
+
+      if (uid) {
+        await setDoc(doc(db, 'users', uid), {
+          uid,
+          email: formData.email,
+          displayName: formData.fullName,
+          homeCity: formData.city,
+          gender: formData.gender,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
 
       // 2. Submit volunteer application data to Firestore
       await volunteerService.submitVolunteerApplication({
@@ -216,17 +230,6 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number / WhatsApp</label>
-                    <input 
-                      type="text" 
-                      required
-                      placeholder="e.g. 0300 1234567" 
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
-                    />
-                  </div>
-                  <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">City / Region (شہر)</label>
                     <input 
                       type="text" 
@@ -236,6 +239,18 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
                       onChange={(e) => setFormData({...formData, city: e.target.value})}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Gender (جنس)</label>
+                    <select
+                      value={formData.gender}
+                      onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none bg-white font-medium"
+                    >
+                      <option value="Male">Male / مرد</option>
+                      <option value="Female">Female / عورت</option>
+                      <option value="Other">Other / دیگر</option>
+                    </select>
                   </div>
                 </div>
               </div>

@@ -96,9 +96,22 @@ service cloud.firestore {
               data.issues is list;
     }
 
+    function isValidVolunteer(data) {
+       return data.keys().hasAll(['fullName', 'email', 'phone', 'city', 'interestArea']) &&
+              data.fullName is string && data.fullName.size() <= 128 &&
+              data.email is string && data.email.size() <= 256 &&
+              data.phone is string && data.phone.size() <= 32 &&
+              data.city is string && data.city.size() <= 64 &&
+              data.interestArea is string && data.interestArea.size() <= 500 &&
+              (!('motivation' in data) || (data.motivation is string && data.motivation.size() <= 2000)) &&
+              (!('userId' in data) || (data.userId is string)) &&
+              (!('submittedAt' in data) || (data.submittedAt is string)) &&
+              (!('status' in data) || (data.status is string));
+    }
+
     // 1. Users Collection
     match /users/{userId} {
-      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow read: if isOwner(userId) || isAdmin();
       allow list: if isSignedIn();
       allow create, update: if isOwner(userId) || isAdmin();
     }
@@ -114,29 +127,42 @@ service cloud.firestore {
 
     // 3. Contributions Collection
     match /contributions/{contribId} {
-      allow get: if isValidId(contribId) && isAdmin();
-      allow list: if isAdmin();
+      allow get, list: if isSignedIn();
       allow create: if isSignedIn() && isValidContribution(incoming());
       allow delete: if isAdmin();
     }
 
-    // 4. Feedback, Complaints, Reports (Admin only read)
+    // 4. Feedback, Complaints, Reports, Route Queries
     match /feedback/{docId} {
       allow create: if isValidFeedback(incoming());
-      allow read, delete: if isAdmin();
+      allow read, list: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+    match /route_queries/{docId} {
+      allow create, read, list: if isSignedIn();
+      allow delete: if isAdmin();
     }
     match /complaints/{docId} {
       allow create: if isValidFeedback(incoming());
-      allow read, delete: if isAdmin();
+      allow read, list: if isSignedIn();
+      allow delete: if isAdmin();
     }
     match /reports/{docId} {
       allow create: if isValidReport(incoming());
-      allow read, delete: if isAdmin();
+      allow read, list: if isSignedIn();
+      allow delete: if isAdmin();
     }
 
     match /careers/{docId} {
       allow create: if isValidCareer(incoming());
-      allow read, delete: if isAdmin();
+      allow read, list: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    match /volunteers/{docId} {
+      allow create: if isValidVolunteer(incoming());
+      allow read, list: if isSignedIn();
+      allow delete: if isAdmin();
     }
 
     // 5. Ratings

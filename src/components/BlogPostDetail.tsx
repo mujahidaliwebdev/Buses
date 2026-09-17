@@ -48,7 +48,7 @@ export default function BlogPostDetail() {
       if (!scriptElement) {
         scriptElement = document.createElement('script');
         scriptElement.id = scriptId;
-        scriptElement.type = 'application/ld+json';
+        (scriptElement as HTMLScriptElement).type = 'application/ld+json';
         document.head.appendChild(scriptElement);
       }
       scriptElement.textContent = JSON.stringify({

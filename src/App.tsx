@@ -32,7 +32,6 @@ import Schedules from './components/Schedules';
 import RouteSpecificPage from './components/RouteSpecificPage';
 import AuthModal from './components/AuthModal';
 import Sitemap from './components/Sitemap';
-import Careers from './components/Careers';
 import OurTeam from './components/OurTeam';
 import FAQs from './components/FAQs';
 import FeedbackSystem from './components/FeedbackSystem';
@@ -278,7 +277,6 @@ function AppContent() {
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPostDetail />} />
-          <Route path="/careers" element={<Careers />} />
           <Route path="/team" element={<OurTeam />} />
           <Route path="/faqs" element={<FAQs />} />
           
@@ -308,7 +306,6 @@ function AppContent() {
         onSchedulesClick={() => navigate('/schedules')}
         onFeaturesClick={() => handleNavClick('features')}
         onRoutesClick={() => handleNavClick('routes')}
-        onCareersClick={() => navigate('/careers')}
         onTeamClick={() => navigate('/team')}
         onFAQsClick={() => navigate('/faqs')}
         onSitemapClick={() => navigate('/sitemap')}
@@ -378,7 +375,7 @@ export default function App() {
     if (segments.length > 0) {
       const KNOWN_ROUTES = [
         'admin', 'schedules', 'about', 'contact', 'policy', 
-        'privacy', 'terms', 'disclaimer', 'blog', 'careers', 
+        'privacy', 'terms', 'disclaimer', 'blog', 
         'team', 'faqs', 'sitemap'
       ];
       const firstSegment = segments[0].toLowerCase();

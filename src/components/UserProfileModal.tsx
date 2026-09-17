@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, User, Phone, Image, AlertCircle, CheckCircle, Save, Mail, MapPin, Users, FileText, Calendar, ShieldAlert } from 'lucide-react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
@@ -59,16 +59,39 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
       try {
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userDocRef);
+        let foundCity = '';
+        let foundGender = '';
         if (userDoc.exists()) {
           const data = userDoc.data();
           if (data.mobile) setMobile(data.mobile);
           if (data.displayName) setName(data.displayName);
           if (data.photoURL) setPhotoURL(data.photoURL);
-          if (data.homeCity) setHomeCity(data.homeCity);
-          if (data.gender) setGender(data.gender);
+          if (data.homeCity) { setHomeCity(data.homeCity); foundCity = data.homeCity; }
+          if (data.gender) { setGender(data.gender); foundGender = data.gender; }
           if (data.bio) setBio(data.bio);
           if (data.emergencyContactName) setEmergencyName(data.emergencyContactName);
           if (data.emergencyContactNumber) setEmergencyNumber(data.emergencyContactNumber);
+        }
+
+        // Fallback to volunteer applications if city or gender is missing
+        if (!foundCity || !foundGender) {
+          const volQuery = query(collection(db, 'volunteers'), where('userId', '==', currentUser.uid));
+          const volSnap = await getDocs(volQuery);
+          let volData: any = null;
+          if (!volSnap.empty) {
+            volData = volSnap.docs[0].data();
+          } else if (currentUser.email) {
+            const volEmailQuery = query(collection(db, 'volunteers'), where('email', '==', currentUser.email));
+            const volEmailSnap = await getDocs(volEmailQuery);
+            if (!volEmailSnap.empty) {
+              volData = volEmailSnap.docs[0].data();
+            }
+          }
+
+          if (volData) {
+            if (!foundCity && volData.city) setHomeCity(volData.city);
+            if (!foundGender && volData.gender) setGender(volData.gender);
+          }
         }
       } catch (err) {
         console.error('Error fetching user document:', err);

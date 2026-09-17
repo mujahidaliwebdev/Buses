@@ -11,7 +11,6 @@ export const STATIC_SITEMAP_PAGES: SitemapPage[] = [
   { loc: 'https://asaansafar.com/about', lastmod: '2026-09-10', changefreq: 'monthly', priority: 0.6 },
   { loc: 'https://asaansafar.com/contact', lastmod: '2026-09-10', changefreq: 'monthly', priority: 0.6 },
   { loc: 'https://asaansafar.com/blog', lastmod: '2026-09-10', changefreq: 'daily', priority: 0.7 },
-  { loc: 'https://asaansafar.com/careers', lastmod: '2026-09-10', changefreq: 'monthly', priority: 0.5 },
   { loc: 'https://asaansafar.com/team', lastmod: '2026-09-10', changefreq: 'monthly', priority: 0.5 },
   { loc: 'https://asaansafar.com/faqs', lastmod: '2026-09-10', changefreq: 'weekly', priority: 0.6 },
   { loc: 'https://asaansafar.com/sitemap', lastmod: '2026-09-10', changefreq: 'weekly', priority: 0.5 },
