@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink, Search } from 'lucide-react';
+import { Zap, CheckCircle2, Phone, MessageSquare, ExternalLink, Search, Play } from 'lucide-react';
 
 interface FeaturesProps {
   onRouteClick?: (origin: string, destination: string) => void;
 }
 
 export default function Features({ onRouteClick }: FeaturesProps) {
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+
   return (
     <section id="features" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -89,48 +92,54 @@ export default function Features({ onRouteClick }: FeaturesProps) {
                </motion.div>
 
                <motion.div
-                 onClick={() => onRouteClick?.('Lahore', 'Karachi')}
                  initial={{ opacity: 0, y: 20 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
                  transition={{ delay: 0.2 }}
                  whileHover={{ y: -4 }}
-                 className="h-64 bg-emerald-950 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between cursor-pointer border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300"
+                 className="h-64 bg-emerald-950 rounded-[2rem] relative overflow-hidden group shadow-md flex flex-col justify-between border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300"
                >
-                 <img 
-                   src="https://lh3.googleusercontent.com/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0"
-                   alt="Lahore to Karachi" 
-                   className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500"
-                   referrerPolicy="no-referrer"
-                 />
-                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/95 via-neutral-950/40 to-transparent pointer-events-none" />
-                 
-                 <div className="absolute inset-0 p-8 flex flex-col justify-between">
-                   <div className="flex justify-between items-center w-full z-10">
-                     <span className="text-emerald-300 text-[10px] font-black bg-emerald-950/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#lahore_to_karachi</span>
-                     <div className="w-8 h-8 rounded-full bg-emerald-600/80 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md">
-                       <Search className="w-4 h-4" />
+                 {isPlayingVideo ? (
+                   <div className="absolute inset-0 w-full h-full bg-black z-20">
+                     <iframe
+                       src="https://www.youtube.com/embed/lkuAC48zeh4?autoplay=1"
+                       title="AsaanSafar YouTube Video"
+                       className="w-full h-full border-0"
+                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                       allowFullScreen
+                     />
+                   </div>
+                 ) : (
+                   <div 
+                     onClick={() => setIsPlayingVideo(true)}
+                     className="absolute inset-0 w-full h-full cursor-pointer group z-20"
+                   >
+                     <img 
+                       src="https://img.youtube.com/vi/lkuAC48zeh4/hqdefault.jpg"
+                       alt="AsaanSafar YouTube Video" 
+                       className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
+                       referrerPolicy="no-referrer"
+                     />
+                     <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/95 via-neutral-950/40 to-transparent pointer-events-none" />
+                     
+                     <div className="absolute inset-0 p-8 flex flex-col justify-between">
+                       <div className="flex justify-between items-center w-full z-10">
+                         <span className="text-emerald-300 text-[10px] font-black bg-emerald-950/85 backdrop-blur-sm px-3 py-1.5 rounded-full border border-emerald-400/20 tracking-widest">#asaansafar_video</span>
+                         <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                           <Play className="w-6 h-6 fill-current ml-0.5" />
+                         </div>
+                       </div>
+                       <div className="z-10 mt-auto text-left">
+                         <span className="text-white font-bold text-sm tracking-wide block mb-1">AsaanSafar YouTube Video Player</span>
+                         <div className="flex items-center gap-3">
+                           <span className="text-emerald-300 text-xs font-semibold flex items-center gap-1.5 bg-emerald-900/80 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-500/30">
+                             <Play className="w-3 h-3 fill-current" /> Play Video Inside Website
+                           </span>
+                         </div>
+                       </div>
                      </div>
                    </div>
-                   <div className="z-10 mt-auto text-left">
-                     <span className="text-white font-bold text-sm tracking-wide block mb-1">Lahore to Karachi details and timings card</span>
-                     <div className="flex items-center gap-3">
-                       <span className="text-emerald-400 text-xs font-bold hover:underline flex items-center gap-1">
-                         <Search className="w-3 h-3 animate-pulse" /> Search Route
-                       </span>
-                       <span className="text-slate-400 text-xs">|</span>
-                       <a 
-                         href="https://drive.google.com/file/d/1r2ggKGaAw2AmN4YTxenw2PWe3odWHAo0/view?usp=sharing"
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         onClick={(e) => e.stopPropagation()}
-                         className="text-emerald-300 text-xs font-semibold tracking-wider flex items-center gap-1.5 hover:text-white transition-colors"
-                       >
-                         Original photo <ExternalLink className="w-3 h-3 inline" />
-                       </a>
-                     </div>
-                   </div>
-                 </div>
+                 )}
                </motion.div>
              </div>
           </div>
