@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Heart, ShieldCheck, Target, Users, CheckCircle2, Sparkles, Send } from 'lucide-react';
+import { X, Heart, ShieldCheck, Target, Users, CheckCircle2, Sparkles, Send, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { volunteerService } from '../lib/firestoreService';
+import { signUpWithEmail } from '../lib/firebase';
 
 interface VolunteerModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
     motivation: '',
     cnic: ''
   });
+  const [password, setPassword] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>(['Buses Data (Route, Schedule & Fare)']);
   const [agreed, setAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,10 +59,19 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
       setError('Please select at least one Area of Interest / Contribution.');
       return;
     }
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters long for login setup.');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // 1. Create Firebase auth account for login
+      await signUpWithEmail(formData.email, password, formData.fullName);
+
+      // 2. Submit volunteer application data to Firestore
       await volunteerService.submitVolunteerApplication({
         ...formData,
         interestArea: selectedInterests.join(', ')
@@ -68,7 +79,7 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
       setSuccess(true);
     } catch (err: any) {
       console.error(err);
-      setSuccess(true);
+      setError(err.message || 'Failed to create volunteer account. Please try a different email or check password.');
     } finally {
       setIsSubmitting(false);
     }
@@ -165,7 +176,7 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
                 </div>
               )}
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Full Name (پورا نام)</label>
                   <input 
@@ -177,41 +188,55 @@ export default function VolunteerModal({ isOpen, onClose }: VolunteerModalProps)
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="e.g. ali@example.com" 
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
-                  />
-                </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number / WhatsApp</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. 0300 1234567" 
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
-                  />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="e.g. ali@example.com" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Password (لاگ ان پاس ورڈ - کم از کم 6 ہندسے)</label>
+                    <input 
+                      type="password" 
+                      required
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">City / Region (شہر)</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. Lahore / Faisalabad" 
-                    value={formData.city}
-                    onChange={(e) => setFormData({...formData, city: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
-                  />
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number / WhatsApp</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. 0300 1234567" 
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">City / Region (شہر)</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Lahore / Faisalabad" 
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
