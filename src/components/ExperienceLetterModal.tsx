@@ -76,6 +76,19 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
           </div>
         </div>
 
+        {/* Official Letter Head Seal / Graphic */}
+        <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-4 text-center space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">AsaanSafar Official Letterhead & Seal</p>
+          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-white p-2">
+            <img
+              src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is"
+              alt="AsaanSafar Letter Head"
+              referrerPolicy="no-referrer"
+              className="w-full h-auto max-h-48 object-contain mx-auto"
+            />
+          </div>
+        </div>
+
         <div className="flex gap-3 pt-2">
           <button
             onClick={() => window.print()}
