@@ -13,28 +13,51 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
+      {/* Print CSS to ensure only the letter prints on 1 page */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-letter, #printable-letter * {
+            visibility: visible !important;
+          }
+          #printable-letter {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+        }
+      `}</style>
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-md print:hidden"
       />
 
       <motion.div
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
-        className="relative w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10 border border-slate-100 p-6 sm:p-8 text-left space-y-6 max-h-[95vh] overflow-y-auto"
+        className="relative w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10 border border-slate-100 p-6 sm:p-8 text-left space-y-6 max-h-[95vh] overflow-y-auto print:p-0 print:max-h-none print:shadow-none print:border-none"
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-all cursor-pointer z-30 bg-white/80 backdrop-blur-sm shadow-md"
+          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-all cursor-pointer z-30 bg-white/80 backdrop-blur-sm shadow-md print:hidden"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-1 print:hidden">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
             <Sparkles className="w-3 h-3" /> Official Certificate
           </div>
@@ -43,7 +66,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
         </div>
 
         {/* Letterhead Paper Container */}
-        <div className="relative w-full max-w-2xl mx-auto shadow-2xl rounded-2xl overflow-hidden bg-white border border-slate-300">
+        <div id="printable-letter" className="relative w-full max-w-2xl mx-auto shadow-2xl rounded-2xl overflow-hidden bg-white border border-slate-300">
           {/* Letterhead Image as full background */}
           <img
             src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is"
@@ -54,16 +77,19 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
 
           {/* Overlay Content positioned over the letterhead middle whitespace area */}
           <div className="absolute inset-0 pt-[28%] pb-[16%] px-[12%] flex flex-col justify-between font-serif text-slate-900 text-xs sm:text-sm leading-relaxed">
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="flex justify-between items-center text-[11px] font-sans text-slate-500 font-bold border-b border-slate-200/60 pb-2">
                 <span>Date: {currentDate}</span>
                 <span>Ref: ASP-EXP-{Math.floor(100000 + Math.random() * 900000)}</span>
               </div>
 
-              <p className="font-bold text-slate-900 text-base pt-2">To Whom It May Concern,</p>
+              {/* To Whom It May Concern centered with generous space below */}
+              <div className="text-center pt-3 pb-2">
+                <p className="font-bold text-slate-900 text-base sm:text-lg tracking-wide">To Whom It May Concern,</p>
+              </div>
 
-              <p>
-                This is to certify that <strong className="text-emerald-900 font-sans">{currentUser?.displayName || 'Valound Volunteer'}</strong> has actively contributed as an official community volunteer with <strong>AsaanSafar Pakistan</strong>.
+              <p className="pt-2">
+                This is to certify that <strong className="text-emerald-900 font-sans">{currentUser?.displayName || 'Valued Volunteer'}</strong> has actively contributed as an official community volunteer with <strong>AsaanSafar Pakistan</strong>.
               </p>
 
               <p>
@@ -78,8 +104,10 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             {/* Signatures at the bottom */}
             <div className="pt-4 flex justify-between items-end font-sans text-xs text-slate-700">
               <div>
-                <p className="font-black text-slate-900">AsaanSafar Management Team</p>
-                <p className="text-[10px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
+                <div className="space-y-0.5">
+                  <p className="font-black text-slate-900">AsaanSafar Management Team</p>
+                  <p className="text-[10px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
+                </div>
               </div>
               <div className="text-right">
                 <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 shadow-sm text-[11px]">
@@ -90,7 +118,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
           </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-2 print:hidden">
           <button
             onClick={() => window.print()}
             className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
