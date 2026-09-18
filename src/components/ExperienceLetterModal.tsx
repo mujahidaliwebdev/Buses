@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X, Award, Sparkles, CheckCircle2, Download } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, Download } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
 interface ExperienceLetterModalProps {
@@ -25,16 +25,16 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
-        className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 border border-slate-100 p-6 sm:p-10 text-left space-y-6 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl overflow-hidden z-10 border border-slate-100 p-6 sm:p-8 text-left space-y-6 max-h-[95vh] overflow-y-auto"
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-all cursor-pointer"
+          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-all cursor-pointer z-30 bg-white/80 backdrop-blur-sm shadow-md"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="text-center space-y-1 pb-4 border-b border-slate-100">
+        <div className="text-center space-y-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
             <Sparkles className="w-3 h-3" /> Official Certificate
           </div>
@@ -42,50 +42,51 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
           <p className="text-xs text-slate-500">AsaanSafar Pakistan Transit Initiative</p>
         </div>
 
-        {/* Certificate Letter Body */}
-        <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-6 sm:p-8 space-y-4 font-serif text-slate-700 text-sm leading-relaxed">
-          <div className="flex justify-between items-center text-xs font-sans text-slate-400 mb-4">
-            <span>Date: {currentDate}</span>
-            <span>Ref: ASP-EXP-{Math.floor(100000 + Math.random() * 900000)}</span>
-          </div>
+        {/* Letterhead Paper Container */}
+        <div className="relative w-full max-w-2xl mx-auto shadow-2xl rounded-2xl overflow-hidden bg-white border border-slate-300">
+          {/* Letterhead Image as full background */}
+          <img
+            src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is"
+            alt="AsaanSafar Letter Head"
+            referrerPolicy="no-referrer"
+            className="w-full h-auto block select-none pointer-events-none"
+          />
 
-          <p className="font-bold text-slate-900">To Whom It May Concern,</p>
+          {/* Overlay Content positioned over the letterhead middle whitespace area */}
+          <div className="absolute inset-0 pt-[28%] pb-[16%] px-[12%] flex flex-col justify-between font-serif text-slate-900 text-xs sm:text-sm leading-relaxed">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-[11px] font-sans text-slate-500 font-bold border-b border-slate-200/60 pb-2">
+                <span>Date: {currentDate}</span>
+                <span>Ref: ASP-EXP-{Math.floor(100000 + Math.random() * 900000)}</span>
+              </div>
 
-          <p>
-            This is to certify that <strong className="text-emerald-800 font-sans">{currentUser?.displayName || 'Valued Volunteer'}</strong> has actively contributed as an official community volunteer with <strong>AsaanSafar Pakistan</strong>.
-          </p>
+              <p className="font-bold text-slate-900 text-base pt-2">To Whom It May Concern,</p>
 
-          <p>
-            During their tenure, they have demonstrated exceptional dedication in validating public transport routes, schedules, fares, and assisting commuters across Pakistan. Their commitment towards transparent public transit data has significantly benefited thousands of daily travelers.
-          </p>
+              <p>
+                This is to certify that <strong className="text-emerald-900 font-sans">{currentUser?.displayName || 'Valound Volunteer'}</strong> has actively contributed as an official community volunteer with <strong>AsaanSafar Pakistan</strong>.
+              </p>
 
-          <p>
-            We deeply appreciate their selfless community service and wish them success in all their future endeavors.
-          </p>
+              <p>
+                During their tenure, they have demonstrated exceptional dedication in validating public transport routes, schedules, fares, and assisting commuters across Pakistan. Their commitment towards transparent public transit data has significantly benefited thousands of daily travelers.
+              </p>
 
-          <div className="pt-8 flex justify-between items-end font-sans text-xs text-slate-600">
-            <div>
-              <p className="font-black text-slate-900">AsaanSafar Management Team</p>
-              <p className="text-[10px] text-slate-400">Community Operations & Data Verification</p>
+              <p>
+                We deeply appreciate their selfless community service and wish them success in all their future endeavors.
+              </p>
             </div>
-            <div className="text-right">
-              <div className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                <CheckCircle2 className="w-4 h-4" /> Verified & Signed
+
+            {/* Signatures at the bottom */}
+            <div className="pt-4 flex justify-between items-end font-sans text-xs text-slate-700">
+              <div>
+                <p className="font-black text-slate-900">AsaanSafar Management Team</p>
+                <p className="text-[10px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
+              </div>
+              <div className="text-right">
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 shadow-sm text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Verified & Signed
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Official Letter Head Seal / Graphic */}
-        <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-4 text-center space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">AsaanSafar Official Letterhead & Seal</p>
-          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-white p-2">
-            <img
-              src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is"
-              alt="AsaanSafar Letter Head"
-              referrerPolicy="no-referrer"
-              className="w-full h-auto max-h-48 object-contain mx-auto"
-            />
           </div>
         </div>
 
