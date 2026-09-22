@@ -25,7 +25,8 @@ import {
   Database,
   Layers,
   Sparkles,
-  Users
+  Users,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
@@ -37,6 +38,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import CloudflareD1Exporter from './CloudflareD1Exporter';
 import BusEditorModal, { MasterBusData } from './BusEditorModal';
+import SeoHealthMonitorTab from './SeoHealthMonitorTab';
 
 interface AdminDashboardProps {
   buses: Bus[];
@@ -57,6 +59,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
   const [isViewingSettings, setIsViewingSettings] = useState(false);
+  const [isViewingRouteDiagnostic, setIsViewingRouteDiagnostic] = useState(false);
   const [measurementId, setMeasurementId] = useState('');
   const [gscVerification, setGscVerification] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
@@ -954,6 +957,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-20 px-4 md:px-8">
+      {isViewingRouteDiagnostic ? (
+        <SeoHealthMonitorTab 
+          onClose={() => setIsViewingRouteDiagnostic(false)} 
+          buses={buses} 
+        />
+      ) : (
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}
@@ -1057,6 +1066,12 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
               <FileSpreadsheet className="w-5 h-5 text-emerald-500" /> SEO & Analytics Settings
+            </button>
+            <button 
+              onClick={() => setIsViewingRouteDiagnostic(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer"
+            >
+              <Activity className="w-5 h-5 text-emerald-200" /> SEO Route Health
             </button>
             <button 
               onClick={() => setIsCloudflareD1Exporter(true)}
@@ -1329,6 +1344,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           {renderPagination(false)}
         </div>
       </div>
+      )}
 
       {/* JSON Partition Bulk Upload Modal */}
       <AnimatePresence>
@@ -2962,6 +2978,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           />
         )}
       </AnimatePresence>
+
+
 
       <style>{`
         .admin-input {

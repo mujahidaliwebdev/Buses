@@ -23,6 +23,174 @@ export interface BlogPost {
 
 export const MOCK_BLOGS: BlogPost[] = [
   {
+    "id": 15,
+    "title": "The Future of Bus Travel in Pakistan: Digitalization and Comfort",
+    "image": "https://lh3.googleusercontent.com/d/17Ucs1XBJIwdVxmGK_SmKqsBjB_-Mi_1S",
+    "imageOverlayText": "FUTURE OF TRANSPORT 2026",
+    "date": "22 September 2026",
+    "slug": "future-of-bus-travel-pakistan-digitalization-comfort",
+    "excerpt": "Discover how digitalization, online schedule verification, and modernized comfort are transforming intercity non-AC and passenger bus travel across Pakistan.",
+    "author": "AsaanSafar Tech & Editorial Team",
+    "readTime": "6 min read",
+    "category": "Transport Trends",
+    "keyTakeaway": "Embracing digital bus schedules and transparent route planning on AsaanSafar is paving the way for a faster, safer, and completely hassle-free commuting experience across Pakistan. / آسان سفر پر ڈیجیٹل بس کے اوقات اور شفاف روٹ پلاننگ کو اپنانا پاکستان بھر میں تیز رفتار اور پریشانی سے پاک سفر کی راہ ہموار کر رہا ہے۔",
+    "sections": [
+      {
+        "type": "paragraph",
+        "text": "For decades, intercity passenger travel in Pakistan relied heavily on guesswork, crowded bus terminals, and uncertain departure times. Commuters travelling between bustling urban centers and regional hubs like Lahore, Faisalabad, Multan, and Rawalpindi often faced long queues just to verify bus timings and fare rates."
+      },
+      {
+        "type": "heading",
+        "text": "1. The Digital Transformation of Commuter Routes"
+      },
+      {
+        "type": "paragraph",
+        "text": "Today, platforms like AsaanSafar are bridging the information gap. Passengers can instantly check accurate bus schedules, departure hours, and intermediate stopovers online from the comfort of their homes before heading to the terminal."
+      },
+      {
+        "type": "quote",
+        "text": "Digitalization empowers everyday travelers with transparent data, ensuring fair fares and predictable schedules across every route."
+      },
+      {
+        "type": "heading",
+        "text": "2. Enhanced Passenger Comfort and Safety Standards"
+      },
+      {
+        "type": "paragraph",
+        "text": "Modern transport operators are investing heavily in passenger amenities, better seating arrangements, regular fleet maintenance, and verified driver credentials to guarantee secure family travel throughout Punjab and beyond."
+      },
+      {
+        "type": "heading",
+        "text": "3. Plan Your Next Journey with AsaanSafar"
+      },
+      {
+        "type": "paragraph",
+        "text": "Don't leave your travel plans to chance. Explore our up-to-date schedules, compare departure times, and travel with total confidence today."
+      },
+      {
+        "type": "heading",
+        "text": "پاکستان میں بس کے سفر کا مستقبل: ڈیجیٹلائزیشن اور بہتر آرام"
+      },
+      {
+        "type": "paragraph",
+        "text": "دہائیوں تک پاکستان میں شہروں کے درمیان مسافروں کا سفر اندازوں، بھیڑ بھڑاکے والے بس ٹرمینلز اور غیر یقینی روانگی کے اوقات پر انحصار کرتا تھا۔ لاہور، فیصل آباد، ملتان اور راولپنڈی کے درمیان سفر کرنے والے مسافروں کو صرف بس کے اوقات اور کرائے معلوم کرنے کے لیے طویل قطاروں میں کھڑا ہونا پڑتا تھا۔"
+      },
+      {
+        "type": "heading",
+        "text": "1. مسافروں کے روٹس کی ڈیجیٹل تبدیلی"
+      },
+      {
+        "type": "paragraph",
+        "text": "آج، آسان سفر (AsaanSafar) جیسے پلیٹ فارمز اس خلیج کو پُر کر رہے ہیں۔ مسافر ٹرمینل جانے سے پہلے گھر بیٹھے بس کے درست اوقات، روانگی کے گھنٹے اور راستے کے اسٹاپس آن لائن دیکھ سکتے ہیں۔"
+      },
+      {
+        "type": "heading",
+        "text": "2. مسافروں کے لیے آرام اور حفاظتی معیارات میں بہتری"
+      },
+      {
+        "type": "paragraph",
+        "text": "جدید ٹرانسپورٹ آپریٹرز مسافروں کی سہولت، بہتر بیٹھنے کے انتظامات، گاڑیوں کی باقاعدہ دیکھ بھال اور تصدیق شدہ ڈرائیورز پر توجہ دے رہے ہیں تاکہ پنجاب بھر میں خاندانوں کا سفر محفوظ بنایا جا سکے۔"
+      },
+      {
+        "type": "heading",
+        "text": "3. آسان سفر کے ساتھ اپنے اگلے سفر کی منصوبہ بندی کریں"
+      },
+      {
+        "type": "paragraph",
+        "text": "اپنے سفر کو اتفاق پر مت چھوڑیں۔ آج ہی ہمارے تازہ ترین شیڈول چیک کریں، روانگی کے اوقات کا موازنہ کریں اور مکمل اعتماد کے ساتھ سفر کریں۔"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Mastering Intercity Bus Travel in Pakistan: Packing, Timing, and Safety Tips",
+    "image": "https://lh3.googleusercontent.com/d/1wUZ9QxL9zKyxhc_FfXBmg6JJ2WgLDNow",
+    "imageOverlayText": "ESSENTIAL COMMUTER GUIDE 2026",
+    "date": "21 September 2026",
+    "slug": "mastering-intercity-bus-travel-pakistan-packing-timing-safety",
+    "excerpt": "A comprehensive guide for daily commuters and long-distance travelers on smart packing, terminal etiquette, and stress-free non-AC bus journeys across Pakistan.",
+    "author": "AsaanSafar Editorial Board",
+    "readTime": "5 min read",
+    "category": "Passenger Guide",
+    "keyTakeaway": "Mastering your travel timing, keeping essentials handy in your carry-on, and double-checking bus schedules on AsaanSafar transforms intercity commuting into a comfortable, confident experience. / اپنے سفر کے وقت کو بہتر بنانا، ضروری سامان کیری آن میں رکھنا اور آسان سفر پر بس کے اوقات کی تصدیق کرنا سفر کو انتہائی آرام دہ بناتا ہے۔",
+    "sections": [
+      {
+        "type": "paragraph",
+        "text": "Intercity bus travel remains the backbone of mobility in Pakistan, connecting bustling urban hubs like Lahore, Faisalabad, Multan, Rawalpindi, and smaller towns across Punjab and beyond. Whether you are traveling for education, employment, or visiting relatives, a well-prepared commuter always enjoys a smoother ride."
+      },
+      {
+        "type": "heading",
+        "text": "1. Smart Packing for Long-Distance Bus Journeys"
+      },
+      {
+        "type": "paragraph",
+        "text": "When loading heavy luggage in the bus cargo bay, always keep a small backpack or shoulder bag with your essential items. Include water bottles, light snacks, a small travel pillow, your identification documents, and phone charging power banks."
+      },
+      {
+        "type": "quote",
+        "text": "Keep your valuables, cash, and digital tickets securely with you in your carry-on bag at all times during transit."
+      },
+      {
+        "type": "heading",
+        "text": "2. Terminal Etiquette and Boarding Punctuality"
+      },
+      {
+        "type": "paragraph",
+        "text": "Arriving at the bus terminal at least 15 to 30 minutes before departure gives you ample time to locate your designated bus, coordinate with the terminal manager, and ensure your luggage is properly tagged and loaded."
+      },
+      {
+        "type": "heading",
+        "text": "3. Essential Commuter Checklist"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Verify route timings and operator contact numbers on AsaanSafar.",
+          "Label your large luggage bags with your name and destination city.",
+          "Confirm ticket fare at the official counter before handing over cash.",
+          "Stay hydrated and dress in comfortable, breathable clothing."
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "پاکستان میں بس کا بہترین سفر: مسافروں کے لیے ضروری حفاظتی، وقت اور سامان کی پیکنگ کی مفید ٹپس"
+      },
+      {
+        "type": "paragraph",
+        "text": "پاکستان میں شہروں کے درمیان بس کا سفر نقل و حرکت کا بنیادی ذریعہ ہے، جو لاہور، فیصل آباد، ملتان، راولپنڈی اور پنجاب بھر کے چھوٹے قصبات کو آپس میں ملاتا ہے۔ خواہ آپ تعلیم، روزگار یا رشتہ داروں سے ملنے جا رہے ہوں، ایک بہتر تیاری والا مسافر ہمیشہ پرسکون سفر کا لطف اٹھاتا ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "1. طویل مسافت کے سفر کے لیے ہوشیار پیکنگ"
+      },
+      {
+        "type": "paragraph",
+        "text": "جب آپ بس کے سامان والے خانے میں بھاری بیگ رکھواتے ہیں، تو ہمیشہ اپنے ساتھ ایک چھوٹا ہینڈ بیگ یا بیک بیگ رکھیں جس میں پانی کی بوتل، ہلکا ناشتا، شناختی کارڈ، اور موبائل چارجر موجود ہو۔"
+      },
+      {
+        "type": "heading",
+        "text": "2. ٹرمینل کے آداب اور وقت کی پابندی"
+      },
+      {
+        "type": "paragraph",
+        "text": "بس روانگی سے 15 سے 30 منٹ پہلے ٹرمینل پر پہنچنا آپ کو اپنی بس تلاش کرنے، عملے سے رابطہ کرنے اور سامان محفوظ طریقے سے لوڈ کروانے کا پورا موقع فراہم کرتا ہے۔"
+      },
+      {
+        "type": "heading",
+        "text": "3. مسافروں کے لیے ضروری چیک لسٹ"
+      },
+      {
+        "type": "list",
+        "items": [
+          "آسان سفر پر اپنے روٹ کے اوقات اور آپریٹر کے نمبر لازمی چیک کریں۔",
+          "اپنے بڑے سامان والے تھیلوں پر اپنا نام اور منزل کا شہر واضح لکھیں۔",
+          "کاؤنٹر پر نقد رقم دینے سے پہلے آفیشل کرائے کی تصدیق کریں۔",
+          "سفر کے دوران پانی کا استعمال جاری رکھیں اور ہلکے آرام دہ کپڑے پہنیں۔"
+        ]
+      }
+    ]
+  },
+  {
     "id": 13,
     "title": "Save Time, Book Early: Why Advance Seat Reservation Matters in Intercity Travel",
     "image": "https://lh3.googleusercontent.com/d/12PPiLGxYO0orCzQCMzki9CkiQJZO-ISL",

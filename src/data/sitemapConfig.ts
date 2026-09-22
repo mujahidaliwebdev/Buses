@@ -6,7 +6,14 @@ export interface SitemapPage {
 }
 
 export const STATIC_SITEMAP_PAGES: SitemapPage[] = [
-  { loc: 'https://asaansafar.com/schedules', lastmod: '2026-09-13', changefreq: 'weekly', priority: 0.8 },
+  { loc: 'https://asaansafar.com/', lastmod: '2026-09-21', changefreq: 'daily', priority: 1.0 },
+  { loc: 'https://asaansafar.com/schedules', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.9 },
+  { loc: 'https://asaansafar.com/blog', lastmod: '2026-09-21', changefreq: 'daily', priority: 0.8 },
+  { loc: 'https://asaansafar.com/contact', lastmod: '2026-09-21', changefreq: 'monthly', priority: 0.6 },
+  { loc: 'https://asaansafar.com/blog/future-of-bus-travel-pakistan-digitalization-comfort', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.8 },
+  { loc: 'https://asaansafar.com/blog/mastering-intercity-bus-travel-pakistan-packing-timing-safety', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.8 },
+  { loc: 'https://asaansafar.com/blog/top-tips-for-safe-comfortable-night-bus-travel-pakistan', lastmod: '2026-09-11', changefreq: 'monthly', priority: 0.7 },
+  { loc: 'https://asaansafar.com/blog/how-to-find-cheap-bus-fares-avoid-overcharging-pakistan', lastmod: '2026-09-11', changefreq: 'monthly', priority: 0.7 },
   { loc: 'https://asaansafar.com/notak-to-khurrianwala-bus-timing', lastmod: '2026-09-13', changefreq: 'daily', priority: 0.9 },
   { loc: 'https://asaansafar.com/gujrat-to-gujar-khan-bus-timing', lastmod: '2026-09-13', changefreq: 'daily', priority: 0.9 },
   { loc: 'https://asaansafar.com/jhelum-to-pattoki-bus-timing', lastmod: '2026-09-13', changefreq: 'daily', priority: 0.9 },
@@ -46,14 +53,7 @@ export const STATIC_SITEMAP_PAGES: SitemapPage[] = [
   { loc: 'https://asaansafar.com/jhang-to-kasur-bus-timing', lastmod: '2026-09-12', changefreq: 'daily', priority: 0.9 },
   { loc: 'https://asaansafar.com/kot-addu-to-lahore-bus-timing', lastmod: '2026-09-12', changefreq: 'daily', priority: 0.9 },
   { loc: 'https://asaansafar.com/18-hazari-to-jhang-bus-timing', lastmod: '2026-09-12', changefreq: 'daily', priority: 0.9 },
-  { loc: 'https://asaansafar.com/blog', lastmod: '2026-09-12', changefreq: 'daily', priority: 0.7 },
   { loc: 'https://asaansafar.com/gojra-to-behal-bus-timing', lastmod: '2026-09-12', changefreq: 'daily', priority: 0.9 },
-  { loc: 'https://asaansafar.com/', lastmod: '2026-09-11', changefreq: 'daily', priority: 1.0 },
-  { loc: 'https://asaansafar.com/blog/top-tips-for-safe-comfortable-night-bus-travel-pakistan', lastmod: '2026-09-11', changefreq: 'monthly', priority: 0.7 },
-  { loc: 'https://asaansafar.com/blog/how-to-find-cheap-bus-fares-avoid-overcharging-pakistan', lastmod: '2026-09-11', changefreq: 'monthly', priority: 0.7 },
   { loc: 'https://asaansafar.com/behal-to-karor-bus-timing', lastmod: '2026-09-11', changefreq: 'daily', priority: 0.9 },
   { loc: 'https://asaansafar.com/luddan-to-okara-bus-timing', lastmod: '2026-09-11', changefreq: 'daily', priority: 0.9 },
-  { loc: 'https://asaansafar.com/faisalabad-to-lahore-bus-timing', lastmod: '2026-09-10', changefreq: 'daily', priority: 0.9 },
-  { loc: 'https://asaansafar.com/lahore-to-faisalabad-bus-timing', lastmod: '2026-09-10', changefreq: 'daily', priority: 0.9 },
-  { loc: 'https://asaansafar.com/contact', lastmod: '2026-09-10', changefreq: 'monthly', priority: 0.6 },
 ];
