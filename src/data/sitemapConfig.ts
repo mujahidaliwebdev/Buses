@@ -6,10 +6,15 @@ export interface SitemapPage {
 }
 
 export const STATIC_SITEMAP_PAGES: SitemapPage[] = [
-  { loc: 'https://asaansafar.com/', lastmod: '2026-09-21', changefreq: 'daily', priority: 1.0 },
-  { loc: 'https://asaansafar.com/schedules', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.9 },
-  { loc: 'https://asaansafar.com/blog', lastmod: '2026-09-21', changefreq: 'daily', priority: 0.8 },
-  { loc: 'https://asaansafar.com/contact', lastmod: '2026-09-21', changefreq: 'monthly', priority: 0.6 },
+  { loc: 'https://asaansafar.com/', lastmod: '2026-09-22', changefreq: 'daily', priority: 1.0 },
+  { loc: 'https://asaansafar.com/schedules', lastmod: '2026-09-22', changefreq: 'weekly', priority: 0.9 },
+  { loc: 'https://asaansafar.com/blog', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.8 },
+  { loc: 'https://asaansafar.com/contact', lastmod: '2026-09-22', changefreq: 'monthly', priority: 0.6 },
+  { loc: 'https://asaansafar.com/lahore-to-faisalabad-bus-timing', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.95 },
+  { loc: 'https://asaansafar.com/faisalabad-to-kasur-bus-timing', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.95 },
+  { loc: 'https://asaansafar.com/faisalabad-to-kot-radha-kishan-bus-timing', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.95 },
+  { loc: 'https://asaansafar.com/sheikhupura-to-fort-abbas-bus-timing', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.95 },
+  { loc: 'https://asaansafar.com/faisalabad-to-fort-abbas-bus-timing', lastmod: '2026-09-22', changefreq: 'daily', priority: 0.95 },
   { loc: 'https://asaansafar.com/blog/future-of-bus-travel-pakistan-digitalization-comfort', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.8 },
   { loc: 'https://asaansafar.com/blog/mastering-intercity-bus-travel-pakistan-packing-timing-safety', lastmod: '2026-09-21', changefreq: 'weekly', priority: 0.8 },
   { loc: 'https://asaansafar.com/blog/top-tips-for-safe-comfortable-night-bus-travel-pakistan', lastmod: '2026-09-11', changefreq: 'monthly', priority: 0.7 },

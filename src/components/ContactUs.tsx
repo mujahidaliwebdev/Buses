@@ -75,10 +75,15 @@ export default function ContactUs() {
             {/* Left Side: Info & Topics */}
             <div>
               <div className="mb-12">
-                <h3 className="text-2xl font-bold text-slate-900 mb-6">Why Reach Out?</h3>
-                <p className="text-slate-500 mb-8 leading-relaxed">
-                  Your feedback helps us maintain the most reliable bus schedule network in Pakistan. You can contact us for:
+                <h3 className="text-2xl font-bold text-slate-900 mb-6">Why Reach Out & Bus Support Guide</h3>
+                <p className="text-slate-600 mb-6 leading-relaxed text-sm">
+                  Asaan Safar provides comprehensive intercity bus timetable verification, fare tracking, and terminal contact coordination across Pakistan. While our platform compiles real-time schedules for major operators like Daewoo Express, Faisal Movers, Skyways, Bilal Travels, and non-AC passenger transport services, passengers frequently require direct assistance regarding departure times, ticket reservations, parcel services, and lost luggage recovery.
                 </p>
+                <p className="text-slate-600 mb-8 leading-relaxed text-sm">
+                  Whether you are traveling from Lahore, Faisalabad, Rawalpindi, Multan, Kasur, Sheikhupura, or smaller transit hubs, our dedicated support team is available via phone, WhatsApp, and email to assist you with accurate timetable confirmations and route planning.
+                </p>
+                
+                <h4 className="text-lg font-bold text-slate-900 mb-4">Common Inquiries We Assist With:</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {topics.map((topic, i) => (
                     <motion.div
