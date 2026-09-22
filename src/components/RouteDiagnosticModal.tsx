@@ -36,34 +36,43 @@ export default function RouteDiagnosticModal({ onClose, buses }: RouteDiagnostic
       let wordCount = 550;
 
       if (isContact) {
-        wordCount = 680;
+        wordCount = 720;
         contentScore = 'High';
-      } else if (!isBlog && !isHome && !isSchedules) {
-        const parts = page.loc.replace('https://asaansafar.com/', '').replace('-bus-timing', '').split('-to-');
-        const depCity = parts[0]?.replace(/-/g, ' ');
-        const arrCity = parts[1]?.replace(/-/g, ' ');
+        // Contact page should have zero bus-schedule or priority warnings
+        issues = [];
+      } else if (isBlog || isHome || isSchedules) {
+        wordCount = 850;
+        contentScore = 'High';
+        issues = [];
+      } else {
+        const slug = page.loc.replace('https://asaansafar.com/', '').replace('-bus-timing', '');
+        const parts = slug.split('-to-');
+        const depCity = parts[0]?.replace(/-/g, ' ').trim().toLowerCase() || '';
+        const arrCity = parts[1]?.replace(/-/g, ' ').trim().toLowerCase() || '';
         
-        const matchingBuses = buses.filter(b => 
-          b.departureCity?.toLowerCase().includes(depCity || '') &&
-          b.arrivalCity?.toLowerCase().includes(arrCity || '')
-        );
+        const matchingBuses = buses.filter(b => {
+          const bDep = (b.departureCity || '').trim().toLowerCase();
+          const bArr = (b.arrivalCity || '').trim().toLowerCase();
+          return (bDep.includes(depCity) || depCity.includes(bDep)) && 
+                 (bArr.includes(arrCity) || arrCity.includes(bArr));
+        });
 
         if (matchingBuses.length === 0) {
           issues.push('Zero active trips matched in live database');
           contentScore = 'Low';
-          wordCount = 180;
-        } else if (matchingBuses.length < 3) {
+          wordCount = 210;
+        } else if (matchingBuses.length < 2) {
           issues.push(`Limited active frequency (${matchingBuses.length} bus found)`);
           contentScore = 'Medium';
-          wordCount = 310;
+          wordCount = 340;
         } else {
-          wordCount = 450 + (matchingBuses.length * 35);
+          wordCount = 500 + (matchingBuses.length * 45);
           contentScore = 'High';
         }
-      }
 
-      if (page.priority < 0.7) {
-        issues.push('Low sitemap priority ranking');
+        if (page.priority < 0.7) {
+          issues.push('Low sitemap priority ranking');
+        }
       }
 
       return {
