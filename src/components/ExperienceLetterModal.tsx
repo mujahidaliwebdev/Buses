@@ -30,10 +30,18 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
     let isMounted = true;
 
     async function computeVolunteerLetterData() {
-      let registrationDateObj = new Date(2026, 4, 12); // Fallback: 12 May 2026
+      const isMujahid = (
+        currentUser?.uid === 'mujahid-ali-id' ||
+        Boolean(currentUser?.email && (currentUser.email.toLowerCase().includes('mujahid') || currentUser.email.toLowerCase() === 'mujahidali.webdev@gmail.com' || currentUser.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com')) ||
+        Boolean(currentUser?.displayName && currentUser.displayName.toLowerCase().includes('mujahid')) ||
+        volunteerName.toLowerCase().includes('mujahid')
+      );
+
+      // Registration date for Mujahid Ali is strictly 12 May 2026 (20260512)
+      let registrationDateObj = isMujahid ? new Date(2026, 4, 12) : new Date();
 
       // 1. Try to fetch user registration date from Firestore users collection
-      if (currentUser?.uid) {
+      if (!isMujahid && currentUser?.uid) {
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
@@ -61,15 +69,15 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
         }
       }
 
-      // Format joining date string (e.g., "12 May 2026")
-      const formattedJoiningDate = registrationDateObj.toLocaleDateString('en-GB', {
+      // Format joining date string (strictly "12 May 2026" for Mujahid Ali)
+      const formattedJoiningDate = isMujahid ? '12 May 2026' : registrationDateObj.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
       });
 
       // 2. Retrieve permanent Verification ID (generated at account creation and never changes)
-      let assignedId = '';
+      let assignedId = isMujahid ? 'ASP/EXP/2026051201' : '';
       try {
         if (currentUser) {
           assignedId = await userService.generateOrGetVerificationId(currentUser, volunteerName);
@@ -84,11 +92,11 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
         console.warn('Notice generating or getting verification ID:', genErr);
       }
 
-      if (!assignedId) {
+      if (isMujahid || !assignedId) {
         const regYear = registrationDateObj.getFullYear().toString();
         const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
         const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
-        assignedId = `ASP/EXP/${regYear}${regMonth}${regDay}01`;
+        assignedId = isMujahid ? 'ASP/EXP/2026051201' : `ASP/EXP/${regYear}${regMonth}${regDay}01`;
       }
 
       if (isMounted) {

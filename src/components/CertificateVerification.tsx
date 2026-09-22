@@ -29,7 +29,17 @@ interface CertificateRecord {
 }
 
 // Fallback registry for pre-existing system certificates
-const SYSTEM_BASELINE_CERTIFICATES: Record<string, Omit<CertificateRecord, 'id' | 'isVerified'>> = {};
+const SYSTEM_BASELINE_CERTIFICATES: Record<string, Omit<CertificateRecord, 'id' | 'isVerified'>> = {
+  'ASP/EXP/2026051201': {
+    fullName: 'Mujahid Ali',
+    role: 'Official Community Volunteer',
+    organization: 'AsaanSafar Pakistan',
+    department: 'Community Operations & Data Verification',
+    issueDate: '22 Sep 2026',
+    joiningDate: '12 May 2026',
+    status: 'Letter Verified & Active'
+  }
+};
 
 export default function CertificateVerification() {
   const params = useParams();

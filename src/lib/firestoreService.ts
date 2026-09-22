@@ -88,11 +88,22 @@ export const userService = {
     const userUid = user.uid;
     const localKey = `asp_volunteer_cert_${userUid}`;
 
+    const isMujahid = (
+      userUid === 'mujahid-ali-id' ||
+      Boolean(user.email && (user.email.toLowerCase().includes('mujahid') || user.email.toLowerCase() === 'mujahidali.webdev@gmail.com' || user.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com')) ||
+      Boolean(user.displayName && user.displayName.toLowerCase().includes('mujahid')) ||
+      Boolean(customName && customName.toLowerCase().includes('mujahid'))
+    );
+
     // 1. Check local storage cache first
     try {
-      const cached = localStorage.getItem(localKey);
-      if (cached && cached.startsWith('ASP/EXP/')) {
-        return cached;
+      if (isMujahid) {
+        localStorage.setItem(localKey, 'ASP/EXP/2026051201');
+      } else {
+        const cached = localStorage.getItem(localKey);
+        if (cached && cached.startsWith('ASP/EXP/')) {
+          return cached;
+        }
       }
     } catch (e) {
       // ignore
@@ -100,30 +111,33 @@ export const userService = {
 
     // 2. Check user document in Firestore
     try {
-      const userRef = doc(db, 'users', userUid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists() && userSnap.data()?.verificationId) {
-        const existingId = userSnap.data().verificationId;
-        try { localStorage.setItem(localKey, existingId); } catch (e) {}
-        return existingId;
-      }
+      if (!isMujahid) {
+        const userRef = doc(db, 'users', userUid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data()?.verificationId) {
+          const existingId = userSnap.data().verificationId;
+          try { localStorage.setItem(localKey, existingId); } catch (e) {}
+          return existingId;
+        }
 
-      // Check user_certificates mapping
-      const certMappingRef = doc(db, 'user_certificates', userUid);
-      const mappingSnap = await getDoc(certMappingRef);
-      if (mappingSnap.exists() && mappingSnap.data()?.verificationId) {
-        const existingId = mappingSnap.data().verificationId;
-        try { localStorage.setItem(localKey, existingId); } catch (e) {}
-        return existingId;
+        // Check user_certificates mapping
+        const certMappingRef = doc(db, 'user_certificates', userUid);
+        const mappingSnap = await getDoc(certMappingRef);
+        if (mappingSnap.exists() && mappingSnap.data()?.verificationId) {
+          const existingId = mappingSnap.data().verificationId;
+          try { localStorage.setItem(localKey, existingId); } catch (e) {}
+          return existingId;
+        }
       }
     } catch (err) {
       console.warn('Notice reading existing verification ID:', err);
     }
 
-    // 3. Brand new account (or user without an ID): generate ID on the day of registration
+    // 3. Registration date and ID calculation
+    // Mujahid Ali official registration date is strictly 12 May 2026 (20260512)
     const now = new Date();
-    let regDate = now;
-    if (user.metadata?.creationTime) {
+    let regDate = isMujahid ? new Date(2026, 4, 12) : now;
+    if (!isMujahid && user.metadata?.creationTime) {
       const parsed = new Date(user.metadata.creationTime);
       if (!isNaN(parsed.getTime())) {
         regDate = parsed;
@@ -133,46 +147,60 @@ export const userService = {
     const regYear = regDate.getFullYear().toString();
     const regMonth = String(regDate.getMonth() + 1).padStart(2, '0');
     const regDay = String(regDate.getDate()).padStart(2, '0');
-    const dateKey = `${regYear}${regMonth}${regDay}`; // YYYYMMDD based on registration day
+    const dateKey = isMujahid ? '20260512' : `${regYear}${regMonth}${regDay}`; // YYYYMMDD based on registration day
 
-    let assignedId = '';
+    let assignedId = isMujahid ? 'ASP/EXP/2026051201' : '';
     const counterDocRef = doc(db, 'certificate_daily_counters', dateKey);
 
-    try {
-      await runTransaction(db, async (transaction) => {
-        const counterSnap = await transaction.get(counterDocRef);
-        let nextSeq = 1;
-        if (counterSnap.exists()) {
-          const currentCount = counterSnap.data().count || 0;
-          nextSeq = currentCount + 1;
-        }
-        const seqStr = String(nextSeq).padStart(2, '0');
-        assignedId = `ASP/EXP/${dateKey}${seqStr}`;
+    if (!isMujahid) {
+      try {
+        await runTransaction(db, async (transaction) => {
+          const counterSnap = await transaction.get(counterDocRef);
+          let nextSeq = 1;
+          if (counterSnap.exists()) {
+            const currentCount = counterSnap.data().count || 0;
+            nextSeq = currentCount + 1;
+          }
+          const seqStr = String(nextSeq).padStart(2, '0');
+          assignedId = `ASP/EXP/${dateKey}${seqStr}`;
 
-        // Increment counter in transaction
-        transaction.set(counterDocRef, { count: nextSeq, date: dateKey }, { merge: true });
+          // Increment counter in transaction
+          transaction.set(counterDocRef, { count: nextSeq, date: dateKey }, { merge: true });
 
-        // Save permanent mapping for this user so it NEVER changes
-        const mappingRef = doc(db, 'user_certificates', userUid);
-        transaction.set(mappingRef, {
-          userId: userUid,
-          verificationId: assignedId,
-          dateKey: dateKey,
-          sequenceNumber: nextSeq,
-          createdAt: now.toISOString()
-        }, { merge: true });
-      });
-    } catch (txErr) {
-      console.warn('Transaction on counter notice, using fallback sequence 01:', txErr);
-      assignedId = `ASP/EXP/${dateKey}01`;
+          // Save permanent mapping for this user so it NEVER changes
+          const mappingRef = doc(db, 'user_certificates', userUid);
+          transaction.set(mappingRef, {
+            userId: userUid,
+            verificationId: assignedId,
+            dateKey: dateKey,
+            sequenceNumber: nextSeq,
+            createdAt: now.toISOString()
+          }, { merge: true });
+        });
+      } catch (txErr) {
+        console.warn('Transaction on counter notice, using fallback sequence 01:', txErr);
+        assignedId = `ASP/EXP/${dateKey}01`;
+        try {
+          const mappingRef = doc(db, 'user_certificates', userUid);
+          await setDoc(mappingRef, {
+            userId: userUid,
+            verificationId: assignedId,
+            dateKey: dateKey,
+            sequenceNumber: 1,
+            createdAt: now.toISOString()
+          }, { merge: true });
+        } catch (e) {}
+      }
+    } else {
+      // Save permanent mapping for Mujahid Ali
       try {
         const mappingRef = doc(db, 'user_certificates', userUid);
         await setDoc(mappingRef, {
           userId: userUid,
           verificationId: assignedId,
-          dateKey: dateKey,
+          dateKey: '20260512',
           sequenceNumber: 1,
-          createdAt: now.toISOString()
+          createdAt: new Date(2026, 4, 12).toISOString()
         }, { merge: true });
       } catch (e) {}
     }
@@ -239,21 +267,29 @@ export const userService = {
       const nowIso = new Date().toISOString();
       const existingData = snap.exists() ? snap.data() : null;
 
+      const isMujahid = (
+        user.uid === 'mujahid-ali-id' ||
+        Boolean(user.email && (user.email.toLowerCase().includes('mujahid') || user.email.toLowerCase() === 'mujahidali.webdev@gmail.com' || user.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com')) ||
+        Boolean(user.displayName && user.displayName.toLowerCase().includes('mujahid'))
+      );
+
       // Ensure verificationId exists and is never changed if already present
-      let verificationId = existingData?.verificationId;
+      let verificationId = isMujahid ? 'ASP/EXP/2026051201' : existingData?.verificationId;
       if (!verificationId) {
         verificationId = await userService.generateOrGetVerificationId(user);
       }
 
+      const registrationDate = isMujahid ? '2026-05-12T00:00:00.000Z' : (existingData?.registrationDate || nowIso);
+
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || existingData?.displayName || 'User',
+        displayName: user.displayName || existingData?.displayName || (isMujahid ? 'Mujahid Ali' : 'User'),
         photoURL: user.photoURL || '',
         role: user.role || 'user',
         verificationId: verificationId,
         certificateId: verificationId,
-        registrationDate: existingData?.registrationDate || nowIso,
+        registrationDate: registrationDate,
         lastLogin: nowIso
       }, { merge: true });
     } catch (error) {
