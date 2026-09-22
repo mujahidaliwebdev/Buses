@@ -127,44 +127,83 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
           <style>
             @page { 
               size: A4 portrait; 
-              margin: 0; 
+              margin: 0mm !important; 
             }
-            * {
+            *, *:before, *:after {
               box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            body { 
-              margin: 0; 
-              padding: 0; 
+            html, body { 
+              margin: 0 !important; 
+              padding: 0 !important; 
+              width: 100% !important;
+              height: 100% !important;
               font-family: 'Times New Roman', Times, serif; 
               background: #fff; 
-              -webkit-print-color-adjust: exact; 
               color: #1a1a1a;
+              overflow: hidden !important;
             }
             .letter-container {
               position: relative;
-              width: 100%;
-              max-width: 820px;
+              width: 210mm;
+              height: 295mm;
+              max-width: 100%;
+              max-height: 295mm;
               margin: 0 auto;
-              height: 1150px;
+              page-break-after: avoid !important;
+              page-break-before: avoid !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              break-after: avoid !important;
+              overflow: hidden !important;
+            }
+            @media print {
+              @page {
+                size: A4 portrait;
+                margin: 0mm !important;
+              }
+              html, body {
+                width: 210mm !important;
+                height: 295mm !important;
+                max-height: 295mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+              }
+              .letter-container {
+                width: 210mm !important;
+                height: 295mm !important;
+                max-height: 295mm !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                break-after: avoid !important;
+                overflow: hidden !important;
+              }
             }
             .letterhead-img {
               width: 100%;
               height: 100%;
+              object-fit: fill;
               display: block;
               position: absolute;
               top: 0;
               left: 0;
               z-index: 1;
             }
-            /* Content is strictly bounded between letterhead header (22%) and letterhead footer (16% margin from bottom) */
+            /* Content is strictly bounded between letterhead header and footer */
             .content {
               position: absolute;
-              top: 18%;
-              bottom: 12%;
-              left: 10%;
-              right: 10%;
-              font-size: 15px;
-              line-height: 1.5;
+              top: 17%;
+              bottom: 11%;
+              left: 9.5%;
+              right: 9.5%;
+              font-size: 14px;
+              line-height: 1.44;
               color: #1e293b;
               z-index: 2;
               display: flex;
@@ -176,37 +215,37 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               justify-content: space-between;
               align-items: center;
               font-family: Arial, Helvetica, sans-serif;
-              font-size: 13px;
+              font-size: 12.5px;
               font-weight: 700;
               color: #475569;
               border-bottom: 1px solid #cbd5e1;
-              padding-bottom: 5px;
-              margin-bottom: 8px;
+              padding-bottom: 4px;
+              margin-bottom: 6px;
             }
             .to-whom {
               text-align: center;
-              font-size: 18px;
+              font-size: 17px;
               font-weight: 900;
               color: #0f172a;
               letter-spacing: 0.5px;
-              margin: 8px 0 20px 0;
+              margin: 6px 0 16px 0;
               font-family: Arial, Helvetica, sans-serif;
             }
             p {
-              margin: 6px 0;
+              margin: 4.5px 0;
               text-align: justify;
             }
             ul {
-              margin: 4px 0 6px 14px;
+              margin: 3px 0 5px 14px;
               padding-left: 10px;
             }
             li {
-              margin-bottom: 3px;
+              margin-bottom: 2px;
             }
             /* Clean separation from pre-printed letterhead bottom bar */
             .footer-sign-section {
-              margin-top: 10px;
-              padding-top: 10px;
+              margin-top: 6px;
+              padding-top: 6px;
               border-top: 1.5px solid #cbd5e1;
               display: flex;
               justify-content: space-between;
@@ -215,17 +254,17 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               background: #ffffff;
             }
             .issued-by {
-              font-size: 13px;
+              font-size: 12.5px;
               color: #334155;
             }
             .issued-title {
               font-weight: 900;
-              font-size: 15px;
+              font-size: 14.5px;
               color: #0f172a;
-              margin-bottom: 2px;
+              margin-bottom: 1px;
             }
             .dept-title {
-              font-size: 13px;
+              font-size: 12.5px;
               font-weight: 700;
               color: #059669;
             }
@@ -233,11 +272,12 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               background: #f8fafc;
               border: 1px dashed #059669;
               border-radius: 6px;
-              padding: 6px 10px;
+              padding: 5px 9px;
               font-family: Arial, Helvetica, sans-serif;
-              font-size: 11.5px;
+              font-size: 11px;
               color: #334155;
               text-align: right;
+              line-height: 1.35;
             }
             .verification-box strong {
               color: #0f172a;
@@ -252,12 +292,12 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               display: inline-block;
               background: #ecfdf5;
               color: #065f46;
-              padding: 2px 6px;
+              padding: 1.5px 6px;
               border-radius: 4px;
               font-weight: 800;
-              font-size: 11px;
+              font-size: 10.5px;
               border: 1px solid #a7f3d0;
-              margin-bottom: 3px;
+              margin-bottom: 2px;
             }
           </style>
         </head>
@@ -274,7 +314,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
                 <div class="to-whom">To Whom It May Concern,</div>
 
                 <p>
-                  This is to certify that <strong style="font-family: Arial, Helvetica, sans-serif; font-size: 15.5px; color: #047857;">${volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
+                  This is to certify that <strong style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; color: #047857;">${volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
                 </p>
 
                 <p>
@@ -306,7 +346,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
 
               <div class="footer-sign-section">
                 <div class="issued-by">
-                  <div style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700; margin-bottom: 2px;">Issued By:</div>
+                  <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700; margin-bottom: 1px;">Issued By:</div>
                   <div class="issued-title">AsaanSafar Pakistan</div>
                   <div class="dept-title">Community Operations & Data Verification</div>
                 </div>
@@ -314,7 +354,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
                 <div class="verification-box">
                   <div class="badge-verified">✔ Authentic & Digitally Signed</div>
                   <div>Verification ID: <strong>${verificationId}</strong></div>
-                  <div>Verification Link: <a href="${verifyUrl}">${verifyUrl}</a></div>
+                  <div>Verification Link: <a href="${verifyUrl}">www.asaansafar.com/verify/${verificationId}</a></div>
                 </div>
               </div>
             </div>
