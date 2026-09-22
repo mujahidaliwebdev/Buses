@@ -982,112 +982,140 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             </h1>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full">
             <button 
               onClick={() => setIsViewingProposals(true)}
-              className="relative bg-white hover:bg-slate-50 text-emerald-700 border border-emerald-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="relative bg-white hover:bg-emerald-50/50 text-emerald-800 border border-emerald-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
-              <BusIcon className="w-5 h-5 text-emerald-500" /> 
-              <span>Proposed Routes</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <BusIcon className="w-4 h-4 text-emerald-600 shrink-0" /> 
+                <span className="truncate text-xs">Proposed Routes</span>
+              </div>
               {contributions.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {contributions.length}
                 </span>
               )}
             </button>
+
             <button 
               onClick={() => setIsViewingReports(true)}
-              className="relative bg-white hover:bg-slate-50 text-rose-700 border border-rose-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="relative bg-white hover:bg-rose-50/50 text-rose-800 border border-rose-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
-              <AlertTriangle className="w-5 h-5 text-rose-500" /> 
-              <span>Passenger Reports</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" /> 
+                <span className="truncate text-xs">Passenger Reports</span>
+              </div>
               {reports.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-rose-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                <span className="min-w-[20px] h-5 bg-rose-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {reports.length}
                 </span>
               )}
             </button>
+
             <button 
               onClick={() => setIsViewingFeedbacks(true)}
-              className="relative bg-white hover:bg-slate-50 text-sky-700 border border-sky-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="relative bg-white hover:bg-sky-50/50 text-sky-800 border border-sky-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
-              <MessageSquare className="w-5 h-5 text-sky-500" /> 
-              <span>Feedback & Complaints</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <MessageSquare className="w-4 h-4 text-sky-600 shrink-0" /> 
+                <span className="truncate text-xs">Feedbacks</span>
+              </div>
               {(feedbacks.length + complaints.length) > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-sky-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                <span className="min-w-[20px] h-5 bg-sky-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {feedbacks.length + complaints.length}
                 </span>
               )}
             </button>
+
             <button 
               onClick={() => setIsViewingCareers(true)}
-              className="relative bg-white hover:bg-slate-50 text-emerald-700 border border-emerald-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="relative bg-white hover:bg-emerald-50/50 text-emerald-800 border border-emerald-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
-              <Briefcase className="w-5 h-5 text-emerald-500" /> 
-              <span>Job Applications / CVs</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <Briefcase className="w-4 h-4 text-emerald-600 shrink-0" /> 
+                <span className="truncate text-xs">Job Applications</span>
+              </div>
               {careersList.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {careersList.length}
                 </span>
               )}
             </button>
+
             <button 
               onClick={() => setIsViewingUsers(true)}
-              className="relative bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-100 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="relative bg-white hover:bg-indigo-50/50 text-indigo-800 border border-indigo-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
-              <Users className="w-5 h-5 text-indigo-500" /> 
-              <span>Users Bio-Data</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <Users className="w-4 h-4 text-indigo-600 shrink-0" /> 
+                <span className="truncate text-xs">Users Bio-Data</span>
+              </div>
               {usersList.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 bg-indigo-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center border border-white">
+                <span className="min-w-[20px] h-5 bg-indigo-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {usersList.length}
                 </span>
               )}
             </button>
+
             <button 
               onClick={() => setIsBulkUpdatingFare(true)}
-              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="bg-white hover:bg-amber-50/50 text-slate-800 border border-slate-200/80 px-4 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm transition-all active:scale-95"
             >
-              <Tag className="w-5 h-5 text-amber-500" /> Fare Update
+              <Tag className="w-4 h-4 text-amber-600 shrink-0" /> 
+              <span className="text-xs truncate">Fare Update</span>
             </button>
+
             <button 
               onClick={() => setIsBulkUploading(true)}
-              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="bg-white hover:bg-blue-50/50 text-slate-800 border border-slate-200/80 px-4 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm transition-all active:scale-95"
             >
-              <Upload className="w-5 h-5 text-blue-500" /> Bulk Upload
+              <Upload className="w-4 h-4 text-blue-600 shrink-0" /> 
+              <span className="text-xs truncate">Bulk Upload</span>
             </button>
+
             <button 
               onClick={() => setIsJsonUploading(true)}
-              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="bg-white hover:bg-indigo-50/50 text-slate-800 border border-slate-200/80 px-4 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm transition-all active:scale-95"
             >
-              <FileText className="w-5 h-5 text-indigo-500" /> JSON Partition Upload
+              <FileText className="w-4 h-4 text-indigo-600 shrink-0" /> 
+              <span className="text-xs truncate">JSON Partition</span>
             </button>
+
             <button 
               onClick={() => setIsViewingSettings(true)}
-              className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="bg-white hover:bg-emerald-50/50 text-slate-800 border border-slate-200/80 px-4 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-sm transition-all active:scale-95"
             >
-              <FileSpreadsheet className="w-5 h-5 text-emerald-500" /> SEO & Analytics Settings
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" /> 
+              <span className="text-xs truncate">SEO & Analytics</span>
             </button>
+
             <button 
               onClick={() => setIsViewingRouteDiagnostic(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-md shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer"
             >
-              <Activity className="w-5 h-5 text-emerald-200" /> SEO Route Health
+              <Activity className="w-4 h-4 text-emerald-200 shrink-0" /> 
+              <span className="text-xs truncate">SEO Route Health</span>
             </button>
+
             <button 
               onClick={() => setIsCloudflareD1Exporter(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2.5 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-md shadow-indigo-600/20 transition-all active:scale-95"
             >
-              <Database className="w-5 h-5" /> 
-              <span>Cloudflare D1 Live</span>
-              <span className={`w-2.5 h-2.5 rounded-full ${d1Connected ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-300'}`} title={d1Connected ? 'Live Edge Database Connected' : 'Click to setup/connect D1'} />
+              <div className="flex items-center gap-2.5 truncate">
+                <Database className="w-4 h-4 shrink-0" /> 
+                <span className="text-xs truncate">Cloudflare D1 Live</span>
+              </div>
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${d1Connected ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-300'}`} title={d1Connected ? 'Live Edge Database Connected' : 'Click to setup/connect D1'} />
             </button>
+
             <button 
               id="btn-open-bus-stops-editor"
               onClick={handleAddNewMasterBus}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-lg shadow-emerald-600/25 transition-all active:scale-95"
+              className="bg-slate-900 hover:bg-slate-800 text-emerald-400 px-4 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-md transition-all active:scale-95 border border-slate-800"
             >
-              <Plus className="w-5 h-5" /> 
-              <span>Add Bus & Stops / نیا بس شامل کریں</span>
+              <Plus className="w-4 h-4 text-emerald-400 shrink-0" /> 
+              <span className="text-xs truncate">Add Bus & Stops</span>
             </button>
           </div>
         </div>
