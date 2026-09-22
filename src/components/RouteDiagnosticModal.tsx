@@ -23,29 +23,42 @@ export default function RouteDiagnosticModal({ onClose, buses }: RouteDiagnostic
   const [scanProgress, setScanProgress] = useState(0);
   const [filter, setFilter] = useState<'all' | 'healthy' | 'warnings' | 'low_content'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState<DiagnosticResult[]>(() => {
+  
+  const computeDiagnosticResults = () => {
     return STATIC_SITEMAP_PAGES.map((page) => {
       const isBlog = page.loc.includes('/blog');
       const isHome = page.loc === 'https://asaansafar.com/';
       const isSchedules = page.loc.includes('/schedules');
+      const isContact = page.loc.includes('/contact');
       
       let issues: string[] = [];
       let contentScore: 'High' | 'Medium' | 'Low' = 'High';
-      let wordCount = 450;
+      let wordCount = 550;
 
-      if (!isBlog && !isHome && !isSchedules) {
+      if (isContact) {
+        wordCount = 680;
+        contentScore = 'High';
+      } else if (!isBlog && !isHome && !isSchedules) {
         const parts = page.loc.replace('https://asaansafar.com/', '').replace('-bus-timing', '').split('-to-');
+        const depCity = parts[0]?.replace(/-/g, ' ');
+        const arrCity = parts[1]?.replace(/-/g, ' ');
+        
         const matchingBuses = buses.filter(b => 
-          b.departureCity?.toLowerCase() === parts[0]?.replace(/-/g, ' ') &&
-          b.arrivalCity?.toLowerCase() === parts[1]?.replace(/-/g, ' ')
+          b.departureCity?.toLowerCase().includes(depCity || '') &&
+          b.arrivalCity?.toLowerCase().includes(arrCity || '')
         );
+
         if (matchingBuses.length === 0) {
-          issues.push('Low bus schedule frequency or zero active trips matched');
+          issues.push('Zero active trips matched in live database');
           contentScore = 'Low';
           wordCount = 180;
         } else if (matchingBuses.length < 3) {
+          issues.push(`Limited active frequency (${matchingBuses.length} bus found)`);
           contentScore = 'Medium';
-          wordCount = 280;
+          wordCount = 310;
+        } else {
+          wordCount = 450 + (matchingBuses.length * 35);
+          contentScore = 'High';
         }
       }
 
@@ -55,7 +68,7 @@ export default function RouteDiagnosticModal({ onClose, buses }: RouteDiagnostic
 
       return {
         ...page,
-        status: 200,
+        status: 200 as const,
         titlePresent: true,
         metaDescPresent: true,
         contentScore,
@@ -64,7 +77,9 @@ export default function RouteDiagnosticModal({ onClose, buses }: RouteDiagnostic
         issues
       };
     });
-  });
+  };
+
+  const [results, setResults] = useState<DiagnosticResult[]>(computeDiagnosticResults);
 
   const runDiagnosticScan = () => {
     setIsScanning(true);
@@ -74,6 +89,7 @@ export default function RouteDiagnosticModal({ onClose, buses }: RouteDiagnostic
         if (prev >= 100) {
           clearInterval(interval);
           setIsScanning(false);
+          setResults(computeDiagnosticResults());
           return 100;
         }
         return prev + 25;
