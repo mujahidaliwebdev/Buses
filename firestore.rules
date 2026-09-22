@@ -171,6 +171,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /user_certificates/{docId} {
+      allow read, get: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    match /certificate_daily_counters/{docId} {
+      allow read, get: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
     // 5. Ratings
     match /ratings/{ratingId} {
       allow get: if isValidId(ratingId);

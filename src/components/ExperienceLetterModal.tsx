@@ -29,11 +29,11 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
     let isMounted = true;
 
     async function computeVolunteerLetterData() {
-      try {
-        let registrationDateObj = new Date(2026, 4, 12); // Fallback: 12 May 2026
+      let registrationDateObj = new Date(2026, 4, 12); // Fallback: 12 May 2026
 
-        // 1. Try to fetch user registration date from Firestore users collection
-        if (currentUser?.uid) {
+      // 1. Try to fetch user registration date from Firestore users collection
+      if (currentUser?.uid) {
+        try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
           if (userSnap.exists()) {
@@ -55,34 +55,42 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               registrationDateObj = parsed;
             }
           }
+        } catch (readUserErr) {
+          console.warn('Could not read user registration date from Firestore, using fallback:', readUserErr);
         }
+      }
 
-        // Format joining date string (e.g., "12 May 2026")
-        const formattedJoiningDate = registrationDateObj.toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        });
+      // Format joining date string (e.g., "12 May 2026")
+      const formattedJoiningDate = registrationDateObj.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
 
-        // 2. Compute date key for verification ID: YYYYMMDD based on REGISTRATION DATE
-        const regYear = registrationDateObj.getFullYear().toString();
-        const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
-        const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
-        const dateKey = `${regYear}${regMonth}${regDay}`; // e.g. "20260512"
+      // 2. Compute date key for verification ID: YYYYMMDD based on REGISTRATION DATE
+      const regYear = registrationDateObj.getFullYear().toString();
+      const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
+      const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
+      const dateKey = `${regYear}${regMonth}${regDay}`; // e.g. "20260512"
 
-        // 3. Check if user already has an assigned verification ID
-        let assignedId = '';
-        const userUid = currentUser?.uid || 'mujahid-ali-id';
+      // 3. Check if user already has an assigned verification ID
+      let assignedId = '';
+      const userUid = currentUser?.uid || 'mujahid-ali-id';
+      const localKey = `asp_volunteer_cert_${userUid}`;
+      const cachedId = localStorage.getItem(localKey);
+      if (cachedId) {
+        assignedId = cachedId;
+      }
+
+      try {
         const userMappingRef = doc(db, 'user_certificates', userUid);
         const userMappingSnap = await getDoc(userMappingRef);
 
-        if (userMappingSnap.exists() && userMappingSnap.data().verificationId) {
+        if (userMappingSnap.exists() && userMappingSnap.data()?.verificationId) {
           assignedId = userMappingSnap.data().verificationId;
-        } else {
+        } else if (!assignedId) {
           // If not assigned yet, use Firestore transaction on daily counter:
-          // Daily counter document in 'certificate_daily_counters/{dateKey}'
           const counterDocRef = doc(db, 'certificate_daily_counters', dateKey);
-
           try {
             await runTransaction(db, async (transaction) => {
               const counterSnap = await transaction.get(counterDocRef);
@@ -111,12 +119,21 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             assignedId = `ASP/EXP/${dateKey}01`;
           }
         }
+      } catch (mappingErr) {
+        console.warn('Could not read user_certificates mapping from Firestore:', mappingErr);
+      }
 
-        if (!assignedId) {
-          assignedId = `ASP/EXP/${dateKey}01`;
-        }
+      if (!assignedId) {
+        assignedId = `ASP/EXP/${dateKey}01`;
+      }
+      try {
+        localStorage.setItem(localKey, assignedId);
+      } catch (e) {
+        // ignore
+      }
 
-        // 4. Save/update certificate record for public verify link (/verify/ASP/EXP/...)
+      // 4. Save/update certificate record for public verify link (/verify/ASP/EXP/...)
+      if (currentUser) {
         try {
           const certDocRef = doc(db, 'experience_certificates', assignedId);
           await setDoc(certDocRef, {
@@ -133,19 +150,14 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             lastUpdated: new Date().toISOString()
           }, { merge: true });
         } catch (saveCertErr) {
-          console.warn('Could not save certificate record to Firestore:', saveCertErr);
+          console.warn('Could not save certificate record to Firestore (safe to ignore offline):', saveCertErr);
         }
+      }
 
-        if (isMounted) {
-          setJoiningDateStr(formattedJoiningDate);
-          setVerificationId(assignedId);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error generating volunteer letter data:', err);
-        if (isMounted) {
-          setLoading(false);
-        }
+      if (isMounted) {
+        setJoiningDateStr(formattedJoiningDate);
+        setVerificationId(assignedId);
+        setLoading(false);
       }
     }
 
@@ -202,11 +214,11 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             /* Content is strictly bounded between letterhead header (22%) and letterhead footer (16% margin from bottom) */
             .content {
               position: absolute;
-              top: 22.5%;
-              bottom: 17%;
+              top: 18%;
+              bottom: 12%;
               left: 10%;
               right: 10%;
-              font-size: 13px;
+              font-size: 15px;
               line-height: 1.5;
               color: #1e293b;
               z-index: 2;
@@ -219,7 +231,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               justify-content: space-between;
               align-items: center;
               font-family: Arial, Helvetica, sans-serif;
-              font-size: 11px;
+              font-size: 13px;
               font-weight: 700;
               color: #475569;
               border-bottom: 1px solid #cbd5e1;
@@ -228,11 +240,11 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             }
             .to-whom {
               text-align: center;
-              font-size: 16px;
+              font-size: 18px;
               font-weight: 900;
               color: #0f172a;
               letter-spacing: 0.5px;
-              margin: 6px 0 10px 0;
+              margin: 8px 0 20px 0;
               font-family: Arial, Helvetica, sans-serif;
             }
             p {
@@ -258,17 +270,17 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               background: #ffffff;
             }
             .issued-by {
-              font-size: 11px;
+              font-size: 13px;
               color: #334155;
             }
             .issued-title {
               font-weight: 900;
-              font-size: 13px;
+              font-size: 15px;
               color: #0f172a;
               margin-bottom: 2px;
             }
             .dept-title {
-              font-size: 11px;
+              font-size: 13px;
               font-weight: 700;
               color: #059669;
             }
@@ -278,7 +290,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               border-radius: 6px;
               padding: 6px 10px;
               font-family: Arial, Helvetica, sans-serif;
-              font-size: 9.5px;
+              font-size: 11.5px;
               color: #334155;
               text-align: right;
             }
@@ -298,7 +310,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               padding: 2px 6px;
               border-radius: 4px;
               font-weight: 800;
-              font-size: 9px;
+              font-size: 11px;
               border: 1px solid #a7f3d0;
               margin-bottom: 3px;
             }
@@ -317,7 +329,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
                 <div class="to-whom">To Whom It May Concern,</div>
 
                 <p>
-                  This is to certify that <strong style="font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; color: #047857;">${volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
+                  This is to certify that <strong style="font-family: Arial, Helvetica, sans-serif; font-size: 15.5px; color: #047857;">${volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
                 </p>
 
                 <p>
@@ -349,7 +361,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
 
               <div class="footer-sign-section">
                 <div class="issued-by">
-                  <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700; margin-bottom: 2px;">Issued By:</div>
+                  <div style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700; margin-bottom: 2px;">Issued By:</div>
                   <div class="issued-title">AsaanSafar Pakistan</div>
                   <div class="dept-title">Community Operations & Data Verification</div>
                 </div>
@@ -429,16 +441,16 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
           />
 
           {/* Letter text content positioned strictly above the bottom pre-printed footer */}
-          <div className="absolute top-[22%] bottom-[16%] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] flex flex-col justify-between font-serif text-slate-900 text-[11px] sm:text-[12.5px] leading-relaxed select-text overflow-y-auto custom-scrollbar">
+          <div className="absolute top-[18%] bottom-[12%] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] flex flex-col justify-between font-serif text-slate-900 text-[13px] sm:text-[14.5px] leading-relaxed select-text overflow-y-auto custom-scrollbar">
             <div className="space-y-2.5">
-              <div className="flex justify-between items-center text-[10px] sm:text-[11px] font-sans text-slate-500 font-bold border-b border-slate-200 pb-1.5">
+              <div className="flex justify-between items-center text-[12px] sm:text-[13px] font-sans text-slate-500 font-bold border-b border-slate-200 pb-1.5">
                 <span>Date: {letterGenDate}</span>
                 <span>Verification ID: {verificationId}</span>
               </div>
 
               {/* To Whom It May Concern */}
-              <div className="text-center pt-0.5 pb-0.5">
-                <p className="font-bold text-slate-900 text-sm sm:text-base tracking-wide font-sans">To Whom It May Concern,</p>
+              <div className="text-center pt-1 pb-3.5 sm:pb-5">
+                <p className="font-bold text-slate-900 text-base sm:text-lg tracking-wide font-sans">To Whom It May Concern,</p>
               </div>
 
               <p>
@@ -450,7 +462,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               </p>
 
               <p>Their contributions have included collecting and verifying information related to:</p>
-              <ul className="list-disc list-inside space-y-0.5 pl-2 text-slate-800 text-[10.5px] sm:text-[12px]">
+              <ul className="list-disc list-inside space-y-0.5 pl-2 text-slate-800 text-[12.5px] sm:text-[14px]">
                 <li>Public transport routes and destinations</li>
                 <li>Bus arrival and departure schedules</li>
                 <li>Passenger fares and route-wise pricing</li>
@@ -475,17 +487,17 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             {/* Issued By & Verification Footer - Perfectly padded with clear bottom margin from pre-printed footer */}
             <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 font-sans text-xs text-slate-700 bg-white/95 backdrop-blur-sm rounded-lg p-2">
               <div>
-                <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">Issued By:</p>
-                <p className="font-black text-slate-900 text-xs sm:text-sm">AsaanSafar Pakistan</p>
-                <p className="text-[10px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
+                <p className="text-[11.5px] text-slate-400 font-bold uppercase tracking-wider">Issued By:</p>
+                <p className="font-black text-slate-900 text-sm sm:text-base">AsaanSafar Pakistan</p>
+                <p className="text-[12px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
               </div>
 
-              <div className="bg-slate-50 border border-emerald-300 rounded-lg p-2 text-right space-y-0.5 text-[9.5px] sm:text-[10px] shrink-0">
+              <div className="bg-slate-50 border border-emerald-300 rounded-lg p-2 text-right space-y-0.5 text-[11.5px] sm:text-[12px] shrink-0">
                 <div className="inline-flex items-center gap-1 text-emerald-700 font-bold">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Authentic Verification
                 </div>
                 <div className="font-mono text-slate-700 font-bold">ID: {verificationId}</div>
-                <div className="text-slate-500 text-[9px] sm:text-[9.5px]">
+                <div className="text-slate-500 text-[11px] sm:text-[11.5px]">
                   Link: <span className="text-emerald-700 font-semibold underline">{verifyUrl}</span>
                 </div>
               </div>
