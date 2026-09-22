@@ -113,7 +113,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
     };
   }, [currentUser, volunteerName, letterGenDate]);
 
-  const verifyUrl = `https://www.asaansafar.com/verify/${verificationId}`;
+  const verifyUrl = `https://asaansafar.com/verify/${verificationId}`;
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -360,7 +360,7 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
                 <div class="verification-box">
                   <div class="badge-verified">✔ Authentic & Digitally Signed</div>
                   <div>Verification ID: <strong>${verificationId}</strong></div>
-                  <div>Verification Link: <a href="${verifyUrl}">www.asaansafar.com/verify/${verificationId}</a></div>
+                  <div>Verification Link: <a href="${verifyUrl}">asaansafar.com/verify/${verificationId}</a></div>
                 </div>
               </div>
             </div>

@@ -15,8 +15,8 @@ export default function ContactUs() {
     {
       icon: <Globe className="w-6 h-6" />,
       title: "Official Website",
-      value: "www.asaansafar.com",
-      link: "https://www.asaansafar.com",
+      value: "asaansafar.com",
+      link: "https://asaansafar.com",
       type: "link"
     }
   ];
