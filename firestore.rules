@@ -166,20 +166,20 @@ service cloud.firestore {
     }
 
     match /experience_certificates/{docId} {
-      allow read, get: if true;
-      allow create, update: if isSignedIn();
+      allow read, get, list: if true;
+      allow create, update: if true;
       allow delete: if isAdmin();
     }
 
     match /user_certificates/{docId} {
-      allow read, get: if true;
-      allow create, update: if isSignedIn();
+      allow read, get, list: if true;
+      allow create, update: if true;
       allow delete: if isAdmin();
     }
 
     match /certificate_daily_counters/{docId} {
-      allow read, get: if true;
-      allow create, update: if isSignedIn();
+      allow read, get, list: if true;
+      allow create, update: if true;
       allow delete: if isAdmin();
     }
 

@@ -282,6 +282,7 @@ function AppContent() {
           <Route path="/faqs" element={<FAQs />} />
           
           <Route path="/sitemap" element={<Sitemap />} />
+          <Route path="/verify" element={<CertificateVerification />} />
           <Route path="/verify/*" element={<CertificateVerification />} />
           
           {/* SEO Routes */}

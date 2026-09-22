@@ -133,25 +133,34 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
       }
 
       // 4. Save/update certificate record for public verify link (/verify/ASP/EXP/...)
-      if (currentUser) {
-        try {
-          const certDocRef = doc(db, 'experience_certificates', assignedId);
-          await setDoc(certDocRef, {
-            id: assignedId,
-            fullName: volunteerName,
-            email: currentUser?.email || 'mujahidali.webdev@gmail.com',
-            role: 'Official Community Volunteer',
-            organization: 'AsaanSafar Pakistan',
-            department: 'Community Operations & Data Verification',
-            joiningDate: formattedJoiningDate,
-            registrationDateKey: dateKey,
-            issueDate: letterGenDate,
-            status: 'Verified & Active',
-            lastUpdated: new Date().toISOString()
-          }, { merge: true });
-        } catch (saveCertErr) {
-          console.warn('Could not save certificate record to Firestore (safe to ignore offline):', saveCertErr);
-        }
+      const safeKey = assignedId.replace(/\//g, '_');
+      const certRecord = {
+        id: assignedId,
+        safeKey: safeKey,
+        fullName: volunteerName,
+        email: currentUser?.email || 'mujahidali.webdev@gmail.com',
+        role: 'Official Community Volunteer',
+        organization: 'AsaanSafar Pakistan',
+        department: 'Community Operations & Data Verification',
+        joiningDate: formattedJoiningDate,
+        registrationDateKey: dateKey,
+        issueDate: letterGenDate,
+        status: 'Verified & Active',
+        verified: true,
+        lastUpdated: new Date().toISOString()
+      };
+
+      try {
+        localStorage.setItem(`asp_cert_${safeKey}`, JSON.stringify(certRecord));
+      } catch (e) {
+        // ignore
+      }
+
+      try {
+        const certDocRef = doc(db, 'experience_certificates', safeKey);
+        await setDoc(certDocRef, certRecord, { merge: true });
+      } catch (saveCertErr) {
+        console.warn('Could not save certificate record to Firestore (safe to ignore offline):', saveCertErr);
       }
 
       if (isMounted) {
