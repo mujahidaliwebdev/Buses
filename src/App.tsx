@@ -117,6 +117,7 @@ function AppContent() {
           email: u.email,
           displayName: u.displayName,
           photoURL: u.photoURL,
+          metadata: u.metadata,
           role: u.email === 'mujahidalikhaskheli786@gmail.com' || u.email === 'mujahidali.webdev@gmail.com' ? 'admin' : 'user'
         }).catch(err => {
           console.error("Failed to auto-save user profile:", err);

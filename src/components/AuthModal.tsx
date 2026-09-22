@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, LogIn, AlertCircle, Mail, Lock, User, CheckCircle, KeyRound } from 'lucide-react';
 import { signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordReset } from '../lib/firebase';
+import { userService } from '../lib/firestoreService';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -24,7 +25,16 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     setError(null);
     setSuccessMessage(null);
     try {
-      await signInWithGoogle();
+      const user = await signInWithGoogle();
+      if (user) {
+        await userService.saveUserProfile({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          metadata: user.metadata
+        });
+      }
       onClose();
     } catch (err: any) {
       console.error(err);
@@ -58,7 +68,10 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     setSuccessMessage(null);
     try {
       if (isSignUp) {
-        await signUpWithEmail(email, password, name);
+        const newUser = await signUpWithEmail(email, password, name);
+        if (newUser) {
+          await userService.generateOrGetVerificationId(newUser, name);
+        }
       } else {
         await signInWithEmail(email, password);
       }

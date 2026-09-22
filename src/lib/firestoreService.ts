@@ -10,7 +10,8 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot
+  onSnapshot,
+  runTransaction
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 
@@ -77,9 +78,160 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   throw new Error(JSON.stringify(errInfo));
 }
 
-// 1. User Profile Service (Admin & User Login persistence)
+// 1. User Profile Service (Admin & User Login persistence, Permanent Volunteer Verification ID)
 export const userService = {
-  saveUserProfile: async (user: { uid: string; email: string | null; displayName?: string | null; photoURL?: string | null; role?: string }) => {
+  // Generate or retrieve the permanent Verification ID for a user.
+  // Generated on the day of account creation (registration date) and NEVER changes afterwards.
+  generateOrGetVerificationId: async (user: { uid: string; email?: string | null; displayName?: string | null; metadata?: { creationTime?: string } }, customName?: string): Promise<string> => {
+    if (!user || !user.uid) return '';
+
+    const userUid = user.uid;
+    const localKey = `asp_volunteer_cert_${userUid}`;
+
+    // 1. Check local storage cache first
+    try {
+      const cached = localStorage.getItem(localKey);
+      if (cached && cached.startsWith('ASP/EXP/')) {
+        return cached;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 2. Check user document in Firestore
+    try {
+      const userRef = doc(db, 'users', userUid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && userSnap.data()?.verificationId) {
+        const existingId = userSnap.data().verificationId;
+        try { localStorage.setItem(localKey, existingId); } catch (e) {}
+        return existingId;
+      }
+
+      // Check user_certificates mapping
+      const certMappingRef = doc(db, 'user_certificates', userUid);
+      const mappingSnap = await getDoc(certMappingRef);
+      if (mappingSnap.exists() && mappingSnap.data()?.verificationId) {
+        const existingId = mappingSnap.data().verificationId;
+        try { localStorage.setItem(localKey, existingId); } catch (e) {}
+        return existingId;
+      }
+    } catch (err) {
+      console.warn('Notice reading existing verification ID:', err);
+    }
+
+    // 3. Brand new account (or user without an ID): generate ID on the day of registration
+    const now = new Date();
+    let regDate = now;
+    if (user.metadata?.creationTime) {
+      const parsed = new Date(user.metadata.creationTime);
+      if (!isNaN(parsed.getTime())) {
+        regDate = parsed;
+      }
+    }
+
+    const regYear = regDate.getFullYear().toString();
+    const regMonth = String(regDate.getMonth() + 1).padStart(2, '0');
+    const regDay = String(regDate.getDate()).padStart(2, '0');
+    const dateKey = `${regYear}${regMonth}${regDay}`; // YYYYMMDD based on registration day
+
+    let assignedId = '';
+    const counterDocRef = doc(db, 'certificate_daily_counters', dateKey);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const counterSnap = await transaction.get(counterDocRef);
+        let nextSeq = 1;
+        if (counterSnap.exists()) {
+          const currentCount = counterSnap.data().count || 0;
+          nextSeq = currentCount + 1;
+        }
+        const seqStr = String(nextSeq).padStart(2, '0');
+        assignedId = `ASP/EXP/${dateKey}${seqStr}`;
+
+        // Increment counter in transaction
+        transaction.set(counterDocRef, { count: nextSeq, date: dateKey }, { merge: true });
+
+        // Save permanent mapping for this user so it NEVER changes
+        const mappingRef = doc(db, 'user_certificates', userUid);
+        transaction.set(mappingRef, {
+          userId: userUid,
+          verificationId: assignedId,
+          dateKey: dateKey,
+          sequenceNumber: nextSeq,
+          createdAt: now.toISOString()
+        }, { merge: true });
+      });
+    } catch (txErr) {
+      console.warn('Transaction on counter notice, using fallback sequence 01:', txErr);
+      assignedId = `ASP/EXP/${dateKey}01`;
+      try {
+        const mappingRef = doc(db, 'user_certificates', userUid);
+        await setDoc(mappingRef, {
+          userId: userUid,
+          verificationId: assignedId,
+          dateKey: dateKey,
+          sequenceNumber: 1,
+          createdAt: now.toISOString()
+        }, { merge: true });
+      } catch (e) {}
+    }
+
+    if (!assignedId) {
+      assignedId = `ASP/EXP/${dateKey}01`;
+    }
+
+    // 4. Save to local storage for instant offline access
+    try {
+      localStorage.setItem(localKey, assignedId);
+    } catch (e) {}
+
+    // 5. Save public certificate record in experience_certificates
+    const safeKey = assignedId.replace(/\//g, '_');
+    const displayName = customName || user.displayName || (user.email?.includes('mujahid') ? 'Mujahid Ali' : 'Official Volunteer');
+    const joiningDateStr = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const issueDateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    const certRecord = {
+      id: assignedId,
+      safeKey: safeKey,
+      userId: userUid,
+      fullName: displayName,
+      email: user.email || '',
+      role: 'Official Community Volunteer',
+      organization: 'AsaanSafar Pakistan',
+      department: 'Community Operations & Data Verification',
+      joiningDate: joiningDateStr,
+      issueDate: issueDateStr,
+      status: 'Letter Verified & Active',
+      isVerified: true,
+      createdAt: now.toISOString()
+    };
+
+    try {
+      localStorage.setItem(`asp_cert_${safeKey}`, JSON.stringify(certRecord));
+    } catch (e) {}
+
+    try {
+      const certDocRef = doc(db, 'experience_certificates', safeKey);
+      await setDoc(certDocRef, certRecord, { merge: true });
+    } catch (e) {
+      console.warn('Could not save to experience_certificates:', e);
+    }
+
+    // 6. Update user document with verificationId
+    try {
+      const userRef = doc(db, 'users', userUid);
+      await setDoc(userRef, {
+        verificationId: assignedId,
+        certificateId: assignedId
+      }, { merge: true });
+    } catch (e) {}
+
+    return assignedId;
+  },
+
+  saveUserProfile: async (user: { uid: string; email: string | null; displayName?: string | null; photoURL?: string | null; role?: string; metadata?: any }) => {
     const path = `users/${user.uid}`;
     try {
       const userRef = doc(db, 'users', user.uid);
@@ -87,12 +239,20 @@ export const userService = {
       const nowIso = new Date().toISOString();
       const existingData = snap.exists() ? snap.data() : null;
 
+      // Ensure verificationId exists and is never changed if already present
+      let verificationId = existingData?.verificationId;
+      if (!verificationId) {
+        verificationId = await userService.generateOrGetVerificationId(user);
+      }
+
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || 'User',
+        displayName: user.displayName || existingData?.displayName || 'User',
         photoURL: user.photoURL || '',
         role: user.role || 'user',
+        verificationId: verificationId,
+        certificateId: verificationId,
         registrationDate: existingData?.registrationDate || nowIso,
         lastLogin: nowIso
       }, { merge: true });

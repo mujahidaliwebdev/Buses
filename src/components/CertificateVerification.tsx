@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   FileCheck
 } from 'lucide-react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 interface CertificateRecord {
@@ -28,36 +28,8 @@ interface CertificateRecord {
   isVerified: boolean;
 }
 
-// Officially recorded baseline certificates for immediate verification
-const REGISTERED_CERTIFICATES: Record<string, Omit<CertificateRecord, 'id' | 'isVerified'>> = {
-  'ASP/EXP/2026092202': {
-    fullName: 'Mujahid Ali',
-    role: 'Official Community Volunteer',
-    organization: 'AsaanSafar Pakistan',
-    department: 'Community Operations & Data Verification',
-    issueDate: '22 Sep 2026',
-    joiningDate: '12 May 2025',
-    status: 'Letter Verified & Active'
-  },
-  'ASP/EXP/2026092201': {
-    fullName: 'Mujahid Ali',
-    role: 'Official Community Volunteer',
-    organization: 'AsaanSafar Pakistan',
-    department: 'Community Operations & Data Verification',
-    issueDate: '22 Sep 2026',
-    joiningDate: '12 May 2025',
-    status: 'Letter Verified & Active'
-  },
-  'ASP/EXP/2026051201': {
-    fullName: 'Mujahid Ali',
-    role: 'Official Community Volunteer',
-    organization: 'AsaanSafar Pakistan',
-    department: 'Community Operations & Data Verification',
-    issueDate: '12 May 2026',
-    joiningDate: '12 May 2025',
-    status: 'Letter Verified & Active'
-  }
-};
+// Fallback registry for pre-existing system certificates
+const SYSTEM_BASELINE_CERTIFICATES: Record<string, Omit<CertificateRecord, 'id' | 'isVerified'>> = {};
 
 export default function CertificateVerification() {
   const params = useParams();
@@ -99,38 +71,94 @@ export default function CertificateVerification() {
       const safeKey = normalizedId.replace(/\//g, '_');
 
       try {
-        // 1. Check known registered certificates list first
-        if (REGISTERED_CERTIFICATES[normalizedId]) {
-          const registered = REGISTERED_CERTIFICATES[normalizedId];
-          const record: CertificateRecord = {
-            id: normalizedId,
-            fullName: registered.fullName,
-            role: registered.role,
-            organization: registered.organization,
-            department: registered.department,
-            issueDate: registered.issueDate,
-            joiningDate: registered.joiningDate,
-            status: registered.status,
-            isVerified: true
-          };
+        // 1. Query Firestore experience_certificates collection
+        try {
+          const certDocRef = doc(db, 'experience_certificates', safeKey);
+          const snap = await getDoc(certDocRef);
 
-          if (isMounted) {
-            setCertData(record);
-            setIsVerified(true);
-            setLoading(false);
+          if (snap.exists() && snap.data()) {
+            const data = snap.data();
+            if (isMounted) {
+              setCertData({
+                id: data.id || normalizedId,
+                fullName: data.fullName || 'Verified Volunteer',
+                role: data.role || 'Official Community Volunteer',
+                organization: data.organization || 'AsaanSafar Pakistan',
+                department: data.department || 'Community Operations & Data Verification',
+                issueDate: data.issueDate || data.issuedDate || 'Verified',
+                joiningDate: data.joiningDate,
+                status: data.status || 'Letter Verified & Active',
+                isVerified: true
+              });
+              setIsVerified(true);
+              setLoading(false);
+            }
+            return;
           }
-
-          // Sync to Firestore in background
-          try {
-            const certDocRef = doc(db, 'experience_certificates', safeKey);
-            await setDoc(certDocRef, { ...record, safeKey, lastVerified: new Date().toISOString() }, { merge: true });
-          } catch (e) {
-            // Ignore offline/permission sync
-          }
-          return;
+        } catch (dbErr) {
+          console.warn('Firestore experience_certificates lookup notice:', dbErr);
         }
 
-        // 2. Check localStorage for certificates generated in this browser
+        // 2. Query user_certificates mapping collection
+        try {
+          const userCertsQuery = query(
+            collection(db, 'user_certificates'),
+            where('verificationId', '==', normalizedId)
+          );
+          const userCertsSnap = await getDocs(userCertsQuery);
+
+          if (!userCertsSnap.empty) {
+            const certDoc = userCertsSnap.docs[0].data();
+            let userName = 'Official Community Volunteer';
+            let joiningDateStr = 'Verified';
+
+            if (certDoc.userId) {
+              try {
+                const userRef = doc(db, 'users', certDoc.userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                  const uData = userSnap.data();
+                  userName = uData.displayName || (uData.email?.includes('mujahid') ? 'Mujahid Ali' : 'Official Volunteer');
+                  if (uData.registrationDate) {
+                    joiningDateStr = new Date(uData.registrationDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                  }
+                }
+              } catch (uErr) {
+                console.warn('User lookup notice:', uErr);
+              }
+            }
+
+            const record: CertificateRecord = {
+              id: normalizedId,
+              fullName: userName,
+              role: 'Official Community Volunteer',
+              organization: 'AsaanSafar Pakistan',
+              department: 'Community Operations & Data Verification',
+              issueDate: certDoc.createdAt ? new Date(certDoc.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Verified',
+              joiningDate: joiningDateStr,
+              status: 'Letter Verified & Active',
+              isVerified: true
+            };
+
+            if (isMounted) {
+              setCertData(record);
+              setIsVerified(true);
+              setLoading(false);
+            }
+
+            // Sync to experience_certificates for future direct reads
+            try {
+              const certDocRef = doc(db, 'experience_certificates', safeKey);
+              await setDoc(certDocRef, { ...record, safeKey, lastVerified: new Date().toISOString() }, { merge: true });
+            } catch (e) {}
+
+            return;
+          }
+        } catch (mappingErr) {
+          console.warn('user_certificates lookup notice:', mappingErr);
+        }
+
+        // 3. Check localStorage for certificates generated in this browser/session
         try {
           const localItem = localStorage.getItem(`asp_cert_${safeKey}`);
           if (localItem) {
@@ -158,35 +186,30 @@ export default function CertificateVerification() {
           // Ignore local storage error
         }
 
-        // 3. Query Firestore experience_certificates collection
-        try {
-          const certDocRef = doc(db, 'experience_certificates', safeKey);
-          const snap = await getDoc(certDocRef);
+        // 4. Check system baseline certificates if configured
+        if (SYSTEM_BASELINE_CERTIFICATES[normalizedId]) {
+          const registered = SYSTEM_BASELINE_CERTIFICATES[normalizedId];
+          const record: CertificateRecord = {
+            id: normalizedId,
+            fullName: registered.fullName,
+            role: registered.role,
+            organization: registered.organization,
+            department: registered.department,
+            issueDate: registered.issueDate,
+            joiningDate: registered.joiningDate,
+            status: registered.status,
+            isVerified: true
+          };
 
-          if (snap.exists() && snap.data()) {
-            const data = snap.data();
-            if (isMounted) {
-              setCertData({
-                id: data.id || normalizedId,
-                fullName: data.fullName || 'Verified Volunteer',
-                role: data.role || 'Official Community Volunteer',
-                organization: data.organization || 'AsaanSafar Pakistan',
-                department: data.department || 'Community Operations & Data Verification',
-                issueDate: data.issueDate || data.issuedDate || 'Verified',
-                joiningDate: data.joiningDate,
-                status: data.status || 'Letter Verified & Active',
-                isVerified: true
-              });
-              setIsVerified(true);
-              setLoading(false);
-            }
-            return;
+          if (isMounted) {
+            setCertData(record);
+            setIsVerified(true);
+            setLoading(false);
           }
-        } catch (dbErr) {
-          console.warn('Firestore verification lookup notice:', dbErr);
+          return;
         }
 
-        // 4. If ID does not match any authentic record, it is NOT verified
+        // 5. If ID does not match ANY authentic record in database, mark NOT VERIFIED
         if (isMounted) {
           setCertData(null);
           setIsVerified(false);

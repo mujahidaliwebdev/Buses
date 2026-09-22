@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Sparkles, CheckCircle2, Download, ExternalLink, ShieldCheck } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
-import { doc, getDoc, setDoc, runTransaction } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { userService } from '../lib/firestoreService';
 
 interface ExperienceLetterModalProps {
   onClose: () => void;
@@ -67,100 +68,27 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
         year: 'numeric'
       });
 
-      // 2. Compute date key for verification ID: YYYYMMDD based on REGISTRATION DATE
-      const regYear = registrationDateObj.getFullYear().toString();
-      const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
-      const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
-      const dateKey = `${regYear}${regMonth}${regDay}`; // e.g. "20260512"
-
-      // 3. Check if user already has an assigned verification ID
+      // 2. Retrieve permanent Verification ID (generated at account creation and never changes)
       let assignedId = '';
-      const userUid = currentUser?.uid || 'mujahid-ali-id';
-      const localKey = `asp_volunteer_cert_${userUid}`;
-      const cachedId = localStorage.getItem(localKey);
-      if (cachedId) {
-        assignedId = cachedId;
-      }
-
       try {
-        const userMappingRef = doc(db, 'user_certificates', userUid);
-        const userMappingSnap = await getDoc(userMappingRef);
-
-        if (userMappingSnap.exists() && userMappingSnap.data()?.verificationId) {
-          assignedId = userMappingSnap.data().verificationId;
-        } else if (!assignedId) {
-          // If not assigned yet, use Firestore transaction on daily counter:
-          const counterDocRef = doc(db, 'certificate_daily_counters', dateKey);
-          try {
-            await runTransaction(db, async (transaction) => {
-              const counterSnap = await transaction.get(counterDocRef);
-              let nextSeq = 1;
-              if (counterSnap.exists()) {
-                const currentCount = counterSnap.data().count || 0;
-                nextSeq = currentCount + 1;
-              }
-              const seqStr = String(nextSeq).padStart(2, '0');
-              assignedId = `ASP/EXP/${dateKey}${seqStr}`;
-
-              // Update counter in transaction
-              transaction.set(counterDocRef, { count: nextSeq, date: dateKey }, { merge: true });
-
-              // Persist mapping to user so their ID never changes once issued
-              transaction.set(userMappingRef, {
-                userId: userUid,
-                verificationId: assignedId,
-                dateKey: dateKey,
-                sequenceNumber: nextSeq,
-                issuedAt: new Date().toISOString()
-              }, { merge: true });
-            });
-          } catch (txErr) {
-            console.warn('Transaction on counter failed or offline, fallback sequence: 01', txErr);
-            assignedId = `ASP/EXP/${dateKey}01`;
-          }
+        if (currentUser) {
+          assignedId = await userService.generateOrGetVerificationId(currentUser, volunteerName);
+        } else {
+          assignedId = await userService.generateOrGetVerificationId({
+            uid: 'mujahid-ali-id',
+            email: 'mujahidali.webdev@gmail.com',
+            displayName: volunteerName
+          }, volunteerName);
         }
-      } catch (mappingErr) {
-        console.warn('Could not read user_certificates mapping from Firestore:', mappingErr);
+      } catch (genErr) {
+        console.warn('Notice generating or getting verification ID:', genErr);
       }
 
       if (!assignedId) {
-        assignedId = `ASP/EXP/${dateKey}01`;
-      }
-      try {
-        localStorage.setItem(localKey, assignedId);
-      } catch (e) {
-        // ignore
-      }
-
-      // 4. Save/update certificate record for public verify link (/verify/ASP/EXP/...)
-      const safeKey = assignedId.replace(/\//g, '_');
-      const certRecord = {
-        id: assignedId,
-        safeKey: safeKey,
-        fullName: volunteerName,
-        email: currentUser?.email || 'mujahidali.webdev@gmail.com',
-        role: 'Official Community Volunteer',
-        organization: 'AsaanSafar Pakistan',
-        department: 'Community Operations & Data Verification',
-        joiningDate: formattedJoiningDate,
-        registrationDateKey: dateKey,
-        issueDate: letterGenDate,
-        status: 'Verified & Active',
-        verified: true,
-        lastUpdated: new Date().toISOString()
-      };
-
-      try {
-        localStorage.setItem(`asp_cert_${safeKey}`, JSON.stringify(certRecord));
-      } catch (e) {
-        // ignore
-      }
-
-      try {
-        const certDocRef = doc(db, 'experience_certificates', safeKey);
-        await setDoc(certDocRef, certRecord, { merge: true });
-      } catch (saveCertErr) {
-        console.warn('Could not save certificate record to Firestore (safe to ignore offline):', saveCertErr);
+        const regYear = registrationDateObj.getFullYear().toString();
+        const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
+        const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
+        assignedId = `ASP/EXP/${regYear}${regMonth}${regDay}01`;
       }
 
       if (isMounted) {
