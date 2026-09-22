@@ -1,6 +1,7 @@
 import { 
   collection, 
   doc, 
+  getDoc,
   getDocs, 
   setDoc, 
   updateDoc, 
@@ -82,13 +83,18 @@ export const userService = {
     const path = `users/${user.uid}`;
     try {
       const userRef = doc(db, 'users', user.uid);
+      const snap = await getDoc(userRef);
+      const nowIso = new Date().toISOString();
+      const existingData = snap.exists() ? snap.data() : null;
+
       await setDoc(userRef, {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName || 'User',
         photoURL: user.photoURL || '',
         role: user.role || 'user',
-        lastLogin: new Date().toISOString()
+        registrationDate: existingData?.registrationDate || nowIso,
+        lastLogin: nowIso
       }, { merge: true });
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);

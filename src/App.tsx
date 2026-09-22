@@ -38,6 +38,7 @@ import FeedbackSystem from './components/FeedbackSystem';
 import NoticePopup from './components/NoticePopup';
 import AppDownloadModal from './components/AppDownloadModal';
 import VolunteerModal from './components/VolunteerModal';
+import CertificateVerification from './components/CertificateVerification';
 import Chatbot from './components/Chatbot';
 import { Bus, SearchFilters, Company } from './types';
 import { MOCK_BUSES } from './data/mockBuses';
@@ -281,6 +282,7 @@ function AppContent() {
           <Route path="/faqs" element={<FAQs />} />
           
           <Route path="/sitemap" element={<Sitemap />} />
+          <Route path="/verify/*" element={<CertificateVerification />} />
           
           {/* SEO Routes */}
           <Route path="/:slug" element={<RouteSpecificPage />} />
