@@ -21,6 +21,7 @@ interface NavbarProps {
   onDownloadAppClick?: () => void;
   onJoinUsClick?: () => void;
   onOpenSubmitRoute?: () => void;
+  onOpenUpdateFares?: () => void;
 }
 
 // Helper to get the correct path to the logo in any hosting environment
@@ -40,7 +41,8 @@ export default function Navbar({
   activeTab,
   onDownloadAppClick,
   onJoinUsClick,
-  onOpenSubmitRoute
+  onOpenSubmitRoute,
+  onOpenUpdateFares
 }: NavbarProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -334,6 +336,7 @@ export default function Navbar({
             onOpenVolunteerCard={() => setShowVolunteerCardModal(true)}
             onOpenExperienceLetter={() => setShowExperienceLetterModal(true)}
             onOpenSubmitRoute={onOpenSubmitRoute}
+            onOpenUpdateFares={onOpenUpdateFares}
           />
         )}
         {showVolunteerCardModal && (

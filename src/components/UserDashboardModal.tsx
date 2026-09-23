@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3 } from 'lucide-react';
+import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 
@@ -10,6 +10,7 @@ interface UserDashboardModalProps {
   onOpenVolunteerCard: () => void;
   onOpenExperienceLetter: () => void;
   onOpenSubmitRoute?: () => void;
+  onOpenUpdateFares?: () => void;
 }
 
 export default function UserDashboardModal({
@@ -17,7 +18,8 @@ export default function UserDashboardModal({
   onOpenProfile,
   onOpenVolunteerCard,
   onOpenExperienceLetter,
-  onOpenSubmitRoute
+  onOpenSubmitRoute,
+  onOpenUpdateFares
 }: UserDashboardModalProps) {
   const currentUser = auth.currentUser;
   const [loading, setLoading] = useState(true);
@@ -68,7 +70,7 @@ export default function UserDashboardModal({
 
   // Route stats
   const totalRoutes = contributions.length;
-  const acceptedRoutes = contributions.filter(c => c.status === 'approved' || c.status === 'accepted' || !c.status).length; // default to accepted if not specified or approved
+  const acceptedRoutes = contributions.filter(c => c.status === 'approved' || c.status === 'accepted' || !c.status).length;
   const rejectedRoutes = contributions.filter(c => c.status === 'rejected').length;
   const pendingRoutes = contributions.filter(c => c.status === 'pending').length;
 
@@ -183,7 +185,7 @@ export default function UserDashboardModal({
                         {contributions.length === 0 ? (
                           <tr>
                             <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-semibold">
-                              You haven't contributed any bus routes yet. Click "Contribute Route" to add one!
+                              You haven't contributed any bus routes yet. Click "+ Add Bus & Stops" below to add one!
                             </td>
                           </tr>
                         ) : (
@@ -303,16 +305,30 @@ export default function UserDashboardModal({
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Quick Volunteer Actions</h4>
                 <div className="grid sm:grid-cols-2 gap-4">
+                  {/* + Add Bus & Stops Button (Half width) */}
                   <button
                     onClick={() => {
                       onClose();
                       if (onOpenSubmitRoute) onOpenSubmitRoute();
                     }}
-                    className="sm:col-span-2 p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+                    className="p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     <span>+ Add Bus & Stops</span>
                     <Bus className="w-4 h-4 text-emerald-200" />
                   </button>
+
+                  {/* + Update Fares Button (Next half width) */}
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (onOpenUpdateFares) onOpenUpdateFares();
+                    }}
+                    className="p-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-700/20 cursor-pointer"
+                  >
+                    <span>+ Update Fares (کرایہ اپ ڈیٹ)</span>
+                    <Tag className="w-4 h-4 text-emerald-200" />
+                  </button>
+
                   <button
                     onClick={() => {
                       onClose();

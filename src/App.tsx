@@ -20,6 +20,7 @@ import BusDetails from './components/BusDetails';
 import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
+import UpdateFaresModal from './components/UpdateFaresModal';
 import AboutUs from './components/AboutUs';
 import ServicePolicy from './components/ServicePolicy';
 import ContactUs from './components/ContactUs';
@@ -62,6 +63,7 @@ function AppContent() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
+  const [showUpdateFaresModal, setShowUpdateFaresModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
 
@@ -194,6 +196,14 @@ function AppContent() {
     }
   };
 
+  const handleUpdateFaresClick = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      setShowUpdateFaresModal(true);
+    }
+  };
+
   const isAdmin = user?.email === 'mujahidali.webdev@gmail.com' || 
                   user?.email === 'mujahidali.stf@gmail.com' || 
                   user?.email === 'kanwal200485@gmail.com';
@@ -239,6 +249,7 @@ function AppContent() {
         onDownloadAppClick={() => setShowDownloadModal(true)}
         onJoinUsClick={() => setShowVolunteerModal(true)}
         onOpenSubmitRoute={handleContributionClick}
+        onOpenUpdateFares={handleUpdateFaresClick}
       />
       
       <main>
@@ -320,6 +331,7 @@ function AppContent() {
 
       <AnimatePresence>
         {isSubmitView && <SubmitRoute onClose={() => setIsSubmitView(false)} />}
+        {showUpdateFaresModal && <UpdateFaresModal onClose={() => setShowUpdateFaresModal(false)} />}
       </AnimatePresence>
 
       <AnimatePresence>
