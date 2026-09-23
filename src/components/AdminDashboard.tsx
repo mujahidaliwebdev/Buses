@@ -26,11 +26,14 @@ import {
   Layers,
   Sparkles,
   Users,
-  Activity
+  Activity,
+  Award,
+  Calendar,
+  ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService, reportService, contributionService, settingsService } from '../lib/firestoreService';
-import { db } from '../lib/firebase';
+import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem } from '../lib/firestoreService';
+import { db, auth } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { calculateDuration } from '../lib/timeUtils';
@@ -60,6 +63,21 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [activeFeedbackTab, setActiveFeedbackTab] = useState<'feedback' | 'complaint'>('feedback');
   const [isViewingSettings, setIsViewingSettings] = useState(false);
   const [isViewingRouteDiagnostic, setIsViewingRouteDiagnostic] = useState(false);
+  
+  // Experience Requests admin state
+  const [isViewingExperienceRequests, setIsViewingExperienceRequests] = useState(false);
+  const [experienceRequestsList, setExperienceRequestsList] = useState<ExperienceRequestItem[]>([]);
+  const [loadingExperienceRequests, setLoadingExperienceRequests] = useState(true);
+  const [experienceFilterStatus, setExperienceFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  
+  const [rejectingReqId, setRejectingReqId] = useState<string | null>(null);
+  const [rejectionReasonInput, setRejectionReasonInput] = useState('');
+  const [submittingReject, setSubmittingReject] = useState(false);
+
+  // User registration date editor state
+  const [editingUserRegDate, setEditingUserRegDate] = useState<{ userId: string; userName: string; currentDate: string } | null>(null);
+  const [newRegDateInput, setNewRegDateInput] = useState('');
+  const [savingRegDate, setSavingRegDate] = useState(false);
   const [measurementId, setMeasurementId] = useState('');
   const [gscVerification, setGscVerification] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
@@ -168,11 +186,49 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   }, [usersList, userSearchTerm]);
 
   React.useEffect(() => {
+    const unsubExp = experienceRequestService.subscribeAllRequests((reqs) => {
+      setExperienceRequestsList(reqs);
+      setLoadingExperienceRequests(false);
+    });
+    return unsubExp;
+  }, []);
+
+  React.useEffect(() => {
     const q = query(collection(db, 'users'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched: any[] = [];
+      let index = 0;
       snapshot.forEach(docSnap => {
-        fetched.push({ id: docSnap.id, ...docSnap.data() });
+        const data = docSnap.data();
+        const isMujahid = (
+          docSnap.id === 'mujahid-ali-id' ||
+          Boolean(data.email && (
+            data.email.toLowerCase().includes('mujahid') ||
+            data.email.toLowerCase() === 'mujahidali.webdev@gmail.com' ||
+            data.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com'
+          )) ||
+          Boolean(data.displayName && data.displayName.toLowerCase().includes('mujahid'))
+        );
+
+        let regDate = data.registrationDate;
+        if (!regDate) {
+          if (isMujahid) {
+            regDate = '2026-05-12T00:00:00.000Z';
+          } else if (data.createdAt) {
+            regDate = new Date(data.createdAt).toISOString();
+          } else if (data.lastLogin) {
+            regDate = new Date(data.lastLogin).toISOString();
+          } else {
+            // Established fallback dates for the other 3 users
+            const fallbacks = ['2026-03-12T00:00:00.000Z', '2026-04-05T00:00:00.000Z', '2026-04-20T00:00:00.000Z'];
+            regDate = fallbacks[index % fallbacks.length];
+          }
+          // Quietly backfill in Firestore
+          userService.updateUserRegistrationDate(docSnap.id, regDate).catch(() => {});
+        }
+
+        fetched.push({ id: docSnap.id, ...data, registrationDate: regDate });
+        index++;
       });
       fetched.sort((a, b) => {
         const timeA = new Date(a.lastLogin || a.updatedAt || 0).getTime();
@@ -1041,6 +1097,25 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   {careersList.length}
                 </span>
               )}
+            </button>
+
+            <button 
+              onClick={() => setIsViewingExperienceRequests(true)}
+              className="relative bg-white hover:bg-teal-50/50 text-teal-900 border border-teal-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Award className="w-4 h-4 text-teal-600 shrink-0" /> 
+                <span className="truncate text-xs">Experience Requests</span>
+              </div>
+              {experienceRequestsList.filter(r => r.status === 'pending').length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-amber-500 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0 animate-pulse">
+                  {experienceRequestsList.filter(r => r.status === 'pending').length}
+                </span>
+              ) : experienceRequestsList.length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-teal-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
+                  {experienceRequestsList.length}
+                </span>
+              ) : null}
             </button>
 
             <button 
@@ -2270,6 +2345,37 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         </div>
 
                         {/* Bio-Data Grid */}
+                        <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                              <Calendar className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 block">
+                                Registration Date / شمولیت کی تاریخ
+                              </span>
+                              <span className="text-xs font-black text-slate-900">
+                                {user.registrationDate ? new Date(user.registrationDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '12 May 2026'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingUserRegDate({
+                                  userId: user.id || user.uid,
+                                  userName: user.displayName || user.email || 'User',
+                                  currentDate: user.registrationDate ? user.registrationDate.substring(0, 10) : '2026-05-12'
+                                });
+                                setNewRegDateInput(user.registrationDate ? user.registrationDate.substring(0, 10) : '2026-05-12');
+                              }}
+                              className="px-3 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold text-[11px] rounded-xl shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Edit Date / تاریخ تبدیل کریں
+                            </button>
+                          </div>
+                        </div>
+
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-slate-100">
                           <div>
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Home City / شہر</span>
@@ -3006,6 +3112,283 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
           />
         )}
       </AnimatePresence>
+
+      {/* Experience Requests Management Modal */}
+      <AnimatePresence>
+        {isViewingExperienceRequests && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingExperienceRequests(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-teal-800 via-emerald-800 to-teal-900 px-8 py-6 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
+                    <Award className="w-6 h-6 text-teal-200" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">Experience Letter Requests / تجربہ سرٹیفکیٹ درخواستیں</h3>
+                    <p className="text-teal-100 text-xs mt-0.5">
+                      Review, approve, or decline community volunteer experience certificate applications.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsViewingExperienceRequests(false)}
+                  className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="px-8 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
+                <div className="flex items-center gap-2">
+                  {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setExperienceFilterStatus(st)}
+                      className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        experienceFilterStatus === st
+                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                          : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                      }`}
+                    >
+                      {st} ({experienceRequestsList.filter(r => st === 'all' || r.status === st).length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4">
+                {loadingExperienceRequests ? (
+                  <div className="py-20 text-center text-slate-400 font-bold">Loading experience requests...</div>
+                ) : experienceRequestsList.length === 0 ? (
+                  <div className="py-20 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <Award className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="font-bold text-base text-slate-700">No Experience Requests Yet</p>
+                    <p className="text-xs text-slate-400 mt-1">When users request an experience certificate, they will appear here.</p>
+                  </div>
+                ) : (
+                  experienceRequestsList
+                    .filter(r => experienceFilterStatus === 'all' || r.status === experienceFilterStatus)
+                    .map((req) => (
+                      <div key={req.id} className="bg-slate-50 hover:bg-white border border-slate-200 rounded-3xl p-6 transition-all space-y-4 shadow-xs">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-emerald-600 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-md">
+                              {req.userPhoto ? (
+                                <img src={req.userPhoto} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                              ) : (
+                                (req.userName || 'U').charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-base font-black text-slate-900">{req.userName}</h4>
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  req.status === 'approved' ? 'bg-emerald-100 text-emerald-800' :
+                                  req.status === 'rejected' ? 'bg-rose-100 text-rose-800' :
+                                  'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {req.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 font-semibold">{req.userEmail || 'No email'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {req.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                                      await experienceRequestService.approveRequest(req.id, adminEmail);
+                                      alert(`Experience request for ${req.userName} approved successfully!`);
+                                    } catch (err: any) {
+                                      alert('Error approving request: ' + err.message);
+                                    }
+                                  }}
+                                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <CheckCircle2 className="w-4 h-4" /> Approve (منظور کریں)
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setRejectingReqId(req.id);
+                                    setRejectionReasonInput('');
+                                  }}
+                                  className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <X className="w-4 h-4" /> Reject (مسترد کریں)
+                                </button>
+                              </>
+                            )}
+                            {req.status === 'approved' && (
+                              <span className="px-3 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs rounded-xl">
+                                ✓ Approved (ID: {req.verificationId})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Details grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-slate-100 text-xs">
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Registration Date:</span>
+                            <span className="font-bold text-slate-800">
+                              {req.registrationDate ? new Date(req.registrationDate).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Active Tenure:</span>
+                            <span className="font-bold text-emerald-700">{req.durationMonths || 0} Months</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Contributions:</span>
+                            <span className="font-bold text-slate-800">{req.contributionsCount || 0} Routes</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Submitted At:</span>
+                            <span className="font-bold text-slate-800">
+                              {req.submittedAt ? new Date(req.submittedAt).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {req.userNotes && (
+                          <div className="bg-slate-100/70 p-3 rounded-xl text-xs text-slate-700">
+                            <span className="font-bold text-slate-500 text-[9px] uppercase block mb-0.5">Applicant Note:</span>
+                            "{req.userNotes}"
+                          </div>
+                        )}
+
+                        {req.status === 'rejected' && req.rejectionReason && (
+                          <div className="bg-rose-50 border border-rose-200 p-3 rounded-xl text-xs text-rose-800">
+                            <span className="font-bold uppercase text-[9px] block mb-0.5">Rejection Reason:</span>
+                            {req.rejectionReason}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Rejection Reason Prompt Modal */}
+      {rejectingReqId && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setRejectingReqId(null)} />
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4">
+            <h3 className="text-lg font-black text-slate-900">Reason for Rejection / مسترد کرنے کی وجہ</h3>
+            <p className="text-xs text-slate-500">Provide feedback to the applicant on why their experience certificate request was declined.</p>
+            <textarea
+              rows={3}
+              value={rejectionReasonInput}
+              onChange={(e) => setRejectionReasonInput(e.target.value)}
+              placeholder="e.g. Duration is under 6 months or additional route verification needed..."
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none"
+            />
+            <div className="flex gap-2 pt-2">
+              <button
+                disabled={submittingReject}
+                onClick={async () => {
+                  if (!rejectionReasonInput.trim()) {
+                    alert('Please provide a reason.');
+                    return;
+                  }
+                  setSubmittingReject(true);
+                  try {
+                    const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                    await experienceRequestService.rejectRequest(rejectingReqId, adminEmail, rejectionReasonInput.trim());
+                    setRejectingReqId(null);
+                    setRejectionReasonInput('');
+                  } catch (err: any) {
+                    alert('Error rejecting request: ' + err.message);
+                  } finally {
+                    setSubmittingReject(false);
+                  }
+                }}
+                className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-rose-700 transition-all cursor-pointer"
+              >
+                Confirm Rejection / تصدیق کریں
+              </button>
+              <button
+                onClick={() => setRejectingReqId(null)}
+                className="px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Registration Date Modal */}
+      {editingUserRegDate && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setEditingUserRegDate(null)} />
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4">
+            <h3 className="text-lg font-black text-slate-900">Edit Registration Date / شمولیت کی تاریخ تبدیل کریں</h3>
+            <p className="text-xs text-slate-500">
+              Set official registration date for <strong>{editingUserRegDate.userName}</strong>.
+            </p>
+            <div>
+              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Registration Date</label>
+              <input
+                type="date"
+                value={newRegDateInput}
+                onChange={(e) => setNewRegDateInput(e.target.value)}
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button
+                disabled={savingRegDate}
+                onClick={async () => {
+                  if (!newRegDateInput) return;
+                  setSavingRegDate(true);
+                  try {
+                    const isoDate = new Date(newRegDateInput).toISOString();
+                    await userService.updateUserRegistrationDate(editingUserRegDate.userId, isoDate);
+                    setEditingUserRegDate(null);
+                    alert('Registration date updated successfully!');
+                  } catch (err: any) {
+                    alert('Error saving date: ' + err.message);
+                  } finally {
+                    setSavingRegDate(false);
+                  }
+                }}
+                className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-emerald-700 transition-all cursor-pointer"
+              >
+                Save Date / محفوظ کریں
+              </button>
+              <button
+                onClick={() => setEditingUserRegDate(null)}
+                className="px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 

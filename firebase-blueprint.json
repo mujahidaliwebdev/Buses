@@ -148,6 +148,22 @@
     "careers/{careerId}": {
       "schema": "Career",
       "description": "Passenger job applications with CV attachment details"
+    },
+    "experience_requests/{requestId}": {
+      "schema": {
+        "title": "ExperienceRequest",
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" },
+          "userName": { "type": "string" },
+          "userEmail": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+          "registrationDate": { "type": "string" },
+          "submittedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["userId", "userName", "status"]
+      },
+      "description": "User requests for community volunteer experience certificates"
     }
   }
 }

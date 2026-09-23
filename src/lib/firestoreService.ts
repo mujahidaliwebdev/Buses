@@ -295,6 +295,169 @@ export const userService = {
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
     }
+  },
+
+  updateUserRegistrationDate: async (userId: string, registrationDate: string) => {
+    const path = `users/${userId}`;
+    try {
+      const userRef = doc(db, 'users', userId);
+      await setDoc(userRef, {
+        registrationDate: registrationDate,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  }
+};
+
+export interface ExperienceRequestItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhoto?: string;
+  userMobile?: string;
+  homeCity?: string;
+  registrationDate: string;
+  durationMonths: number;
+  contributionsCount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  userNotes?: string;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  verificationId?: string;
+}
+
+export const experienceRequestService = {
+  submitRequest: async (data: {
+    userId: string;
+    userName: string;
+    userEmail?: string;
+    userPhoto?: string;
+    userMobile?: string;
+    homeCity?: string;
+    registrationDate: string;
+    durationMonths: number;
+    contributionsCount: number;
+    userNotes?: string;
+  }) => {
+    const path = `experience_requests/${data.userId}`;
+    try {
+      const docRef = doc(db, 'experience_requests', data.userId);
+      const payload = {
+        ...data,
+        id: data.userId,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      };
+      await setDoc(docRef, payload, { merge: true });
+      return payload;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  },
+
+  getUserRequest: async (userId: string) => {
+    const path = `experience_requests/${userId}`;
+    try {
+      const docRef = doc(db, 'experience_requests', userId);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return { id: snap.id, ...snap.data() } as ExperienceRequestItem;
+      }
+      return null;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+      return null;
+    }
+  },
+
+  subscribeUserRequest: (userId: string, callback: (req: ExperienceRequestItem | null) => void) => {
+    const path = `experience_requests/${userId}`;
+    return onSnapshot(doc(db, 'experience_requests', userId), (snap) => {
+      if (snap.exists()) {
+        callback({ id: snap.id, ...snap.data() } as ExperienceRequestItem);
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      console.warn("Notice subscribing to experience request: ", error);
+      callback(null);
+    });
+  },
+
+  subscribeAllRequests: (callback: (requests: ExperienceRequestItem[]) => void) => {
+    const path = 'experience_requests';
+    return onSnapshot(collection(db, 'experience_requests'), (snapshot) => {
+      const list: ExperienceRequestItem[] = [];
+      snapshot.forEach(d => {
+        list.push({ id: d.id, ...d.data() } as ExperienceRequestItem);
+      });
+      list.sort((a, b) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime());
+      callback(list);
+    }, (error) => {
+      console.warn("Notice subscribing to all experience requests: ", error);
+      callback([]);
+    });
+  },
+
+  approveRequest: async (requestId: string, reviewerEmail: string, verificationId?: string) => {
+    const path = `experience_requests/${requestId}`;
+    try {
+      const reqRef = doc(db, 'experience_requests', requestId);
+      const snap = await getDoc(reqRef);
+      const reqData = snap.exists() ? snap.data() : null;
+      const targetUserId = reqData?.userId || requestId;
+
+      let finalVerificationId = verificationId || reqData?.verificationId;
+      if (!finalVerificationId) {
+        finalVerificationId = await userService.generateOrGetVerificationId({
+          uid: targetUserId,
+          email: reqData?.userEmail || '',
+          displayName: reqData?.userName || ''
+        }, reqData?.userName);
+      }
+
+      await setDoc(reqRef, {
+        status: 'approved',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: reviewerEmail,
+        verificationId: finalVerificationId
+      }, { merge: true });
+
+      const userRef = doc(db, 'users', targetUserId);
+      await setDoc(userRef, {
+        experienceLetterApproved: true,
+        verificationId: finalVerificationId,
+        certificateId: finalVerificationId
+      }, { merge: true });
+
+      return finalVerificationId;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  },
+
+  rejectRequest: async (requestId: string, reviewerEmail: string, reason: string) => {
+    const path = `experience_requests/${requestId}`;
+    try {
+      const reqRef = doc(db, 'experience_requests', requestId);
+      await setDoc(reqRef, {
+        status: 'rejected',
+        rejectionReason: reason,
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: reviewerEmail
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
   }
 };
 

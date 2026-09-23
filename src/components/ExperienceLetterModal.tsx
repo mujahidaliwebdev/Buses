@@ -1,120 +1,221 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { X, Sparkles, CheckCircle2, Download, ExternalLink, ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  X, 
+  Sparkles, 
+  CheckCircle2, 
+  Download, 
+  ExternalLink, 
+  ShieldCheck, 
+  Clock, 
+  Calendar, 
+  FileText, 
+  AlertCircle, 
+  Send, 
+  CheckSquare, 
+  Square, 
+  Award,
+  Bus,
+  Lock,
+  ChevronRight,
+  RefreshCw
+} from 'lucide-react';
 import { auth, db } from '../lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { userService } from '../lib/firestoreService';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { userService, experienceRequestService, ExperienceRequestItem } from '../lib/firestoreService';
 
 interface ExperienceLetterModalProps {
   onClose: () => void;
+  onOpenAuth?: () => void;
 }
 
-export default function ExperienceLetterModal({ onClose }: ExperienceLetterModalProps) {
+export default function ExperienceLetterModal({ onClose, onOpenAuth }: ExperienceLetterModalProps) {
   const currentUser = auth.currentUser;
 
-  // Volunteer Name: priority to Mujahid Ali if matching admin/user account or user's displayName
+  const isAdmin = (
+    currentUser?.email === 'mujahidali.webdev@gmail.com' ||
+    currentUser?.email === 'mujahidali.stf@gmail.com' ||
+    currentUser?.email === 'kanwal200485@gmail.com'
+  );
+
+  const isMujahid = (
+    currentUser?.uid === 'mujahid-ali-id' ||
+    Boolean(currentUser?.email && (
+      currentUser.email.toLowerCase().includes('mujahid') || 
+      currentUser.email.toLowerCase() === 'mujahidali.webdev@gmail.com' || 
+      currentUser.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com'
+    )) ||
+    Boolean(currentUser?.displayName && currentUser.displayName.toLowerCase().includes('mujahid'))
+  );
+
+  // Volunteer Name
   const volunteerName = (currentUser?.displayName && currentUser.displayName.trim() !== '')
     ? currentUser.displayName
-    : (currentUser?.email?.includes('mujahid') ? 'Mujahid Ali' : 'Mujahid Ali');
+    : (isMujahid ? 'Mujahid Ali' : 'Volunteer Contributor');
 
-  // Dates handling
+  // Dates
   const now = new Date();
-  const letterGenDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); // e.g. "22 Sep 2026"
+  const letterGenDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-  // Capture joining date & sequential verification ID
+  // State
   const [joiningDateStr, setJoiningDateStr] = useState<string>('12 May 2026');
+  const [registrationDateObj, setRegistrationDateObj] = useState<Date>(new Date(2026, 4, 12));
   const [verificationId, setVerificationId] = useState<string>('ASP/EXP/2026051201');
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Request & Eligibility States
+  const [requestData, setRequestData] = useState<ExperienceRequestItem | null>(null);
+  const [contributionsCount, setContributionsCount] = useState<number>(0);
+  const [acceptedContributions, setAcceptedContributions] = useState<number>(0);
+  const [userNotes, setUserNotes] = useState<string>('');
+  const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+  const [showAdminPreview, setShowAdminPreview] = useState<boolean>(false); // Allow admin to switch between views
+
+  // Calculate duration in months & days from registration date to now
+  const calculateTenure = (startDate: Date) => {
+    const end = new Date();
+    let months = (end.getFullYear() - startDate.getFullYear()) * 12 + (end.getMonth() - startDate.getMonth());
+    const days = end.getDate() - startDate.getDate();
+    if (days < 0) {
+      months -= 1;
+    }
+    const safeMonths = Math.max(0, months);
+    return {
+      months: safeMonths,
+      totalDays: Math.max(0, Math.floor((end.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)))
+    };
+  };
+
+  const tenure = calculateTenure(registrationDateObj);
+  const hasCompleted6Months = isMujahid || tenure.months >= 6 || tenure.totalDays >= 180;
 
   useEffect(() => {
     let isMounted = true;
 
-    async function computeVolunteerLetterData() {
-      const isMujahid = (
-        currentUser?.uid === 'mujahid-ali-id' ||
-        Boolean(currentUser?.email && (currentUser.email.toLowerCase().includes('mujahid') || currentUser.email.toLowerCase() === 'mujahidali.webdev@gmail.com' || currentUser.email.toLowerCase() === 'mujahidalikhaskheli786@gmail.com')) ||
-        Boolean(currentUser?.displayName && currentUser.displayName.toLowerCase().includes('mujahid')) ||
-        volunteerName.toLowerCase().includes('mujahid')
-      );
-
-      // Registration date for Mujahid Ali is strictly 12 May 2026 (20260512)
-      let registrationDateObj = isMujahid ? new Date(2026, 4, 12) : new Date();
-
-      // 1. Try to fetch user registration date from Firestore users collection
-      if (!isMujahid && currentUser?.uid) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            if (userData.registrationDate) {
-              const parsed = new Date(userData.registrationDate);
-              if (!isNaN(parsed.getTime())) {
-                registrationDateObj = parsed;
-              }
-            } else if (userData.createdAt) {
-              const parsed = new Date(userData.createdAt);
-              if (!isNaN(parsed.getTime())) {
-                registrationDateObj = parsed;
-              }
-            }
-          } else if (currentUser.metadata?.creationTime) {
-            const parsed = new Date(currentUser.metadata.creationTime);
-            if (!isNaN(parsed.getTime())) {
-              registrationDateObj = parsed;
-            }
-          }
-        } catch (readUserErr) {
-          console.warn('Could not read user registration date from Firestore, using fallback:', readUserErr);
-        }
-      }
-
-      // Format joining date string (strictly "12 May 2026" for Mujahid Ali)
-      const formattedJoiningDate = isMujahid ? '12 May 2026' : registrationDateObj.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      });
-
-      // 2. Retrieve permanent Verification ID (generated at account creation and never changes)
-      let assignedId = isMujahid ? 'ASP/EXP/2026051201' : '';
-      try {
-        if (currentUser) {
-          assignedId = await userService.generateOrGetVerificationId(currentUser, volunteerName);
-        } else {
-          assignedId = await userService.generateOrGetVerificationId({
-            uid: 'mujahid-ali-id',
-            email: 'mujahidali.webdev@gmail.com',
-            displayName: volunteerName
-          }, volunteerName);
-        }
-      } catch (genErr) {
-        console.warn('Notice generating or getting verification ID:', genErr);
-      }
-
-      if (isMujahid || !assignedId) {
-        const regYear = registrationDateObj.getFullYear().toString();
-        const regMonth = String(registrationDateObj.getMonth() + 1).padStart(2, '0');
-        const regDay = String(registrationDateObj.getDate()).padStart(2, '0');
-        assignedId = isMujahid ? 'ASP/EXP/2026051201' : `ASP/EXP/${regYear}${regMonth}${regDay}01`;
-      }
-
-      if (isMounted) {
-        setJoiningDateStr(formattedJoiningDate);
-        setVerificationId(assignedId);
+    async function loadData() {
+      if (!currentUser) {
         setLoading(false);
+        return;
+      }
+
+      try {
+        // 1. Fetch user doc for exact registration date
+        let regDate = isMujahid ? new Date(2026, 4, 12) : new Date();
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (userSnap.exists()) {
+          const uData = userSnap.data();
+          if (uData.registrationDate) {
+            const parsed = new Date(uData.registrationDate);
+            if (!isNaN(parsed.getTime())) regDate = parsed;
+          } else if (uData.createdAt) {
+            const parsed = new Date(uData.createdAt);
+            if (!isNaN(parsed.getTime())) regDate = parsed;
+          }
+        } else if (currentUser.metadata?.creationTime) {
+          const parsed = new Date(currentUser.metadata.creationTime);
+          if (!isNaN(parsed.getTime())) regDate = parsed;
+        }
+
+        const formattedJoining = isMujahid 
+          ? '12 May 2026' 
+          : regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        // 2. Fetch user contributions
+        try {
+          const cQuery = query(collection(db, 'contributions'), where('userId', '==', currentUser.uid));
+          const cSnap = await getDocs(cQuery);
+          const allContribs = cSnap.docs.map(d => d.data());
+          setContributionsCount(allContribs.length);
+          setAcceptedContributions(allContribs.filter((c: any) => c.status === 'approved' || c.status === 'accepted' || !c.status).length);
+        } catch (e) {
+          console.warn('Notice reading contributions:', e);
+        }
+
+        // 3. Get / generate Verification ID
+        let assignedId = isMujahid ? 'ASP/EXP/2026051201' : '';
+        try {
+          assignedId = await userService.generateOrGetVerificationId(currentUser, volunteerName);
+        } catch (e) {
+          console.warn('Notice getting verification ID:', e);
+        }
+        if (!assignedId) {
+          const regYear = regDate.getFullYear().toString();
+          const regMonth = String(regDate.getMonth() + 1).padStart(2, '0');
+          const regDay = String(regDate.getDate()).padStart(2, '0');
+          assignedId = isMujahid ? 'ASP/EXP/2026051201' : `ASP/EXP/${regYear}${regMonth}${regDay}01`;
+        }
+
+        if (isMounted) {
+          setRegistrationDateObj(regDate);
+          setJoiningDateStr(formattedJoining);
+          setVerificationId(assignedId);
+        }
+      } catch (err) {
+        console.error('Error loading experience modal data:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
 
-    computeVolunteerLetterData();
+    loadData();
+
+    // Subscribe to experience request
+    let unsubscribeReq: (() => void) | null = null;
+    if (currentUser?.uid) {
+      unsubscribeReq = experienceRequestService.subscribeUserRequest(currentUser.uid, (req) => {
+        if (isMounted) {
+          setRequestData(req);
+        }
+      });
+    }
 
     return () => {
       isMounted = false;
+      if (unsubscribeReq) unsubscribeReq();
     };
-  }, [currentUser, volunteerName, letterGenDate]);
+  }, [currentUser, isMujahid, volunteerName]);
+
+  // Handle Request Submission
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    if (!agreedToTerms) {
+      setSubmitError('Please acknowledge and agree to the terms & conditions. / برائے مہربانی شرائط و ضوابط سے اتفاق کریں۔');
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await experienceRequestService.submitRequest({
+        userId: currentUser.uid,
+        userName: volunteerName,
+        userEmail: currentUser.email || '',
+        userPhoto: currentUser.photoURL || '',
+        registrationDate: registrationDateObj.toISOString(),
+        durationMonths: tenure.months,
+        contributionsCount: contributionsCount,
+        userNotes: userNotes.trim()
+      });
+
+      setSubmitSuccess(true);
+    } catch (err: any) {
+      console.error('Error submitting experience request:', err);
+      setSubmitError(err.message || 'Failed to submit request. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const verifyUrl = `https://asaansafar.com/verify/${verificationId}`;
 
+  // Print Letter function
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -137,66 +238,24 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
             html, body { 
               margin: 0 !important; 
               padding: 0 !important; 
-              width: 100% !important;
+              width: 100% !important; 
               height: 100% !important; 
-              font-family: 'Times New Roman', Times, serif; 
-              background: #fff; 
-              color: #1a1a1a;
-              overflow: hidden !important;
+              background: #fff;
+              font-family: 'Times New Roman', Times, serif;
             }
-            .letter-container {
+            .page-container {
               position: relative;
               width: 210mm;
-              height: 296mm;
-              max-width: 100%;
-              max-height: 296mm;
+              min-height: 297mm;
+              height: 297mm;
               margin: 0 auto;
-              page-break-after: avoid !important;
-              page-break-before: avoid !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-              break-after: avoid !important;
-              overflow: hidden !important;
+              background-image: url('https://asaansafar.com/letter_pad.png');
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              background-position: top center;
+              overflow: hidden;
             }
-            @media print {
-              @page {
-                size: A4 portrait;
-                margin: 0mm !important;
-              }
-              html, body {
-                width: 210mm !important;
-                height: 296mm !important;
-                max-height: 296mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-              }
-              .letter-container {
-                width: 210mm !important;
-                height: 296mm !important;
-                max-height: 296mm !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-                break-after: avoid !important;
-                overflow: hidden !important;
-              }
-            }
-            .letterhead-img {
-              width: 100%;
-              height: 100%;
-              object-fit: fill;
-              display: block;
-              position: absolute;
-              top: 0;
-              left: 0;
-              z-index: 1;
-            }
-            /* Content is strictly bounded between letterhead header and footer */
-            .content {
+            .content-overlay {
               position: absolute;
               top: 17%;
               bottom: 12%;
@@ -246,7 +305,6 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               font-size: 15.5px;
               line-height: 1.45;
             }
-            /* Clean separation from pre-printed letterhead bottom bar */
             .footer-sign-section {
               margin-top: 8px;
               padding-top: 8px;
@@ -258,63 +316,41 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
               background: #ffffff;
             }
             .issued-by {
-              font-size: 13px;
-              color: #334155;
+              line-height: 1.25;
             }
             .issued-title {
+              font-size: 15px;
               font-weight: 900;
-              font-size: 16px;
               color: #0f172a;
-              margin-bottom: 2px;
             }
             .dept-title {
-              font-size: 13.5px;
+              font-size: 12.5px;
+              color: #065f46;
               font-weight: 700;
-              color: #059669;
             }
-            /* Verification box stays clean, compact and doesn't inflate size */
             .verification-box {
-              background: #f8fafc;
-              border: 1px dashed #059669;
-              border-radius: 6px;
-              padding: 4px 9px;
-              font-family: Arial, Helvetica, sans-serif;
-              font-size: 11px;
-              color: #334155;
               text-align: right;
+              font-size: 11.5px;
               line-height: 1.35;
-            }
-            .verification-box strong {
-              color: #0f172a;
-            }
-            .verification-box a {
-              color: #059669;
-              text-decoration: none;
-              font-weight: 700;
-              word-break: break-all;
-              font-size: 10.5px;
+              color: #334155;
+              background: #f8fafc;
+              padding: 6px 10px;
+              border-radius: 6px;
+              border: 1px solid #cbd5e1;
             }
             .badge-verified {
-              display: inline-block;
-              background: #ecfdf5;
-              color: #065f46;
-              padding: 1px 6px;
-              border-radius: 4px;
+              color: #047857;
               font-weight: 800;
-              font-size: 10.5px;
-              border: 1px solid #a7f3d0;
-              margin-bottom: 2px;
             }
           </style>
         </head>
         <body>
-          <div class="letter-container">
-            <img src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is" class="letterhead-img" />
-            <div class="content">
+          <div class="page-container">
+            <div class="content-overlay">
               <div>
                 <div class="header-meta">
-                  <span>Date: ${letterGenDate}</span>
-                  <span>Verification ID: ${verificationId}</span>
+                  <span>Ref: <strong>${verificationId}</strong></span>
+                  <span>Date: <strong>${letterGenDate}</strong></span>
                 </div>
 
                 <div class="to-whom">To Whom It May Concern,</div>
@@ -381,8 +417,14 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
     printWindow.document.close();
   };
 
+  // Determine which view to render:
+  // Is approved if request is approved OR user is Mujahid / Admin
+  const isApproved = requestData?.status === 'approved' || (isAdmin && !showAdminPreview);
+  const isPending = requestData?.status === 'pending';
+  const isRejected = requestData?.status === 'rejected';
+
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -392,134 +434,597 @@ export default function ExperienceLetterModal({ onClose }: ExperienceLetterModal
       />
 
       <motion.div
-        initial={{ scale: 0.9, y: 20 }}
+        initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 border border-slate-100 p-6 sm:p-8 text-left space-y-6 max-h-[96vh] overflow-y-auto"
+        exit={{ scale: 0.95, y: 20 }}
+        className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 my-4 sm:my-8 max-h-[94vh] flex flex-col border border-slate-100"
       >
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-all cursor-pointer z-30 bg-white/80 backdrop-blur-sm shadow-md"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Modal Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider mb-1">
-              <Sparkles className="w-3 h-3" /> Official Volunteer Credentials
+        {/* Header Bar */}
+        <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 px-6 sm:px-8 py-5 text-white shrink-0 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+              <Award className="w-6 h-6 text-emerald-200" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Volunteer Experience Letter</h2>
-            <p className="text-xs text-slate-500">AsaanSafar Pakistan Public Transit Initiative</p>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-900/60 text-emerald-200 text-[10px] font-black uppercase tracking-wider mb-0.5">
+                <Sparkles className="w-3 h-3 text-amber-300" /> AsaanSafar Community
+              </div>
+              <h2 className="text-lg sm:text-xl font-black tracking-tight">
+                {isApproved 
+                  ? 'Volunteer Experience Certificate / تجربہ سرٹیفکیٹ' 
+                  : 'Request Experience Letter / تجربہ سرٹیفکیٹ کی درخواست'}
+              </h2>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] font-bold bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 border border-slate-200">
-              ID: {verificationId}
-            </span>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowAdminPreview(!showAdminPreview)}
+                className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[11px] font-bold transition-all border border-white/20"
+              >
+                {showAdminPreview ? 'View Letter (Admin)' : 'Preview Request Screen'}
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* Letterhead Container View */}
-        <div className="relative w-full max-w-3xl mx-auto shadow-2xl rounded-2xl overflow-hidden bg-white border border-slate-300">
-          {/* Background Official Letterhead Graphic */}
-          <img
-            src="https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is"
-            alt="AsaanSafar Letter Head"
-            referrerPolicy="no-referrer"
-            className="w-full h-auto block select-none pointer-events-none"
-          />
-
-          {/* Letter text content positioned strictly above the bottom pre-printed footer */}
-          <div className="absolute top-[16.5%] bottom-[11%] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] flex flex-col justify-between font-serif text-slate-900 text-[14px] sm:text-[16px] leading-relaxed select-text overflow-y-auto custom-scrollbar">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-[12.5px] sm:text-[13.5px] font-sans text-slate-500 font-bold border-b border-slate-200 pb-1.5">
-                <span>Date: {letterGenDate}</span>
-                <span>Verification ID: {verificationId}</span>
-              </div>
-
-              {/* To Whom It May Concern */}
-              <div className="text-center pt-1 pb-3 sm:pb-4">
-                <p className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-wide font-sans">To Whom It May Concern,</p>
-              </div>
-
-              <p className="text-[14px] sm:text-[16px] leading-relaxed">
-                This is to certify that <strong className="text-emerald-800 font-sans text-[15px] sm:text-[17px]">{volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
-              </p>
-
-              <p className="text-[14px] sm:text-[16px] leading-relaxed">
-                During the period from <strong>{joiningDateStr}</strong> to <strong>{letterGenDate}</strong>, they have contributed to the collection, verification, and updating of public transport information through the AsaanSafar platform.
-              </p>
-
-              <p className="text-[14px] sm:text-[16px]">Their contributions have included collecting and verifying information related to:</p>
-              <ul className="list-disc list-inside space-y-1 pl-2 text-slate-800 text-[13.5px] sm:text-[15.5px]">
-                <li>Public transport routes and destinations</li>
-                <li>Bus arrival and departure schedules</li>
-                <li>Passenger fares and route-wise pricing</li>
-                <li>Bus terminals, stands, and stop locations</li>
-                <li>Transport operators and available services</li>
-                <li>Other relevant public transport information</li>
-              </ul>
-
-              <p className="text-[14px] sm:text-[16px] leading-relaxed">
-                Through their continued contribution, they have supported AsaanSafar's mission of making public transport information more <strong>accessible, transparent, and reliable</strong> for commuters across Pakistan.
-              </p>
-
-              <p className="text-[14px] sm:text-[16px] leading-relaxed">
-                Their efforts in collecting and maintaining transport data have contributed to helping travelers better understand available routes, schedules, fares, and other essential travel information before starting their journey.
-              </p>
-
-              <p className="text-[14px] sm:text-[16px] leading-relaxed">
-                We sincerely appreciate their <strong>time, dedication, and valuable contribution to the AsaanSafar community</strong> and wish them continued success in their future endeavors.
-              </p>
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-8 bg-slate-50/60">
+          {loading ? (
+            <div className="py-24 flex flex-col items-center justify-center gap-3">
+              <div className="w-10 h-10 border-4 border-slate-200 border-t-emerald-600 rounded-full animate-spin" />
+              <span className="text-xs font-bold text-slate-500">Checking credentials & status...</span>
             </div>
-
-            {/* Issued By & Verification Footer - Perfectly padded with clear bottom margin from pre-printed footer */}
-            <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 font-sans text-xs text-slate-700 bg-white/95 backdrop-blur-sm rounded-lg p-2.5">
+          ) : !currentUser ? (
+            /* Not Logged In View */
+            <div className="py-12 px-4 text-center max-w-md mx-auto space-y-5">
+              <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200 shadow-sm">
+                <Lock className="w-8 h-8" />
+              </div>
               <div>
-                <p className="text-[11.5px] text-slate-400 font-bold uppercase tracking-wider">Issued By:</p>
-                <p className="font-black text-slate-900 text-sm sm:text-base">AsaanSafar Pakistan</p>
-                <p className="text-[12.5px] text-emerald-800 font-bold">Community Operations & Data Verification</p>
+                <h3 className="text-xl font-black text-slate-900">Sign In Required / سائن ان ضروری ہے</h3>
+                <p className="text-slate-500 text-xs mt-2 leading-relaxed">
+                  To request or view your Community Volunteer Experience Letter, please log in with your registered account.
+                </p>
+                <p className="text-emerald-700 text-xs font-bold mt-1" dir="rtl">
+                  تجربہ سرٹیفکیٹ کی درخواست یا تصدیق کے لیے برائے مہربانی پہلے سائن ان کریں۔
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  onClose();
+                  if (onOpenAuth) onOpenAuth();
+                }}
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer"
+              >
+                Sign In / سائن ان کریں
+              </button>
+            </div>
+          ) : isApproved ? (
+            /* 1. APPROVED / ADMIN VIEW: FULL EXPERIENCE LETTER */
+            <div className="space-y-6">
+              {/* Approval status banner */}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-emerald-950 uppercase tracking-wide">
+                      Certificate Approved & Verified / سرٹیفکیٹ تصدیق شدہ اور منظور شدہ
+                    </h4>
+                    <p className="text-[11px] text-emerald-800 font-medium">
+                      Official Volunteer Letter is active with permanent Verification ID <span className="font-mono font-bold text-emerald-900">{verificationId}</span>.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-white rounded-lg border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+                    Official Active
+                  </span>
+                </div>
               </div>
 
-              <div className="bg-slate-50 border border-emerald-300 rounded-lg p-2 text-right space-y-0.5 text-[11px] sm:text-[11.5px] shrink-0">
-                <div className="inline-flex items-center gap-1 text-emerald-700 font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Authentic Verification
+              {/* Letter Preview Container */}
+              <div className="bg-slate-200/80 p-3 sm:p-6 rounded-3xl shadow-inner border border-slate-300/80 overflow-x-auto flex justify-center">
+                <div 
+                  className="bg-white shadow-2xl relative select-none"
+                  style={{
+                    width: '100%',
+                    maxWidth: '680px',
+                    aspectRatio: '1 / 1.414',
+                    backgroundImage: "url('https://asaansafar.com/letter_pad.png')",
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'top center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  <div className="absolute inset-[15%_8%_10%_8%] flex flex-col justify-between text-slate-800 text-[11px] sm:text-[13px] leading-relaxed select-text font-serif">
+                    <div>
+                      {/* Meta Date & Ref */}
+                      <div className="flex justify-between items-center text-[10px] sm:text-[11.5px] font-bold text-slate-500 border-b border-slate-200 pb-1 mb-2 font-sans">
+                        <span>Ref: <strong className="text-slate-800">{verificationId}</strong></span>
+                        <span>Date: <strong className="text-slate-800">{letterGenDate}</strong></span>
+                      </div>
+
+                      {/* Title */}
+                      <div className="text-center font-black text-slate-900 text-sm sm:text-base tracking-wide my-2 sm:my-3 font-sans">
+                        To Whom It May Concern,
+                      </div>
+
+                      {/* Paragraph 1 */}
+                      <p className="mb-2 text-justify">
+                        This is to certify that <strong className="text-emerald-800 font-sans text-[12px] sm:text-[14px]">{volunteerName}</strong> has actively contributed as an <strong>Official Community Volunteer</strong> with <strong>AsaanSafar Pakistan</strong>.
+                      </p>
+
+                      {/* Paragraph 2 */}
+                      <p className="mb-2 text-justify">
+                        During the period from <strong>{joiningDateStr}</strong> to <strong>{letterGenDate}</strong>, they have contributed to the collection, verification, and updating of public transport information through the AsaanSafar platform.
+                      </p>
+
+                      {/* Bullet points */}
+                      <p className="mb-1 text-justify">Their contributions have included collecting and verifying information related to:</p>
+                      <ul className="list-disc list-inside space-y-0.5 pl-2 text-slate-700 text-[10px] sm:text-[12px] font-sans">
+                        <li>Public transport routes and destinations</li>
+                        <li>Bus arrival and departure schedules</li>
+                        <li>Passenger fares and route-wise pricing</li>
+                        <li>Bus terminals, stands, and stop locations</li>
+                        <li>Transport operators and available services</li>
+                      </ul>
+
+                      {/* Paragraph 3 */}
+                      <p className="mt-2 mb-1 text-justify">
+                        Through their continued contribution, they have supported AsaanSafar's mission of making public transport information more <strong>accessible, transparent, and reliable</strong> for commuters across Pakistan.
+                      </p>
+
+                      <p className="text-justify hidden sm:block">
+                        We sincerely appreciate their <strong>time, dedication, and valuable contribution</strong> to the community and wish them continued success in their future endeavors.
+                      </p>
+                    </div>
+
+                    {/* Footer inside Letter */}
+                    <div className="pt-2 border-t border-slate-200 flex justify-between items-end text-[10px] sm:text-[11px] font-sans bg-white/90 p-2 rounded-lg">
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase block">Issued By:</span>
+                        <strong className="text-slate-900 block text-xs sm:text-sm">AsaanSafar Pakistan</strong>
+                        <span className="text-emerald-800 font-bold text-[10px] sm:text-[11px]">Community Operations & Data Verification</span>
+                      </div>
+
+                      <div className="bg-slate-50 border border-emerald-300 rounded p-1.5 text-right font-sans">
+                        <div className="text-emerald-700 font-bold text-[10px]">✔ Authentic Verification</div>
+                        <div className="font-mono text-slate-700 font-bold text-[9px] sm:text-[10px]">ID: {verificationId}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="font-mono text-slate-700 font-bold">ID: {verificationId}</div>
-                <div className="text-slate-500 text-[10.5px] sm:text-[11px]">
-                  Link: <span className="text-emerald-700 font-semibold underline">{verifyUrl}</span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  onClick={handlePrint}
+                  className="flex-1 py-3.5 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Print / Download Experience Letter
+                </button>
+
+                <a
+                  href={`/verify/${verificationId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-5 py-3.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-emerald-100 transition-all flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" /> Live Verification Page <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+
+                <button
+                  onClick={onClose}
+                  className="px-6 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : isPending ? (
+            /* 2. PENDING UNDER REVIEW VIEW */
+            <div className="py-6 space-y-6 max-w-2xl mx-auto">
+              <div className="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 sm:p-8 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-inner">
+                  <Clock className="w-8 h-8 animate-pulse" />
+                </div>
+
+                <div>
+                  <span className="px-3 py-1 bg-amber-200/80 text-amber-900 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    Application Under Review / زیرِ غور درخواست
+                  </span>
+                  <h3 className="text-2xl font-black text-slate-900 mt-2">Your Request is Under Review</h3>
+                  <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                    آپ کی تجربہ سرٹیفکیٹ کی درخواست ایڈمن کو موصول ہو چکی ہے اور جائزہ کے مرحلے میں ہے۔
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-2xl p-5 border border-amber-200/60 text-left space-y-3 shadow-xs">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[9px] block">Applicant Name:</span>
+                      <strong className="text-slate-800">{requestData?.userName || volunteerName}</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[9px] block">Registration Date:</span>
+                      <strong className="text-slate-800">{joiningDateStr}</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[9px] block">Duration on Platform:</span>
+                      <strong className="text-emerald-700">{tenure.months} Months ({tenure.totalDays} Days)</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[9px] block">Routes Contributed:</span>
+                      <strong className="text-slate-800">{contributionsCount} Submitted ({acceptedContributions} Approved)</strong>
+                    </div>
+                  </div>
+
+                  {requestData?.submittedAt && (
+                    <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-400">
+                      Request Submitted on: {new Date(requestData.submittedAt).toLocaleDateString()} at {new Date(requestData.submittedAt).toLocaleTimeString()}
+                    </div>
+                  )}
+
+                  {requestData?.userNotes && (
+                    <div className="bg-slate-50 p-3 rounded-xl text-xs text-slate-600 italic">
+                      "{requestData.userNotes}"
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 bg-amber-100/60 rounded-2xl text-[11px] text-amber-900 text-left space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+                    Review Criteria (جانچ کا طریقہ کار):
+                  </div>
+                  <p>
+                    ایڈمن آپ کی کم از کم <strong>6 ماہ کی شمولیت (Duration)</strong> اور ویب سائٹ پر <strong>روٹس / معلومات کی تصدیق (Engagement)</strong> کا ریکارڈ دیکھ کر سرٹیفکیٹ کی منظوری دے گا۔ منظوری کے بعد سرٹیفکیٹ خودکار طور پر یہاں ڈاؤنلوڈ اور پرنٹ کے لیے ظاہر ہو جائے گا۔
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={onClose}
+                    className="px-8 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer"
+                  >
+                    Got It / سمجھ گیا
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          ) : isRejected ? (
+            /* 3. REJECTED VIEW */
+            <div className="py-6 space-y-6 max-w-2xl mx-auto">
+              <div className="bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 sm:p-8 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto shadow-inner">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
 
-        {/* Buttons / Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <button
-            onClick={handlePrint}
-            className="flex-1 py-3.5 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
-          >
-            <Download className="w-4 h-4" /> Print / Download Experience Letter
-          </button>
+                <div>
+                  <span className="px-3 py-1 bg-rose-200 text-rose-900 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    Application Not Approved / درخواست منظور نہیں ہوئی
+                  </span>
+                  <h3 className="text-2xl font-black text-slate-900 mt-2">Request Needs Improvement</h3>
+                  <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                    ایڈمن نے آپ کی درخواست کا جائزہ لیا ہے، لیکن مطلوبہ معیار پورا نہ ہونے کی وجہ سے فی الحال منظوری نہیں دی گئی۔
+                  </p>
+                </div>
 
-          <a
-            href={`/verify/${verificationId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="px-5 py-3.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-emerald-100 transition-all flex items-center justify-center gap-2"
-          >
-            <ShieldCheck className="w-4 h-4" /> Live Verification Page <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+                {requestData?.rejectionReason && (
+                  <div className="bg-white rounded-2xl p-4 border border-rose-200 text-left text-xs text-rose-900 font-semibold shadow-xs">
+                    <span className="text-[10px] uppercase font-black text-rose-500 block mb-1">Admin Feedback / ایڈمن کا تبصرہ:</span>
+                    {requestData.rejectionReason}
+                  </div>
+                )}
 
-          <button
-            onClick={onClose}
-            className="px-6 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all cursor-pointer"
-          >
-            Close
-          </button>
+                <div className="bg-white rounded-2xl p-4 border border-slate-200 text-left text-xs text-slate-700 space-y-2">
+                  <p className="font-bold text-slate-900">How to qualify for Experience Certificate (اہلیت حاصل کرنے کا طریقہ):</p>
+                  <ul className="list-disc list-inside space-y-1 text-slate-600 pl-1 text-[11px]">
+                    <li>Ensure you have completed at least <strong>6 months</strong> on AsaanSafar platform.</li>
+                    <li>Actively verify or add missing bus schedules, fares, and stand contact details.</li>
+                    <li>Once criteria are met, you may resubmit your request below.</li>
+                  </ul>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => setRequestData(null)}
+                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Re-Apply / دوبارہ درخواست دیں
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* 4. NOT REQUESTED YET: COMPREHENSIVE REQUEST PAGE WITH TERMS & CONDITIONS */
+            <form onSubmit={handleSubmitRequest} className="space-y-6 max-w-2xl mx-auto">
+              {submitSuccess ? (
+                <div className="p-8 bg-emerald-50 border-2 border-emerald-300 rounded-3xl text-center space-y-4">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-900">Request Sent Successfully!</h3>
+                  <p className="text-emerald-800 text-xs sm:text-sm">
+                    آپ کی درخواست ایڈمن کو ارسال کر دی گئی ہے۔ جیسے ہی ایڈمن اس کی منظوری دے گا، تجربہ سرٹیفکیٹ آپ کے پروفائل میں ظاہر ہو جائے گا۔
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider"
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Hero Intro */}
+                  <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 p-6 sm:p-7 rounded-3xl text-white shadow-lg space-y-3 relative overflow-hidden">
+                    <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                    
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-700/60 text-emerald-200 text-[11px] font-bold">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Official Community Credential
+                    </div>
+                    
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">
+                      Request Volunteer Experience Letter
+                    </h3>
+                    
+                    <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed" dir="rtl">
+                      آسان سفر کمیونٹی کے رضاکار (Volunteer) کی حیثیت سے خدمات کا باقاعدہ تصدیق شدہ تجربہ سرٹیفکیٹ حاصل کرنے کے لیے درج ذیل شرائط و ضوابط کا جائزہ لیں اور درخواست جمع کروائیں۔
+                    </p>
+                  </div>
+
+                  {submitError && (
+                    <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{submitError}</span>
+                    </div>
+                  )}
+
+                  {/* CRITERION 1: DURATION CHECK (MINIMUM 6 MONTHS) */}
+                  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                          <Calendar className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                            1. Platform Duration Requirement (کم از کم 6 ماہ کا عرصہ)
+                          </h4>
+                          <p className="text-[10px] text-slate-400">Tenancy & active registration on AsaanSafar</p>
+                        </div>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                        hasCompleted6Months ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {hasCompleted6Months ? '✓ 6+ Months Met' : `${tenure.months} / 6 Months`}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl">
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-slate-400 block">Your Registration Date:</span>
+                        <strong className="text-xs text-slate-800 font-bold">{joiningDateStr}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-slate-400 block">Current Duration:</span>
+                        <strong className="text-xs text-emerald-700 font-bold">
+                          {tenure.months} Months ({tenure.totalDays} Days)
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Urdu Notification Box as explicitly requested */}
+                    <div className={`p-3.5 rounded-2xl text-xs font-semibold leading-relaxed border ${
+                      hasCompleted6Months 
+                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900' 
+                        : 'bg-amber-50/80 border-amber-200 text-amber-900'
+                    }`}>
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold">
+                            شرط برائے مدت: آپ کا کم از کم 6 ماہ (180 دن) اس ویب سائٹ پر رجسٹرڈ اور فعال ہونا لازمی ہے۔
+                          </p>
+                          <p className="text-[11px] font-normal opacity-90 mt-0.5">
+                            {hasCompleted6Months 
+                              ? 'ماشاءاللہ! آپ کی آسان سفر پر شمولیت 6 ماہ مکمل ہو چکی ہے۔'
+                              : `فی الحال آپ کو آسان سفر پر ${tenure.months} ماہ ہوئے ہیں۔ ایڈمن آپ کی درخواست کا جائزہ لے کر خصوصی استثناء یا منظوری دے سکتا ہے۔`}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CRITERION 2: CONTRIBUTION & ENGAGEMENT CHECK */}
+                  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+                          <Bus className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                            2. Contribution & Engagement (کارکردگی اور خدمات کی جانچ)
+                          </h4>
+                          <p className="text-[10px] text-slate-400">Routes added, verified, and community participation</p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-800">
+                        {contributionsCount} Contributed
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl">
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-slate-400 block">Total Routes Submitted:</span>
+                        <strong className="text-xs text-slate-800 font-bold">{contributionsCount} Routes</strong>
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-slate-400 block">Approved Routes:</span>
+                        <strong className="text-xs text-teal-700 font-bold">{acceptedContributions} Verified</strong>
+                      </div>
+                    </div>
+
+                    {/* Urdu Notification Box as explicitly requested */}
+                    <div className="p-3.5 bg-teal-50/80 border border-teal-200 rounded-2xl text-xs text-teal-950 font-semibold leading-relaxed">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold">
+                            شرط برائے کارکردگی: تجربہ سرٹیفکیٹ آپ کی ویب سائٹ پر خدمات، روٹس کی تصدیق اور فعال شمولیت (Engagement) کو دیکھ کر ہی ایڈمن کی جانب سے جاری کیا جائے گا۔
+                          </p>
+                          <p className="text-[11px] font-normal text-teal-900 opacity-90 mt-0.5">
+                            سفری سہولیات، بسوں کے اوقات اور کرایوں کی مصدقہ اپ ڈیٹس فراہم کرنے والے رضاکاروں کو ترجیحی بنیادوں پر سرٹیفکیٹ تفویض کیا جاتا ہے۔
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CRITERION 3: TERMS AND CONDITIONS (شرائط و ضوابط) */}
+                  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
+                    <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                          3. Terms and Conditions (شرائط و ضوابط)
+                        </h4>
+                        <p className="text-[10px] text-slate-400">Rules governing the issuance of community credentials</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 text-xs text-slate-700 leading-relaxed bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+                        <div>
+                          <strong className="text-slate-900">کم از کم مدت کی پابندی (Minimum 6-Month Tenure):</strong>
+                          <p className="text-[11px] text-slate-500">رضاکار کا آسان سفر پر کم از کم 6 ماہ سے رجسٹرڈ اور سرگرم ہونا ضروری ہے۔</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+                        <div>
+                          <strong className="text-slate-900">معلومات کی درستی اور تصدیق (Data Integrity):</strong>
+                          <p className="text-[11px] text-slate-500">پلیٹ فارم پر شامل کیے گئے روٹس، اسٹاپس اور کرایوں کی معلومات درست اور حقیقی ہونی چاہئیں۔ غلط کوائف پر سرٹیفکیٹ رد کیا جائے گا۔</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+                        <div>
+                          <strong className="text-slate-900">ایڈمن کا حتمی اختیار (Administrative Discretion):</strong>
+                          <p className="text-[11px] text-slate-500">درخواست کو منظور یا مسترد کرنے کا مکمل اور حتمی اختیار آسان سفر ایڈمنسٹریشن کے پاس ہے۔</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+                        <div>
+                          <strong className="text-slate-900">مستقل ڈیجیٹل تصدیق (Permanent Verification ID):</strong>
+                          <p className="text-[11px] text-slate-500">منظوری پر آپ کو ایک مستقل شناختی کوڈ الاٹ ہوگا جسے کوئی بھی ادارہ یا فرد آن لائن لائیو چیک کر سکے گا۔</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">5</span>
+                        <div>
+                          <strong className="text-slate-900">قانونی و اخلاقی استعمال (Lawful & Ethical Use):</strong>
+                          <p className="text-[11px] text-slate-500">سرٹیفکیٹ رضاکارانہ خدمات کی سند کے طور پر استعمال کیا جا سکتا ہے، تاہم اس کی بنیاد پر ملازمت یا مالی دعویٰ نہیں کیا جا سکتا۔</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* User Notes Input */}
+                    <div>
+                      <label className="block text-[10px] font-black uppercase text-slate-500 mb-1 ml-1">
+                        Optional Note / ایڈمن کے لیے کوئی اضافی پیغام یا اپنی خدمات کی تفصیل
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={userNotes}
+                        onChange={(e) => setUserNotes(e.target.value)}
+                        placeholder="e.g. Added routes for Hyderabad to Sukkur and verified bus stands..."
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                      />
+                    </div>
+
+                    {/* Agreement Checkbox */}
+                    <div 
+                      onClick={() => setAgreedToTerms(!agreedToTerms)}
+                      className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-start gap-3 cursor-pointer select-none transition-all hover:bg-emerald-50"
+                    >
+                      <div className="text-emerald-700 mt-0.5 shrink-0">
+                        {agreedToTerms ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5 text-slate-400" />}
+                      </div>
+                      <div className="text-xs text-slate-800 font-semibold leading-relaxed">
+                        <span>I have read, understood, and agreed to all the terms and conditions above.</span>
+                        <p className="text-emerald-800 font-bold mt-0.5" dir="rtl">
+                          میں نے مندرجہ بالا تمام شرائط و ضوابط پڑھ لیے ہیں اور ان سے مکمل متفق ہوں۔
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submission Action */}
+                  <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="submit"
+                      disabled={submitting || !agreedToTerms}
+                      className={`flex-1 py-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg ${
+                        submitting || !agreedToTerms
+                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-98 shadow-emerald-600/20'
+                      }`}
+                    >
+                      {submitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Submitting Request...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          <span>Submit Request to Admin / درخواست ایڈمن کو بھیجیں</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+            </form>
+          )}
         </div>
       </motion.div>
     </div>
