@@ -2432,6 +2432,19 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                           </div>
                         </div>
 
+                        <div className="bg-emerald-900 text-white p-3.5 rounded-2xl flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2.5">
+                            <ShieldCheck className="w-4 h-4 text-emerald-300" />
+                            <div>
+                              <span className="text-[9px] font-black uppercase tracking-wider text-emerald-300 block">Volunteer Card ID / رضاکار کارڈ نمبر</span>
+                              <span className="font-black font-mono text-sm tracking-wider text-white">{user.volunteerCardId || '2026051201'}</span>
+                            </div>
+                          </div>
+                          <span className="px-2.5 py-1 bg-emerald-800 text-emerald-200 text-[10px] font-bold rounded-xl border border-emerald-700">
+                            Active ID
+                          </span>
+                        </div>
+
                         {user.bio && (
                           <div className="bg-indigo-50/30 border border-indigo-100/40 p-3 rounded-xl text-xs text-slate-700">
                             <span className="font-bold text-indigo-700 uppercase tracking-wider text-[9px] block mb-0.5">Bio / تعارف:</span>

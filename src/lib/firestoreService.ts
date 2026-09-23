@@ -280,6 +280,20 @@ export const userService = {
       }
 
       const registrationDate = isMujahid ? '2026-05-12T00:00:00.000Z' : (existingData?.registrationDate || nowIso);
+      const regDateObj = new Date(registrationDate);
+      const yyyy = regDateObj.getFullYear();
+      const mm = String(regDateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(regDateObj.getDate()).padStart(2, '0');
+      const dateKey = `${yyyy}${mm}${dd}`;
+
+      let volunteerCardId = existingData?.volunteerCardId;
+      if (!volunteerCardId) {
+        if (isMujahid || dateKey === '20260512') {
+          volunteerCardId = '2026051201';
+        } else {
+          volunteerCardId = `${dateKey}01`;
+        }
+      }
 
       await setDoc(userRef, {
         uid: user.uid,
@@ -289,6 +303,8 @@ export const userService = {
         role: user.role || 'user',
         verificationId: verificationId,
         certificateId: verificationId,
+        volunteerCardId: volunteerCardId,
+        volunteerCardApproved: true,
         registrationDate: registrationDate,
         lastLogin: nowIso
       }, { merge: true });

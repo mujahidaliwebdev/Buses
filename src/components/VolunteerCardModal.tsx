@@ -224,13 +224,18 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
             {/* CNIC Card Size Graphic */}
             <div 
               ref={cardRef}
-              className="relative w-full aspect-[1.58/1] max-w-[440px] mx-auto bg-white rounded-2xl p-5 text-slate-900 text-left shadow-2xl border-2 border-emerald-700/30 overflow-hidden flex flex-col justify-between print:m-0 print:shadow-none print:border-2 print:border-emerald-800"
+              className="relative w-full aspect-[1.58/1] max-w-[440px] mx-auto bg-white rounded-2xl p-5 text-slate-900 text-left shadow-2xl border-2 border-emerald-700/30 overflow-hidden flex flex-col justify-between print:m-0 print:shadow-none print:border-2 print:border-emerald-800 z-10"
             >
+              {/* Background Logo Watermark */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] pointer-events-none select-none z-0">
+                <img src={getLogoPath()} alt="Watermark" className="w-56 h-56 object-contain" />
+              </div>
+
               {/* Background subtle green tint (15%) */}
-              <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-50/80 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-50/80 rounded-full blur-2xl pointer-events-none z-0" />
               
-              {/* Top Header: Logo & "AsaanSafar" (larger) "Pakistan" (normal) */}
-              <div className="flex items-center justify-between border-b-2 border-emerald-700/20 pb-3">
+              {/* Top Header: Logo, AsaanSafar Pakistan, and QR Code at top right */}
+              <div className="relative z-10 flex items-center justify-between border-b-2 border-emerald-700/20 pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-700 overflow-hidden flex items-center justify-center shadow-md shrink-0 p-0.5">
                     <img src={getLogoPath()} alt="AsaanSafar" className="w-full h-full object-cover rounded-lg" />
@@ -243,65 +248,64 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
                     <p className="text-[7px] text-slate-500 font-bold uppercase tracking-widest">Official Volunteer Identity Card</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 bg-emerald-700 text-white px-2.5 py-1 rounded-full shadow-xs">
-                  <ShieldCheck className="w-3 h-3 text-emerald-200" />
-                  <span className="text-[7px] font-black uppercase tracking-widest">Verified</span>
+
+                {/* QR Code at Top Right (replacing Verified Badge) */}
+                <div className="flex items-center gap-1.5 bg-emerald-50 px-2 py-1 rounded-xl border border-emerald-700/30 shadow-xs">
+                  <div className="w-9 h-9 bg-white p-0.5 rounded-lg border border-emerald-700/30 flex items-center justify-center shrink-0">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(formatVolunteerCardId())}`}
+                      alt="QR Code"
+                      className="w-full h-full object-contain rounded"
+                    />
+                  </div>
+                  <div className="text-left leading-tight">
+                    <span className="text-[7px] font-black uppercase tracking-wider text-emerald-800 block">Scan QR</span>
+                    <span className="text-[6px] font-bold text-slate-500 uppercase">Verify ID</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Middle Body: Left details, Middle picture, Right QR Code */}
-              <div className="grid grid-cols-12 gap-2 items-center my-auto py-1">
+              {/* Middle Body: Left details, Right picture */}
+              <div className="relative z-10 grid grid-cols-12 gap-3 items-center my-auto py-1">
                 {/* Left Side Details */}
-                <div className="col-span-6 space-y-1 text-[10px] sm:text-[11px] font-bold font-mono">
+                <div className="col-span-7 space-y-1.5 text-[11px] font-bold font-mono">
                   <div className="flex items-center gap-1">
-                    <span className="text-emerald-700 font-black uppercase text-[9px] w-12 shrink-0">ID:</span>
+                    <span className="text-emerald-700 font-black uppercase text-[9px] w-14 shrink-0">ID:</span>
                     <span className="text-slate-900 font-black tracking-wider text-xs">{formatVolunteerCardId()}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-emerald-700 font-black uppercase text-[9px] w-12 shrink-0">CNIC:</span>
+                    <span className="text-emerald-700 font-black uppercase text-[9px] w-14 shrink-0">CNIC:</span>
                     <span className="text-slate-800">{userData.cnic}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-emerald-700 font-black uppercase text-[9px] w-12 shrink-0">Gender:</span>
+                    <span className="text-emerald-700 font-black uppercase text-[9px] w-14 shrink-0">Gender:</span>
                     <span className="text-slate-800">{userData.gender}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-emerald-700 font-black uppercase text-[9px] w-12 shrink-0">District:</span>
+                    <span className="text-emerald-700 font-black uppercase text-[9px] w-14 shrink-0">District:</span>
                     <span className="text-slate-800">{userData.district}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-emerald-700 font-black uppercase text-[9px] w-12 shrink-0">Expiry:</span>
+                    <span className="text-emerald-700 font-black uppercase text-[9px] w-14 shrink-0">Expiry:</span>
                     <span className="text-emerald-800 font-black">{getExpiryDate()}</span>
                   </div>
                 </div>
 
-                {/* Middle: User Picture & Name */}
-                <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-100 border-2 border-emerald-700/55 overflow-hidden shadow-md flex items-center justify-center font-black text-xl text-slate-800 mb-1">
+                {/* Right Side: User Picture, Name, Designation */}
+                <div className="col-span-5 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 border-2 border-emerald-700/55 overflow-hidden shadow-md flex items-center justify-center font-black text-2xl text-slate-800 mb-1">
                     {userData.photoURL ? (
                       <img src={userData.photoURL} alt="Volunteer" className="w-full h-full object-cover" />
                     ) : (
                       <span>{(userData.displayName || 'V').charAt(0).toUpperCase()}</span>
                     )}
                   </div>
-                  <h3 className="text-[10px] sm:text-xs font-black text-slate-900 tracking-tight leading-tight max-w-[95px] truncate">
+                  <h3 className="text-xs font-black text-slate-900 tracking-tight leading-tight max-w-[125px] truncate">
                     {userData.displayName}
                   </h3>
-                  <p className="text-[8px] text-emerald-700 font-black uppercase tracking-wider mt-0.5">
+                  <p className="text-[9px] text-emerald-700 font-black uppercase tracking-wider mt-0.5 max-w-[125px] truncate">
                     Volunteer
                   </p>
-                </div>
-
-                {/* Right Side: QR Code for Verification */}
-                <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 bg-white p-1 rounded-xl border-2 border-emerald-700/40 shadow-sm flex items-center justify-center">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(formatVolunteerCardId())}`}
-                      alt="Verification QR Code"
-                      className="w-full h-full object-contain rounded-lg"
-                    />
-                  </div>
-                  <span className="text-[7px] font-black text-emerald-700 uppercase tracking-widest mt-1">Scan to Verify</span>
                 </div>
               </div>
 
