@@ -238,6 +238,7 @@ function AppContent() {
         activeTab={location.pathname === '/' ? 'home' : ''}
         onDownloadAppClick={() => setShowDownloadModal(true)}
         onJoinUsClick={() => setShowVolunteerModal(true)}
+        onOpenSubmitRoute={handleContributionClick}
       />
       
       <main>

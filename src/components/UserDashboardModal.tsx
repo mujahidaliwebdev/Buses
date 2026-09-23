@@ -9,13 +9,15 @@ interface UserDashboardModalProps {
   onOpenProfile: () => void;
   onOpenVolunteerCard: () => void;
   onOpenExperienceLetter: () => void;
+  onOpenSubmitRoute?: () => void;
 }
 
 export default function UserDashboardModal({
   onClose,
   onOpenProfile,
   onOpenVolunteerCard,
-  onOpenExperienceLetter
+  onOpenExperienceLetter,
+  onOpenSubmitRoute
 }: UserDashboardModalProps) {
   const currentUser = auth.currentUser;
   const [loading, setLoading] = useState(true);
@@ -156,6 +158,78 @@ export default function UserDashboardModal({
                 </div>
               </div>
 
+              {/* Contributed Buses Table Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <Bus className="w-4 h-4 text-emerald-600" /> Your Contributed Buses & Routes (آپ کی شامل کردہ بسیں)
+                  </h3>
+                  <span className="text-xs font-bold text-slate-500">{contributions.length} Route(s) Added</span>
+                </div>
+
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/70 border-b border-slate-100">
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bus / Company</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route (Origin ➔ Dest)</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle & Fare</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50 text-xs">
+                        {contributions.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-semibold">
+                              You haven't contributed any bus routes yet. Click "Contribute Route" to add one!
+                            </td>
+                          </tr>
+                        ) : (
+                          contributions.map((contrib) => (
+                            <tr key={contrib.id} className="hover:bg-emerald-50/20 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+                                    <Bus className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <p className="font-black text-slate-900">{contrib.companyName || 'Bus Operator'}</p>
+                                    <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                      {contrib.busNumber || 'B-01'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="font-bold text-slate-800">{contrib.origin} ➔ {contrib.destination}</p>
+                                <p className="text-[10px] text-slate-500 mt-0.5">Dep: {contrib.departureTime}</p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="font-semibold text-slate-700">{contrib.type || 'Standard'} • {contrib.isAC ? 'AC' : 'Non-AC'}</p>
+                                <p className="font-bold text-emerald-600 mt-0.5">Rs. {contrib.fare?.toLocaleString() || 0}</p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className="font-mono text-slate-600">{contrib.contactNumber || '-'}</span>
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  contrib.status === 'approved' || contrib.status === 'accepted' || !contrib.status ? 'bg-emerald-100 text-emerald-800' :
+                                  contrib.status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {contrib.status || 'Accepted'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
               {/* Other Services Status Section */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Volunteer Application Status */}
@@ -228,7 +302,17 @@ export default function UserDashboardModal({
               {/* Quick Actions / Navigation matching the menu request */}
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Quick Volunteer Actions</h4>
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (onOpenSubmitRoute) onOpenSubmitRoute();
+                    }}
+                    className="sm:col-span-2 p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+                  >
+                    <span>+ Add Bus & Stops</span>
+                    <Bus className="w-4 h-4 text-emerald-200" />
+                  </button>
                   <button
                     onClick={() => {
                       onClose();
@@ -254,7 +338,7 @@ export default function UserDashboardModal({
                       onClose();
                       onOpenExperienceLetter();
                     }}
-                    className="p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-950 font-bold text-xs flex items-center justify-between transition-all cursor-pointer"
+                    className="sm:col-span-2 p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-950 font-bold text-xs flex items-center justify-between transition-all cursor-pointer"
                   >
                     <span>Experience Letter</span>
                     <Sparkles className="w-4 h-4 text-emerald-600" />
