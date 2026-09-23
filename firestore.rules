@@ -178,6 +178,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /volunteer_card_requests/{requestId} {
+      allow read, get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && (isAdmin() || requestId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
     match /user_certificates/{docId} {
       allow read, get, list: if true;
       allow create, update: if true;

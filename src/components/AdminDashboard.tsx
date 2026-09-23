@@ -32,7 +32,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem } from '../lib/firestoreService';
+import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem, volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
 import { db, auth } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
@@ -73,6 +73,15 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [rejectingReqId, setRejectingReqId] = useState<string | null>(null);
   const [rejectionReasonInput, setRejectionReasonInput] = useState('');
   const [submittingReject, setSubmittingReject] = useState(false);
+
+  // Volunteer Card Requests admin state
+  const [isViewingVolunteerCardRequests, setIsViewingVolunteerCardRequests] = useState(false);
+  const [volunteerCardRequestsList, setVolunteerCardRequestsList] = useState<VolunteerCardRequestItem[]>([]);
+  const [loadingVolunteerCardRequests, setLoadingVolunteerCardRequests] = useState(true);
+  const [volunteerCardFilterStatus, setVolunteerCardFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [rejectingVCId, setRejectingVCId] = useState<string | null>(null);
+  const [vcRejectionReasonInput, setVcRejectionReasonInput] = useState('');
+  const [submittingVCReject, setSubmittingVCReject] = useState(false);
 
   // User registration date editor state
   const [editingUserRegDate, setEditingUserRegDate] = useState<{ userId: string; userName: string; currentDate: string } | null>(null);
@@ -242,6 +251,13 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       setLoadingUsersList(false);
     });
     return unsubscribe;
+  }, []);
+
+  React.useEffect(() => {
+    return volunteerCardRequestService.subscribeAllRequests((list) => {
+      setVolunteerCardRequestsList(list);
+      setLoadingVolunteerCardRequests(false);
+    });
   }, []);
 
   // Feedbacks and Complaints real-time subscription
@@ -1114,6 +1130,25 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               ) : experienceRequestsList.length > 0 ? (
                 <span className="min-w-[20px] h-5 bg-teal-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {experienceRequestsList.length}
+                </span>
+              ) : null}
+            </button>
+
+            <button 
+              onClick={() => setIsViewingVolunteerCardRequests(true)}
+              className="relative bg-white hover:bg-emerald-50/50 text-emerald-900 border border-emerald-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" /> 
+                <span className="truncate text-xs">Volunteer Card Requests</span>
+              </div>
+              {volunteerCardRequestsList.filter(r => r.status === 'pending').length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-amber-500 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0 animate-pulse">
+                  {volunteerCardRequestsList.filter(r => r.status === 'pending').length}
+                </span>
+              ) : volunteerCardRequestsList.length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
+                  {volunteerCardRequestsList.length}
                 </span>
               ) : null}
             </button>
@@ -3340,7 +3375,221 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
         </div>
       )}
 
-      {/* Edit User Registration Date Modal */}
+      {/* Volunteer Card Requests Management Modal */}
+      <AnimatePresence>
+        {isViewingVolunteerCardRequests && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingVolunteerCardRequests(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
+            >
+              <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 px-8 py-6 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
+                    <ShieldCheck className="w-6 h-6 text-emerald-200" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">Volunteer Card Requests / رضاکار کارڈ درخواستیں</h3>
+                    <p className="text-emerald-100 text-xs mt-0.5">
+                      Review, approve, or decline digital CNIC volunteer identity card applications.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsViewingVolunteerCardRequests(false)}
+                  className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="px-8 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
+                <div className="flex items-center gap-2">
+                  {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setVolunteerCardFilterStatus(st)}
+                      className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        volunteerCardFilterStatus === st
+                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                          : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                      }`}
+                    >
+                      {st} ({volunteerCardRequestsList.filter(r => st === 'all' || r.status === st).length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4">
+                {loadingVolunteerCardRequests ? (
+                  <div className="py-20 text-center text-slate-400 font-bold">Loading volunteer card requests...</div>
+                ) : volunteerCardRequestsList.length === 0 ? (
+                  <div className="py-20 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <ShieldCheck className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="font-bold text-base text-slate-700">No Volunteer Card Requests Yet</p>
+                    <p className="text-xs text-slate-400 mt-1">When users request a volunteer card, they will appear here.</p>
+                  </div>
+                ) : (
+                  volunteerCardRequestsList
+                    .filter(r => volunteerCardFilterStatus === 'all' || r.status === volunteerCardFilterStatus)
+                    .map((req) => (
+                      <div key={req.id} className="bg-slate-50 hover:bg-white border border-slate-200 rounded-3xl p-6 transition-all space-y-4 shadow-xs">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-emerald-600 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-md">
+                              {req.userPhoto ? (
+                                <img src={req.userPhoto} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                              ) : (
+                                (req.userName || 'U').charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-base font-black text-slate-900">{req.userName}</h4>
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  req.status === 'approved' ? 'bg-emerald-100 text-emerald-800' :
+                                  req.status === 'rejected' ? 'bg-rose-100 text-rose-800' :
+                                  'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {req.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 font-semibold">{req.userEmail || 'No email'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {req.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                                      await volunteerCardRequestService.approveRequest(req.id, adminEmail);
+                                      alert(`Volunteer Card for ${req.userName} approved successfully!`);
+                                    } catch (err: any) {
+                                      alert('Error approving request: ' + err.message);
+                                    }
+                                  }}
+                                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <CheckCircle2 className="w-4 h-4" /> Approve (منظور کریں)
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setRejectingVCId(req.id);
+                                    setVcRejectionReasonInput('');
+                                  }}
+                                  className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <X className="w-4 h-4" /> Reject (مسترد کریں)
+                                </button>
+                              </>
+                            )}
+                            {req.status === 'approved' && (
+                              <span className="px-3 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs rounded-xl">
+                                ✓ Approved (Card ID: {req.volunteerCardId})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-slate-100 text-xs">
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">CNIC:</span>
+                            <span className="font-bold text-slate-800">{req.cnic || 'Not specified'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">District:</span>
+                            <span className="font-bold text-slate-800">{req.homeCity || 'Karachi'}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Registration Date:</span>
+                            <span className="font-bold text-slate-800">
+                              {req.registrationDate ? new Date(req.registrationDate).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-black text-slate-400 uppercase block">Submitted At:</span>
+                            <span className="font-bold text-slate-800">
+                              {req.submittedAt ? new Date(req.submittedAt).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {req.status === 'rejected' && req.rejectionReason && (
+                          <div className="bg-rose-50 border border-rose-200 p-3 rounded-xl text-xs text-rose-800">
+                            <span className="font-bold uppercase text-[9px] block mb-0.5">Rejection Reason:</span>
+                            {req.rejectionReason}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Volunteer Card Rejection Reason Prompt Modal */}
+      {rejectingVCId && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setRejectingVCId(null)} />
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4">
+            <h3 className="text-lg font-black text-slate-900">Reason for Rejection / مسترد کرنے کی وجہ</h3>
+            <p className="text-xs text-slate-500">Provide feedback on why the volunteer card request was declined.</p>
+            <textarea
+              rows={3}
+              value={vcRejectionReasonInput}
+              onChange={(e) => setVcRejectionReasonInput(e.target.value)}
+              placeholder="e.g. Invalid CNIC or missing profile information..."
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none"
+            />
+            <div className="flex gap-2 pt-2">
+              <button
+                disabled={submittingVCReject}
+                onClick={async () => {
+                  if (!vcRejectionReasonInput.trim()) {
+                    alert('Please provide a reason.');
+                    return;
+                  }
+                  setSubmittingVCReject(true);
+                  try {
+                    const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                    await volunteerCardRequestService.rejectRequest(rejectingVCId, adminEmail, vcRejectionReasonInput.trim());
+                    setRejectingVCId(null);
+                    setVcRejectionReasonInput('');
+                  } catch (err: any) {
+                    alert('Error rejecting request: ' + err.message);
+                  } finally {
+                    setSubmittingVCReject(false);
+                  }
+                }}
+                className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-rose-700 transition-all cursor-pointer"
+              >
+                Confirm Rejection / تصدیق کریں
+              </button>
+              <button
+                onClick={() => setRejectingVCId(null)}
+                className="px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {editingUserRegDate && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setEditingUserRegDate(null)} />

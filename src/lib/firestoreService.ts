@@ -332,6 +332,152 @@ export interface ExperienceRequestItem {
   verificationId?: string;
 }
 
+export interface VolunteerCardRequestItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
+  userPhoto?: string;
+  userMobile?: string;
+  cnic?: string;
+  homeCity?: string;
+  registrationDate: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  rejectionReason?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  volunteerCardId?: string;
+}
+
+export const volunteerCardRequestService = {
+  submitRequest: async (data: {
+    userId: string;
+    userName: string;
+    userEmail?: string;
+    userPhoto?: string;
+    userMobile?: string;
+    cnic?: string;
+    homeCity?: string;
+    registrationDate: string;
+  }) => {
+    const path = `volunteer_card_requests/${data.userId}`;
+    try {
+      const docRef = doc(db, 'volunteer_card_requests', data.userId);
+      const payload = {
+        ...data,
+        id: data.userId,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      };
+      await setDoc(docRef, payload, { merge: true });
+      return payload;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  },
+
+  getUserRequest: async (userId: string) => {
+    const path = `volunteer_card_requests/${userId}`;
+    try {
+      const docRef = doc(db, 'volunteer_card_requests', userId);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return { id: snap.id, ...snap.data() } as VolunteerCardRequestItem;
+      }
+      return null;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.GET, path);
+      return null;
+    }
+  },
+
+  subscribeUserRequest: (userId: string, callback: (req: VolunteerCardRequestItem | null) => void) => {
+    return onSnapshot(doc(db, 'volunteer_card_requests', userId), (snap) => {
+      if (snap.exists()) {
+        callback({ id: snap.id, ...snap.data() } as VolunteerCardRequestItem);
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      callback(null);
+    });
+  },
+
+  subscribeAllRequests: (callback: (requests: VolunteerCardRequestItem[]) => void) => {
+    return onSnapshot(collection(db, 'volunteer_card_requests'), (snapshot) => {
+      const list: VolunteerCardRequestItem[] = [];
+      snapshot.forEach(d => {
+        list.push({ id: d.id, ...d.data() } as VolunteerCardRequestItem);
+      });
+      list.sort((a, b) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime());
+      callback(list);
+    }, (error) => {
+      callback([]);
+    });
+  },
+
+  approveRequest: async (requestId: string, reviewerEmail: string, customCardId?: string) => {
+    const path = `volunteer_card_requests/${requestId}`;
+    try {
+      const reqRef = doc(db, 'volunteer_card_requests', requestId);
+      const snap = await getDoc(reqRef);
+      const reqData = snap.exists() ? snap.data() : null;
+      const targetUserId = reqData?.userId || requestId;
+
+      let volunteerCardId = customCardId;
+      if (!volunteerCardId) {
+        let regDateStr = reqData?.registrationDate || '2026-05-12';
+        const dateObj = new Date(regDateStr);
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        // For Mujahid Ali or first registrations on May 12, 2026, use 01
+        let suffix = '01';
+        if (targetUserId !== 'tUEBGy3NIFb3yERl4hiwUtQ44OW2' && reqData?.email !== 'mujahidali.webdev@gmail.com') {
+          suffix = targetUserId.replace(/[^0-9]/g, '').slice(-2) || '01';
+        }
+        volunteerCardId = `${yyyy}${mm}${dd}${suffix}`;
+      }
+
+      await setDoc(reqRef, {
+        status: 'approved',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: reviewerEmail,
+        volunteerCardId
+      }, { merge: true });
+
+      const userRef = doc(db, 'users', targetUserId);
+      await setDoc(userRef, {
+        volunteerCardApproved: true,
+        volunteerCardId
+      }, { merge: true });
+
+      return volunteerCardId;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  },
+
+  rejectRequest: async (requestId: string, reviewerEmail: string, rejectionReason: string) => {
+    const path = `volunteer_card_requests/${requestId}`;
+    try {
+      const reqRef = doc(db, 'volunteer_card_requests', requestId);
+      await setDoc(reqRef, {
+        status: 'rejected',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: reviewerEmail,
+        rejectionReason
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, path);
+      throw error;
+    }
+  }
+};
+
 export const experienceRequestService = {
   submitRequest: async (data: {
     userId: string;

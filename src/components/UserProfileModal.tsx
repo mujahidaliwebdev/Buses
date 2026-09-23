@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, User, Phone, Image, AlertCircle, CheckCircle, Save, Mail, MapPin, Users, FileText, Calendar, ShieldAlert } from 'lucide-react';
+import { X, User, Phone, Image, AlertCircle, CheckCircle, Save, Mail, MapPin, Users, FileText, Calendar, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { updateProfile } from 'firebase/auth';
@@ -35,6 +35,7 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
 
   const [name, setName] = useState(currentUser?.displayName || '');
   const [mobile, setMobile] = useState('');
+  const [cnic, setCnic] = useState('');
   const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
   const [homeCity, setHomeCity] = useState('');
   const [gender, setGender] = useState('');
@@ -42,6 +43,7 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
   const [emergencyName, setEmergencyName] = useState('');
   const [emergencyNumber, setEmergencyNumber] = useState('');
   const [registrationDate, setRegistrationDate] = useState('');
+  const [volunteerCardId, setVolunteerCardId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +106,7 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
         if (userDoc.exists()) {
           const data = userDoc.data();
           if (data.mobile) setMobile(data.mobile);
+          if (data.cnic) setCnic(data.cnic);
           if (data.displayName) setName(data.displayName);
           if (data.photoURL) setPhotoURL(data.photoURL);
           if (data.homeCity) { setHomeCity(data.homeCity); foundCity = data.homeCity; }
@@ -111,6 +114,7 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
           if (data.bio) setBio(data.bio);
           if (data.emergencyContactName) setEmergencyName(data.emergencyContactName);
           if (data.emergencyContactNumber) setEmergencyNumber(data.emergencyContactNumber);
+          if (data.volunteerCardId) setVolunteerCardId(data.volunteerCardId);
           if (data.registrationDate) {
             foundRegDate = data.registrationDate;
           } else if (data.createdAt) {
@@ -196,6 +200,7 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
           displayName: name.trim(),
           photoURL: photoURL.trim(),
           mobile: mobile.trim(),
+          cnic: cnic.trim(),
           homeCity: homeCity.trim(),
           gender: gender.trim(),
           bio: bio.trim(),
@@ -343,6 +348,23 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
                       </div>
                     </div>
 
+                    {volunteerCardId && (
+                      <div className="sm:col-span-2 bg-emerald-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-bold">
+                            <ShieldCheck className="w-5 h-5 text-emerald-300" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">Assigned Volunteer Card ID / رضاکار کارڈ نمبر</span>
+                            <span className="text-base font-black tracking-wider font-mono text-white">{volunteerCardId}</span>
+                          </div>
+                        </div>
+                        <span className="px-3 py-1 bg-emerald-800 text-emerald-200 text-xs font-bold rounded-xl border border-emerald-700">
+                          Active Card ID
+                        </span>
+                      </div>
+                    )}
+
                     <div className="sm:col-span-2">
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 ml-1">Full Name / پورا نام</label>
                       <div className="relative">
@@ -382,6 +404,20 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
                           placeholder="e.g. 03001234567"
                           value={mobile}
                           onChange={(e) => setMobile(e.target.value)}
+                          className="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 ml-1">CNIC Number / شناختی کارڈ نمبر</label>
+                      <div className="relative">
+                        <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="e.g. 43201-7860123-5"
+                          value={cnic}
+                          onChange={(e) => setCnic(e.target.value)}
                           className="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"
                         />
                       </div>
