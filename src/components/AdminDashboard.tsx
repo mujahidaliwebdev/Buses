@@ -1100,20 +1100,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               )}
             </button>
 
-            <button 
-              onClick={() => setIsViewingCareers(true)}
-              className="relative bg-white hover:bg-emerald-50/50 text-emerald-800 border border-emerald-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
-            >
-              <div className="flex items-center gap-2.5 truncate">
-                <Briefcase className="w-4 h-4 text-emerald-600 shrink-0" /> 
-                <span className="truncate text-xs">Job Applications</span>
-              </div>
-              {careersList.length > 0 && (
-                <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
-                  {careersList.length}
-                </span>
-              )}
-            </button>
+
 
             <button 
               onClick={() => setIsViewingExperienceRequests(true)}
