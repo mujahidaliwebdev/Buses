@@ -5,6 +5,7 @@ import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase
 import { auth, db } from '../lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
+import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface UserProfileModalProps {
   onClose: () => void;
@@ -211,6 +212,24 @@ export default function UserProfileModal({ onClose, onProfileUpdated }: UserProf
         },
         { merge: true }
       );
+
+      // 3. Sync directly into Cloudflare D1 User_Detail table
+      try {
+        const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+        await d1UserBridge.updateProfile(publicUserId, {
+          display_name: name.trim(),
+          mobile: mobile.trim(),
+          photo_url: photoURL.trim(),
+          cnic: cnic.trim(),
+          home_city: homeCity.trim(),
+          gender: gender.trim(),
+          bio: bio.trim(),
+          emergency_contact_name: emergencyName.trim(),
+          emergency_contact_number: emergencyNumber.trim(),
+        });
+      } catch (d1Err) {
+        console.warn('D1 profile sync notice:', d1Err);
+      }
 
       setSuccess('Profile updated successfully! / آپ کی پروفائل کامیابی سے تبدیل ہو گئی ہے۔');
       if (onProfileUpdated) {

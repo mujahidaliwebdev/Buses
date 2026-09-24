@@ -23,6 +23,7 @@ import {
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { userService, experienceRequestService, ExperienceRequestItem } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface ExperienceLetterModalProps {
   onClose: () => void;
@@ -193,6 +194,19 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
     setSubmitError(null);
 
     try {
+      const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+
+      // Save to D1 experience_certificate table
+      await d1UserBridge.submitExperienceCertificate(publicUserId, {
+        registration_date: registrationDateObj.toISOString(),
+        duration_months: tenure.months,
+        contributions_count: contributionsCount,
+        user_notes: userNotes.trim(),
+        verification_id: verificationId,
+        remarks: 'Experience certificate request submitted'
+      });
+
+      // Also submit request for Admin Dashboard compatibility
       await experienceRequestService.submitRequest({
         userId: currentUser.uid,
         userName: volunteerName,

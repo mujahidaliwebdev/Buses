@@ -4,6 +4,7 @@ import { X, Award, ShieldCheck, Sparkles, Download, CheckCircle2, AlertCircle, S
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface VolunteerCardModalProps {
   onClose: () => void;
@@ -87,6 +88,18 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
     setError(null);
 
     try {
+      const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+
+      // Save to D1 volunteer_card table
+      await d1UserBridge.submitVolunteerCard(publicUserId, {
+        cnic: userData.cnic,
+        home_city: userData.district,
+        registration_date: userData.registrationDate,
+        volunteer_card_id: formatVolunteerCardId(),
+        remarks: 'Submitted from Volunteer Card Modal'
+      });
+
+      // Also submit request for Admin Dashboard compatibility
       await volunteerCardRequestService.submitRequest({
         userId: currentUser.uid,
         userName: userData.displayName,

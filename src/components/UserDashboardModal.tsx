@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag, Layers } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
+import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface UserDashboardModalProps {
   onClose: () => void;
@@ -40,9 +41,36 @@ export default function UserDashboardModal({
         const uid = currentUser.uid;
         const email = currentUser.email;
 
-        // Fetch contributions / routes added
+        // Fetch contributions / routes added from Cloudflare D1 user tables & Firestore
+        const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+        let d1Contribs: any[] = [];
+        try {
+          const d1Res = await fetch(`/api/contributions/mine?public_user_id=${publicUserId}`);
+          if (d1Res.ok) {
+            const d1Data = await d1Res.json();
+            if (d1Data.success && Array.isArray(d1Data.contributions)) {
+              d1Contribs = d1Data.contributions.map((c: any) => ({
+                id: `d1-${c.id}`,
+                companyName: c.company_name || 'Bus Service',
+                origin: c.stops?.[0]?.city_name || 'Origin',
+                destination: c.stops?.[c.stops?.length - 1]?.city_name || 'Destination',
+                departureTime: c.stops?.[0]?.departure_time || '08:00',
+                busNumber: c.vehicle_plate || 'N/A',
+                status: (c.status || 'Pending').toLowerCase(),
+                routeMap: c.route_map,
+                createdAt: c.submitted_at
+              }));
+            }
+          }
+        } catch (d1Err) {
+          console.warn('D1 contributions fetch notice:', d1Err);
+        }
+
         const contribSnap = await getDocs(query(collection(db, 'contributions'), where('userId', '==', uid)));
-        setContributions(contribSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const fbContribs = contribSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        // Merge and deduplicate
+        setContributions([...d1Contribs, ...fbContribs]);
 
         // Fetch volunteer applications
         const volSnap = await getDocs(query(collection(db, 'volunteers'), where('userId', '==', uid)));

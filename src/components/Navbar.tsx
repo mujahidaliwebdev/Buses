@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { auth, logout } from '../lib/firebase';
 import { useEffect, useState } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
+import { d1UserBridge } from '../lib/d1UserBridge';
 import UserProfileModal from './UserProfileModal';
 import UserDashboardModal from './UserDashboardModal';
 import VolunteerCardModal from './VolunteerCardModal';
@@ -57,6 +58,9 @@ export default function Navbar({
   useEffect(() => {
     return auth.onAuthStateChanged((u) => {
       setUser(u);
+      if (u) {
+        d1UserBridge.ensureProfile(u).catch(() => {});
+      }
     });
   }, []);
 

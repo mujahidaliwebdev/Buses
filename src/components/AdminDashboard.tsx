@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem, volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 import { db, auth } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
@@ -246,6 +247,13 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
       });
       setUsersList(fetched);
       setLoadingUsersList(false);
+
+      // Automatically sync all users into Cloudflare D1 User_Detail table
+      if (fetched.length > 0) {
+        d1UserBridge.syncFirebaseUsersToD1(fetched).catch((syncErr) => {
+          console.warn("Notice syncing users to D1 User_Detail:", syncErr);
+        });
+      }
     }, (error) => {
       console.error("Error subscribing to users in admin: ", error);
       setLoadingUsersList(false);
@@ -2273,14 +2281,37 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </button>
 
               <div className="mb-6">
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
-                    <Users className="w-8 h-8" />
+                <div className="flex items-center justify-between gap-4 mb-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                      <Users className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight">Registered Users Bio-Data</h2>
+                      <p className="text-xs text-indigo-600 font-extrabold uppercase tracking-widest">تمام رجسٹرڈ صارفین کا مکمل بائیو ڈیٹا اور لاگ ان کی تفصیلات</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Registered Users Bio-Data</h2>
-                    <p className="text-xs text-indigo-600 font-extrabold uppercase tracking-widest">تمام رجسٹرڈ صارفین کا مکمل بائیو ڈیٹا اور لاگ ان کی تفصیلات</p>
-                  </div>
+                  <button
+                    onClick={async () => {
+                      if (usersList.length === 0) {
+                        alert('No users found to sync.');
+                        return;
+                      }
+                      try {
+                        const res = await d1UserBridge.syncFirebaseUsersToD1(usersList);
+                        if (res.success) {
+                          alert(`Successfully synced ${res.count} users directly to Cloudflare D1 User_Detail table! / تمام صارفین D1 کے User_Detail ٹیبل میں محفوظ ہو گئے ہیں۔`);
+                        } else {
+                          alert('Sync completed with response: ' + JSON.stringify(res));
+                        }
+                      } catch (err: any) {
+                        alert('Error syncing to D1: ' + err.message);
+                      }
+                    }}
+                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <Database className="w-4 h-4" /> Sync Users to D1 (User_Detail)
+                  </button>
                 </div>
                 <p className="text-slate-500 text-sm leading-relaxed">
                   View complete profiles, login timestamps, home cities, mobile numbers, and emergency contact details of all users who have signed into Asaan Safar.

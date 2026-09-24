@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { X, Bus as BusIcon, Plus, Trash2, ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Layers } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { contributionService } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
@@ -107,41 +108,52 @@ export default function AddFullBusRouteModal({ onClose }: AddFullBusRouteModalPr
     try {
       const routeMapStr = stops.map(s => s.city_name.trim()).filter(Boolean).join(' -> ');
 
-      const payload = {
-        bus: {
-          bus_id: basicInfo.bus_id,
-          company_name: basicInfo.company_name,
-          vehicle_plate: basicInfo.vehicle_plate,
-          contact_number: basicInfo.contact_number,
-          climate_control: basicInfo.climate_control,
-          service_type: basicInfo.service_type,
-          route_map: routeMapStr,
-        },
-        stops: stops.map((s, idx) => ({
-          stop_sequence: idx + 1,
-          city_name: s.city_name,
-          arrival_time: s.arrival_time,
-          departure_time: s.departure_time,
-          location: s.location,
-          stand: s.stand,
-        }))
+      // 1. Ensure user has a User_Detail record and public_user_id in D1
+      const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+
+      const busPayload = {
+        bus_id: basicInfo.bus_id,
+        company_name: basicInfo.company_name,
+        vehicle_plate: basicInfo.vehicle_plate,
+        contact_number: basicInfo.contact_number,
+        climate_control: basicInfo.climate_control,
+        service_type: basicInfo.service_type,
+        route_map: routeMapStr,
       };
 
-      const res = await fetch('/api/d1/bus/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const stopsPayload = stops.map((s, idx) => ({
+        stop_sequence: idx + 1,
+        city_name: s.city_name,
+        arrival_time: s.arrival_time,
+        departure_time: s.departure_time,
+        location: s.location,
+        stand: s.stand,
+      }));
 
-      const responseText = await res.text();
-      let result;
+      // 2. Submit directly to D1 user tables: contributions_Bus & contributions_Stops (Status: Pending)
+      const result = await d1UserBridge.submitBusContribution(publicUserId, busPayload, stopsPayload);
+
+      // 3. Also record in user activity/contributions for backward UI compatibility
       try {
-        result = responseText ? JSON.parse(responseText) : { success: false, message: "Empty response from server" };
-      } catch (parseErr) {
-        throw new Error(`Server returned invalid JSON (${res.status}): ${responseText.substring(0, 100) || "Empty response"}`);
+        await contributionService.submitContribution({
+          companyName: basicInfo.company_name,
+          origin: stops[0]?.city_name || 'Origin',
+          destination: stops[stops.length - 1]?.city_name || 'Destination',
+          departureTime: stops[0]?.departure_time || '08:00',
+          busNumber: basicInfo.vehicle_plate || basicInfo.bus_id,
+          contactNumber: basicInfo.contact_number,
+          fare: 0,
+          isAC: basicInfo.climate_control === 'AC',
+          type: basicInfo.service_type,
+          routeMap: routeMapStr,
+          userId: currentUser.uid,
+          status: 'pending'
+        });
+      } catch (fbErr) {
+        console.warn('Notice saving local contribution mirror:', fbErr);
       }
 
-      if (res.ok && result.success) {
+      if (result.success) {
         setSuccess(true);
         setTimeout(onClose, 3000);
       } else {

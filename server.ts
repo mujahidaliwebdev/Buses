@@ -892,7 +892,7 @@ async function startServer() {
       const firebaseUid = String(user_id || "").trim();
       if (!firebaseUid) return res.status(400).json({ success: false, message: "user_id required" });
 
-      const existingRows = await queryD1("SELECT * FROM user_profiles WHERE user_id = ?", [firebaseUid]);
+      const existingRows = await queryD1("SELECT * FROM User_Detail WHERE user_id = ?", [firebaseUid]);
       if (existingRows && existingRows.length > 0) {
         return res.json({ success: true, public_user_id: existingRows[0].public_user_id, isNew: false });
       }
@@ -904,13 +904,13 @@ async function startServer() {
 
       let publicId = null;
       for (let attempt = 0; attempt < 5 && !publicId; attempt++) {
-        const countRows = await queryD1("SELECT COUNT(*) AS c FROM user_profiles WHERE public_user_id LIKE ?", [`${datePrefix}%`]);
+        const countRows = await queryD1("SELECT COUNT(*) AS c FROM User_Detail WHERE public_user_id LIKE ?", [`${datePrefix}%`]);
         const nextSeq = (countRows[0]?.c || 0) + 1 + attempt;
         if (nextSeq > 99) break;
         const candidate = datePrefix + String(nextSeq).padStart(2, '0');
         try {
           await queryD1(
-            "INSERT INTO user_profiles (user_id, public_user_id, email, display_name, photo_url) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO User_Detail (user_id, public_user_id, email, display_name, photo_url) VALUES (?, ?, ?, ?, ?)",
             [firebaseUid, candidate, email || "", display_name || "", photo_url || ""]
           );
           publicId = candidate;
@@ -934,7 +934,7 @@ async function startServer() {
       const publicUserId = String(req.query.public_user_id || "").trim();
       if (!publicUserId) return res.status(400).json({ success: false, message: "public_user_id required" });
 
-      const rows = await queryD1("SELECT * FROM user_profiles WHERE public_user_id = ?", [publicUserId]);
+      const rows = await queryD1("SELECT * FROM User_Detail WHERE public_user_id = ?", [publicUserId]);
       return res.json({ success: true, profile: rows[0] || null });
     } catch (err: any) {
       return res.status(500).json({ success: false, message: err.message });
@@ -952,10 +952,66 @@ async function startServer() {
       }
 
       await queryD1(
-        `UPDATE user_profiles SET display_name=?, mobile=?, photo_url=?, cnic=?, home_city=?, gender=?, bio=?, emergency_contact_name=?, emergency_contact_number=?, updated_at=datetime('now') WHERE public_user_id = ?`,
+        `UPDATE User_Detail SET display_name=?, mobile=?, photo_url=?, cnic=?, home_city=?, gender=?, bio=?, emergency_contact_name=?, emergency_contact_number=?, updated_at=datetime('now') WHERE public_user_id = ?`,
         [display_name || "", mobile || "", photo_url || "", cnic || "", home_city || "", gender || "", bio || "", emergency_contact_name || "", emergency_contact_number || "", pubId]
       );
       return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Bulk sync all users from Firebase into D1 User_Detail
+  app.post("/api/users/sync-all-to-d1", async (req, res) => {
+    try {
+      const { users } = req.body;
+      if (!Array.isArray(users) || users.length === 0) {
+        return res.json({ success: true, count: 0, message: "No users provided" });
+      }
+
+      let insertedCount = 0;
+      for (const u of users) {
+        const uid = String(u.id || u.uid || "").trim();
+        if (!uid) continue;
+
+        const email = String(u.email || "").trim();
+        const displayName = String(u.displayName || "").trim();
+        const photoUrl = String(u.photoURL || "").trim();
+        const mobile = String(u.mobile || "").trim();
+        const cnic = String(u.cnic || "").trim();
+        const homeCity = String(u.homeCity || u.district || "").trim();
+        const gender = String(u.gender || "").trim();
+        const bio = String(u.bio || "").trim();
+        const emergencyName = String(u.emergencyContactName || "").trim();
+        const emergencyNum = String(u.emergencyContactNumber || "").trim();
+        const regDate = String(u.registrationDate || new Date().toISOString()).trim();
+
+        // Check if user already exists in User_Detail
+        const existing = await queryD1("SELECT * FROM User_Detail WHERE user_id = ?", [uid]);
+        if (existing && existing.length > 0) {
+          await queryD1(
+            `UPDATE User_Detail SET email=?, display_name=?, mobile=?, photo_url=?, cnic=?, home_city=?, gender=?, bio=?, emergency_contact_name=?, emergency_contact_number=?, updated_at=datetime('now') WHERE user_id = ?`,
+            [email, displayName, mobile, photoUrl, cnic, homeCity, gender, bio, emergencyName, emergencyNum, uid]
+          );
+          insertedCount++;
+        } else {
+          // Generate public user ID
+          const parsed = new Date(regDate);
+          const validDate = isNaN(parsed.getTime()) ? new Date() : parsed;
+          const datePrefix = validDate.getFullYear().toString() + String(validDate.getMonth() + 1).padStart(2, '0') + String(validDate.getDate()).padStart(2, '0');
+          const countRows = await queryD1("SELECT COUNT(*) AS c FROM User_Detail WHERE public_user_id LIKE ?", [`${datePrefix}%`]);
+          const nextSeq = (countRows[0]?.c || 0) + 1;
+          const candidate = datePrefix + String(nextSeq).padStart(2, '0');
+
+          await queryD1(
+            `INSERT INTO User_Detail (user_id, public_user_id, email, display_name, mobile, photo_url, cnic, home_city, gender, bio, emergency_contact_name, emergency_contact_number, registration_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [uid, candidate, email, displayName, mobile, photoUrl, cnic, homeCity, gender, bio, emergencyName, emergencyNum, regDate]
+          );
+          insertedCount++;
+        }
+      }
+
+      return res.json({ success: true, count: insertedCount });
     } catch (err: any) {
       return res.status(500).json({ success: false, message: err.message });
     }
@@ -966,7 +1022,7 @@ async function startServer() {
       const email = String(req.query.email || "").trim();
       if (!ADMIN_EMAILS.includes(email)) return res.status(403).json({ success: false, message: "Forbidden" });
 
-      const users = await queryD1("SELECT * FROM user_profiles ORDER BY registration_date DESC");
+      const users = await queryD1("SELECT * FROM User_Detail ORDER BY registration_date DESC");
       return res.json({ success: true, users: users || [] });
     } catch (err: any) {
       return res.status(500).json({ success: false, message: err.message });
@@ -1093,6 +1149,74 @@ async function startServer() {
         UPDATE contributions_Stops SET status='Rejected', remarks=${escapeSql(rejReason)} WHERE contribution_id = ${contribId};
       `);
       return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // 3. User Contributions: Fares -> contributions_Fare
+  app.post("/api/fare-requests/submit", async (req, res) => {
+    try {
+      const { public_user_id, origin, destination, non_ac, ac, executive, business, sleeper, remarks } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
+
+      const orig = String(origin || "").trim();
+      const dest = String(destination || "").trim();
+      if (!orig || !dest) return res.status(400).json({ success: false, message: "Origin and Destination required" });
+
+      const nAc = Number(non_ac) || 0;
+      const aC = Number(ac) || 0;
+      const exec = Number(executive) || 0;
+      const biz = Number(business) || 0;
+      const slp = Number(sleeper) || 0;
+      const rem = String(remarks || "").trim();
+
+      const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
+
+      await queryD1(
+        `INSERT INTO contributions_Fare (public_user_id, origin, destination, non_ac, ac, executive, business, sleeper, remarks, status) VALUES (${escapeSql(pubId)}, ${escapeSql(orig)}, ${escapeSql(dest)}, ${nAc}, ${aC}, ${exec}, ${biz}, ${slp}, ${escapeSql(rem)}, 'Pending')`
+      );
+
+      return res.json({ success: true, message: "Fare contribution saved to contributions_Fare with Pending status." });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // 4. User Volunteer Card -> volunteer_card table
+  app.post("/api/volunteer-card/submit", async (req, res) => {
+    try {
+      const { public_user_id, cnic, home_city, registration_date, volunteer_card_id, remarks } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
+
+      const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
+
+      await queryD1(
+        `INSERT INTO volunteer_card (public_user_id, cnic, home_city, registration_date, volunteer_card_id, remarks, status) VALUES (${escapeSql(pubId)}, ${escapeSql(cnic || '')}, ${escapeSql(home_city || '')}, ${escapeSql(registration_date || '')}, ${escapeSql(volunteer_card_id || '')}, ${escapeSql(remarks || '')}, 'Pending')`
+      );
+
+      return res.json({ success: true, message: "Volunteer card request saved to volunteer_card with Pending status." });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // 5. User Experience Certificate -> experience_certificate table
+  app.post("/api/experience-certificate/submit", async (req, res) => {
+    try {
+      const { public_user_id, registration_date, duration_months, contributions_count, user_notes, verification_id, remarks } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
+
+      const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
+
+      await queryD1(
+        `INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, user_notes, verification_id, remarks, status) VALUES (${escapeSql(pubId)}, ${escapeSql(registration_date || '')}, ${Number(duration_months) || 0}, ${Number(contributions_count) || 0}, ${escapeSql(user_notes || '')}, ${escapeSql(verification_id || '')}, ${escapeSql(remarks || '')}, 'Pending')`
+      );
+
+      return res.json({ success: true, message: "Experience certificate request saved to experience_certificate with Pending status." });
     } catch (err: any) {
       return res.status(500).json({ success: false, message: err.message });
     }

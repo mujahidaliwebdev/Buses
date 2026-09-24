@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { X, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
 import { busService, contributionService } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
@@ -51,32 +52,44 @@ export default function UpdateFaresModal({ onClose }: UpdateFaresModalProps) {
       const business = Number(fareBiz) || 0;
       const sleeper = Number(fareSleep) || 0;
 
-      await busService.bulkUpdateFares(fareOrigin, fareDestination, {
-        non_ac,
-        ac,
-        executive,
-        business,
-        sleeper
-      }, 'all');
+      // 1. Ensure user has a public_user_id in D1
+      const publicUserId = await d1UserBridge.ensureProfile(currentUser);
 
-      await contributionService.submitContribution({
-        companyName: `Fare Update: ${fareOrigin} to ${fareDestination}`,
+      // 2. Submit directly to D1 user table contributions_Fare (Status: Pending)
+      const d1Result = await d1UserBridge.submitFareContribution(publicUserId, {
         origin: fareOrigin,
         destination: fareDestination,
-        departureTime: 'N/A',
-        busNumber: 'FARES',
-        contactNumber: currentUser.phoneNumber || 'N/A',
-        fare: non_ac || ac || executive || business || sleeper,
-        isAC: ac > 0,
-        type: 'Fare Update',
         non_ac,
         ac,
         executive,
         business,
         sleeper,
-        userId: currentUser.uid,
-        status: 'approved'
+        remarks: 'User submitted route fare update'
       });
+
+      // 3. User activity mirror
+      try {
+        await contributionService.submitContribution({
+          companyName: `Fare Update: ${fareOrigin} to ${fareDestination}`,
+          origin: fareOrigin,
+          destination: fareDestination,
+          departureTime: 'N/A',
+          busNumber: 'FARES',
+          contactNumber: currentUser.phoneNumber || 'N/A',
+          fare: non_ac || ac || executive || business || sleeper,
+          isAC: ac > 0,
+          type: 'Fare Update',
+          non_ac,
+          ac,
+          executive,
+          business,
+          sleeper,
+          userId: currentUser.uid,
+          status: 'pending'
+        });
+      } catch (fbErr) {
+        console.warn('Notice saving local contribution mirror:', fbErr);
+      }
 
       setSuccess(true);
       setTimeout(onClose, 3000);
