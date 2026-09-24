@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag } from 'lucide-react';
+import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag, Layers } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 
@@ -11,6 +11,7 @@ interface UserDashboardModalProps {
   onOpenExperienceLetter: () => void;
   onOpenSubmitRoute?: () => void;
   onOpenUpdateFares?: () => void;
+  onOpenFullBusRouteMap?: () => void;
 }
 
 export default function UserDashboardModal({
@@ -19,7 +20,8 @@ export default function UserDashboardModal({
   onOpenVolunteerCard,
   onOpenExperienceLetter,
   onOpenSubmitRoute,
-  onOpenUpdateFares
+  onOpenUpdateFares,
+  onOpenFullBusRouteMap
 }: UserDashboardModalProps) {
   const currentUser = auth.currentUser;
   const [loading, setLoading] = useState(true);
@@ -304,8 +306,8 @@ export default function UserDashboardModal({
               {/* Quick Actions / Navigation matching the menu request */}
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Quick Volunteer Actions</h4>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {/* + Add Bus & Stops Button (Half width) */}
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {/* + Add Single Route Button */}
                   <button
                     onClick={() => {
                       onClose();
@@ -313,11 +315,23 @@ export default function UserDashboardModal({
                     }}
                     className="p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
-                    <span>+ Add Bus & Stops</span>
+                    <span>+ Add Single Route</span>
                     <Bus className="w-4 h-4 text-emerald-200" />
                   </button>
 
-                  {/* + Update Fares Button (Next half width) */}
+                  {/* + Full Bus Route Map Button */}
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (onOpenFullBusRouteMap) onOpenFullBusRouteMap();
+                    }}
+                    className="p-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-teal-700/20 cursor-pointer"
+                  >
+                    <span>+ Full Bus Route Map</span>
+                    <Layers className="w-4 h-4 text-teal-200" />
+                  </button>
+
+                  {/* + Update Fares Button */}
                   <button
                     onClick={() => {
                       onClose();
@@ -325,7 +339,7 @@ export default function UserDashboardModal({
                     }}
                     className="p-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-700/20 cursor-pointer"
                   >
-                    <span>+ Update Fares (کرایہ اپ ڈیٹ)</span>
+                    <span>+ Update Fares</span>
                     <Tag className="w-4 h-4 text-emerald-200" />
                   </button>
 
@@ -354,7 +368,7 @@ export default function UserDashboardModal({
                       onClose();
                       onOpenExperienceLetter();
                     }}
-                    className="sm:col-span-2 p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-950 font-bold text-xs flex items-center justify-between transition-all cursor-pointer"
+                    className="p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-950 font-bold text-xs flex items-center justify-between transition-all cursor-pointer"
                   >
                     <span>Experience Letter</span>
                     <Sparkles className="w-4 h-4 text-emerald-600" />

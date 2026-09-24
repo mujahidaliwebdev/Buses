@@ -21,6 +21,7 @@ import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
 import SubmitRoute from './components/SubmitRoute';
 import UpdateFaresModal from './components/UpdateFaresModal';
+import AddFullBusRouteModal from './components/AddFullBusRouteModal';
 import AboutUs from './components/AboutUs';
 import ServicePolicy from './components/ServicePolicy';
 import ContactUs from './components/ContactUs';
@@ -64,6 +65,7 @@ function AppContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitView, setIsSubmitView] = useState(false);
   const [showUpdateFaresModal, setShowUpdateFaresModal] = useState(false);
+  const [showFullBusModal, setShowFullBusModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
 
@@ -204,6 +206,14 @@ function AppContent() {
     }
   };
 
+  const handleFullBusRouteClick = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      setShowFullBusModal(true);
+    }
+  };
+
   const isAdmin = user?.email === 'mujahidali.webdev@gmail.com' || 
                   user?.email === 'mujahidali.stf@gmail.com' || 
                   user?.email === 'kanwal200485@gmail.com';
@@ -250,6 +260,7 @@ function AppContent() {
         onJoinUsClick={() => setShowVolunteerModal(true)}
         onOpenSubmitRoute={handleContributionClick}
         onOpenUpdateFares={handleUpdateFaresClick}
+        onOpenFullBusRouteMap={handleFullBusRouteClick}
       />
       
       <main>
@@ -332,6 +343,7 @@ function AppContent() {
       <AnimatePresence>
         {isSubmitView && <SubmitRoute onClose={() => setIsSubmitView(false)} />}
         {showUpdateFaresModal && <UpdateFaresModal onClose={() => setShowUpdateFaresModal(false)} />}
+        {showFullBusModal && <AddFullBusRouteModal onClose={() => setShowFullBusModal(false)} />}
       </AnimatePresence>
 
       <AnimatePresence>
