@@ -105,28 +105,48 @@ export default function AddFullBusRouteModal({ onClose }: AddFullBusRouteModalPr
     setError('');
 
     try {
-      const origin = stops[0].city_name;
-      const destination = stops[stops.length - 1].city_name;
-      const routeMapStr = stops.map(s => s.city_name).join(' -> ');
+      const routeMapStr = stops.map(s => s.city_name.trim()).filter(Boolean).join(' -> ');
 
-      await contributionService.submitContribution({
-        type: 'Full Bus Route Map',
-        bus_id: basicInfo.bus_id,
-        companyName: basicInfo.company_name,
-        vehiclePlate: basicInfo.vehicle_plate,
-        contactNumber: basicInfo.contact_number,
-        climateControl: basicInfo.climate_control,
-        serviceType: basicInfo.service_type,
-        origin,
-        destination,
-        routeMap: routeMapStr,
-        stops,
-        userId: currentUser.uid,
-        status: 'approved'
+      const payload = {
+        bus: {
+          bus_id: basicInfo.bus_id,
+          company_name: basicInfo.company_name,
+          vehicle_plate: basicInfo.vehicle_plate,
+          contact_number: basicInfo.contact_number,
+          climate_control: basicInfo.climate_control,
+          service_type: basicInfo.service_type,
+          route_map: routeMapStr,
+        },
+        stops: stops.map((s, idx) => ({
+          stop_sequence: idx + 1,
+          city_name: s.city_name,
+          arrival_time: s.arrival_time,
+          departure_time: s.departure_time,
+          location: s.location,
+          stand: s.stand,
+        }))
+      };
+
+      const res = await fetch('/api/d1/bus/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
 
-      setSuccess(true);
-      setTimeout(onClose, 3000);
+      const responseText = await res.text();
+      let result;
+      try {
+        result = responseText ? JSON.parse(responseText) : { success: false, message: "Empty response from server" };
+      } catch (parseErr) {
+        throw new Error(`Server returned invalid JSON (${res.status}): ${responseText.substring(0, 100) || "Empty response"}`);
+      }
+
+      if (res.ok && result.success) {
+        setSuccess(true);
+        setTimeout(onClose, 3000);
+      } else {
+        throw new Error(result.message || 'Failed to save full bus route map to database.');
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to submit full bus route map. Please try again.');
     } finally {
