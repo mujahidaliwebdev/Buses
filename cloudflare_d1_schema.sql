@@ -55,9 +55,68 @@ ON fares (origin, destination);
 
 
 -- ====================================================================
--- 📥 SEED DATA (Your Actual Google Sheet Data from B-10001 & B-10002)
--- Copy and paste the following SQL lines into your Cloudflare D1 Console!
+-- 4. User Profiles Table (Mirrors Firebase Auth UIDs to public user IDs)
 -- ====================================================================
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id TEXT PRIMARY KEY,
+    public_user_id TEXT UNIQUE NOT NULL,
+    email TEXT,
+    display_name TEXT,
+    photo_url TEXT,
+    mobile TEXT,
+    cnic TEXT,
+    home_city TEXT,
+    gender TEXT,
+    bio TEXT,
+    emergency_contact_name TEXT,
+    emergency_contact_number TEXT,
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_profiles_public_id ON user_profiles(public_user_id);
+
+
+-- ====================================================================
+-- 5. Contributions Table (Full Bus Route Maps & Updates submitted by users)
+-- ====================================================================
+CREATE TABLE IF NOT EXISTS contributions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    public_user_id TEXT NOT NULL,
+    status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
+    company_name TEXT NOT NULL,
+    vehicle_plate TEXT,
+    contact_number TEXT,
+    climate_control TEXT,
+    service_type TEXT,
+    route_map TEXT,
+    assigned_bus_id TEXT,
+    rejection_reason TEXT,
+    submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (public_user_id) REFERENCES user_profiles(public_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contributions_user ON contributions(public_user_id);
+
+
+-- ====================================================================
+-- 6. Contribution Stops Table (Sequenced stops for user contributions)
+-- ====================================================================
+CREATE TABLE IF NOT EXISTS contribution_stops (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contribution_id INTEGER NOT NULL,
+    stop_sequence INTEGER NOT NULL,
+    city_name TEXT NOT NULL,
+    arrival_time TEXT,
+    departure_time TEXT,
+    location TEXT,
+    stand TEXT,
+    FOREIGN KEY (contribution_id) REFERENCES contributions(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_contrib_stops_contrib ON contribution_stops(contribution_id);
+
 
 -- Seed buses:
 INSERT OR REPLACE INTO buses (bus_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES

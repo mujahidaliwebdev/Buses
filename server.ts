@@ -880,6 +880,219 @@ async function startServer() {
     }
   });
 
+  // ====================================================
+  // USER PROFILES & CONTRIBUTIONS (CLOUDFLARE D1 BACKED)
+  // ====================================================
+  const ADMIN_EMAILS = ['mujahidali.webdev@gmail.com', 'mujahidali.stf@gmail.com', 'kanwal200485@gmail.com'];
+  const CNIC_PATTERN = /^\d{5}-\d{7}-\d{1}$/;
+
+  app.post("/api/users/ensure-profile", async (req, res) => {
+    try {
+      const { user_id, email, display_name, photo_url } = req.body;
+      const firebaseUid = String(user_id || "").trim();
+      if (!firebaseUid) return res.status(400).json({ success: false, message: "user_id required" });
+
+      const existingRows = await queryD1("SELECT * FROM user_profiles WHERE user_id = ?", [firebaseUid]);
+      if (existingRows && existingRows.length > 0) {
+        return res.json({ success: true, public_user_id: existingRows[0].public_user_id, isNew: false });
+      }
+
+      const now = new Date();
+      const datePrefix = now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+
+      let publicId = null;
+      for (let attempt = 0; attempt < 5 && !publicId; attempt++) {
+        const countRows = await queryD1("SELECT COUNT(*) AS c FROM user_profiles WHERE public_user_id LIKE ?", [`${datePrefix}%`]);
+        const nextSeq = (countRows[0]?.c || 0) + 1 + attempt;
+        if (nextSeq > 99) break;
+        const candidate = datePrefix + String(nextSeq).padStart(2, '0');
+        try {
+          await queryD1(
+            "INSERT INTO user_profiles (user_id, public_user_id, email, display_name, photo_url) VALUES (?, ?, ?, ?, ?)",
+            [firebaseUid, candidate, email || "", display_name || "", photo_url || ""]
+          );
+          publicId = candidate;
+        } catch (e) {
+          continue;
+        }
+      }
+
+      if (!publicId) {
+        return res.status(500).json({ success: false, message: "Could not generate a unique public user ID" });
+      }
+
+      return res.json({ success: true, public_user_id: publicId, isNew: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.get("/api/users/profile", async (req, res) => {
+    try {
+      const publicUserId = String(req.query.public_user_id || "").trim();
+      if (!publicUserId) return res.status(400).json({ success: false, message: "public_user_id required" });
+
+      const rows = await queryD1("SELECT * FROM user_profiles WHERE public_user_id = ?", [publicUserId]);
+      return res.json({ success: true, profile: rows[0] || null });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/users/profile", async (req, res) => {
+    try {
+      const { public_user_id, display_name, mobile, photo_url, cnic, home_city, gender, bio, emergency_contact_name, emergency_contact_number } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
+
+      if (cnic && !CNIC_PATTERN.test(cnic)) {
+        return res.status(400).json({ success: false, message: "Invalid CNIC format. Use: 33100-8654773-7" });
+      }
+
+      await queryD1(
+        `UPDATE user_profiles SET display_name=?, mobile=?, photo_url=?, cnic=?, home_city=?, gender=?, bio=?, emergency_contact_name=?, emergency_contact_number=?, updated_at=datetime('now') WHERE public_user_id = ?`,
+        [display_name || "", mobile || "", photo_url || "", cnic || "", home_city || "", gender || "", bio || "", emergency_contact_name || "", emergency_contact_number || "", pubId]
+      );
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.get("/api/users/admin/all", async (req, res) => {
+    try {
+      const email = String(req.query.email || "").trim();
+      if (!ADMIN_EMAILS.includes(email)) return res.status(403).json({ success: false, message: "Forbidden" });
+
+      const users = await queryD1("SELECT * FROM user_profiles ORDER BY registration_date DESC");
+      return res.json({ success: true, users: users || [] });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/contributions/submit", async (req, res) => {
+    try {
+      const { public_user_id, bus, stops } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "Not logged in" });
+      const stopList = Array.isArray(stops) ? stops : [];
+      if (stopList.length === 0) return res.status(400).json({ success: false, message: "At least one stop required" });
+
+      const busInfo = bus || {};
+      const insertSql = `INSERT INTO contributions (public_user_id, status, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES ('${pubId.replace(/'/g, "''")}', 'pending', '${String(busInfo.company_name || '').replace(/'/g, "''")}', '${String(busInfo.vehicle_plate || '').replace(/'/g, "''")}', '${String(busInfo.contact_number || '').replace(/'/g, "''")}', '${String(busInfo.climate_control || 'Non-AC').replace(/'/g, "''")}', '${String(busInfo.service_type || 'Standard').replace(/'/g, "''")}', '${String(busInfo.route_map || '').replace(/'/g, "''")}')`;
+      
+      await queryD1(insertSql);
+      const maxRows = await queryD1("SELECT MAX(id) AS maxId FROM contributions WHERE public_user_id = ?", [pubId]);
+      const contribId = maxRows[0]?.maxId;
+
+      if (!contribId) throw new Error("Failed to retrieve inserted contribution ID");
+
+      const stopStatements: string[] = [];
+      stopList.forEach((s: any, idx: number) => {
+        const cityName = String(s.city_name || "").replace(/'/g, "''");
+        const arr = String(s.arrival_time || "").replace(/'/g, "''");
+        const dep = String(s.departure_time || "").replace(/'/g, "''");
+        const loc = String(s.location || "").replace(/'/g, "''");
+        const stand = String(s.stand || "").replace(/'/g, "''");
+        const seq = s.stop_sequence || (idx + 1);
+        stopStatements.push(`INSERT INTO contribution_stops (contribution_id, stop_sequence, city_name, arrival_time, departure_time, location, stand) VALUES (${contribId}, ${seq}, '${cityName}', '${arr}', '${dep}', '${loc}', '${stand}');`);
+      });
+
+      if (stopStatements.length > 0) {
+        await executeBatchD1(stopStatements.join("\n"));
+      }
+
+      return res.json({ success: true, id: contribId });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.get("/api/contributions/mine", async (req, res) => {
+    try {
+      const pubId = String(req.query.public_user_id || "").trim();
+      if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
+
+      const contribs = await queryD1("SELECT * FROM contributions WHERE public_user_id = ? ORDER BY submitted_at DESC", [pubId]);
+      for (const c of contribs) {
+        const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
+        c.stops = stops || [];
+      }
+
+      return res.json({ success: true, contributions: contribs || [] });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.get("/api/contributions/admin/all", async (req, res) => {
+    try {
+      const email = String(req.query.email || "").trim();
+      if (!ADMIN_EMAILS.includes(email)) return res.status(403).json({ success: false, message: "Forbidden" });
+
+      const contribs = await queryD1("SELECT * FROM contributions ORDER BY submitted_at DESC");
+      for (const c of contribs) {
+        const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
+        c.stops = stops || [];
+      }
+
+      return res.json({ success: true, contributions: contribs || [] });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/contributions/:id/approve", async (req, res) => {
+    try {
+      const { admin_email } = req.body;
+      if (!ADMIN_EMAILS.includes(admin_email)) return res.status(403).json({ success: false, message: "Forbidden" });
+      const contribId = req.params.id;
+
+      const contribs = await queryD1("SELECT * FROM contributions WHERE id = ?", [contribId]);
+      const contrib = contribs[0];
+      if (!contrib) return res.status(404).json({ success: false, message: "Not found" });
+
+      const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [contribId]);
+
+      const maxRow = await queryD1("SELECT MAX(CAST(SUBSTR(bus_id, INSTR(bus_id, '-') + 1) AS INTEGER)) AS maxId FROM buses");
+      const nextNum = (maxRow[0]?.maxId || 10000) + 1;
+      const newBusId = `B-${nextNum}`;
+
+      const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
+      const sqlStatements: string[] = [];
+      sqlStatements.push(`INSERT INTO buses (bus_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES (${escapeSql(newBusId)}, ${escapeSql(contrib.company_name)}, ${escapeSql(contrib.vehicle_plate)}, ${escapeSql(contrib.contact_number)}, ${escapeSql(contrib.climate_control)}, ${escapeSql(contrib.service_type)}, ${escapeSql(contrib.route_map)});`);
+
+      stops.forEach((s: any, idx: number) => {
+        sqlStatements.push(`INSERT INTO bus_stops (bus_id, stop_sequence, city_name, arrival_time, departure_time, location, stand) VALUES (${escapeSql(newBusId)}, ${s.stop_sequence || (idx + 1)}, ${escapeSql(s.city_name)}, ${escapeSql(s.arrival_time)}, ${escapeSql(s.departure_time)}, ${escapeSql(s.location)}, ${escapeSql(s.stand)});`);
+      });
+
+      sqlStatements.push(`UPDATE contributions SET status='approved', assigned_bus_id=${escapeSql(newBusId)}, updated_at=datetime('now') WHERE id = ${contribId};`);
+
+      await executeBatchD1(sqlStatements.join("\n"));
+
+      return res.json({ success: true, bus_id: newBusId });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/contributions/:id/reject", async (req, res) => {
+    try {
+      const { admin_email, reason } = req.body;
+      if (!ADMIN_EMAILS.includes(admin_email)) return res.status(403).json({ success: false, message: "Forbidden" });
+      const contribId = req.params.id;
+      const rejReason = String(reason || "Not specified").trim();
+
+      await queryD1("UPDATE contributions SET status='rejected', rejection_reason=?, updated_at=datetime('now') WHERE id = ?", [rejReason, contribId]);
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // Gemini AI Chatbot Route
   app.post("/api/chat", async (req, res) => {
     try {
