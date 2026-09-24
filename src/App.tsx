@@ -194,7 +194,7 @@ function AppContent() {
     if (!user) {
       setShowAuthModal(true);
     } else {
-      setIsSubmitView(true);
+      setShowFullBusModal(true);
     }
   };
 
