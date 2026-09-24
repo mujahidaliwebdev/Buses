@@ -55,67 +55,106 @@ ON fares (origin, destination);
 
 
 -- ====================================================================
--- 4. User Profiles Table (Mirrors Firebase Auth UIDs to public user IDs)
+-- USER SPECIFIC TABLES (SEPARATE FROM MAIN DATABASE)
 -- ====================================================================
-CREATE TABLE IF NOT EXISTS user_profiles (
-    user_id TEXT PRIMARY KEY,
-    public_user_id TEXT UNIQUE NOT NULL,
-    email TEXT,
-    display_name TEXT,
-    photo_url TEXT,
-    mobile TEXT,
-    cnic TEXT,
-    home_city TEXT,
-    gender TEXT,
-    bio TEXT,
-    emergency_contact_name TEXT,
-    emergency_contact_number TEXT,
-    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
 
-CREATE INDEX IF NOT EXISTS idx_user_profiles_public_id ON user_profiles(public_user_id);
-
-
--- ====================================================================
--- 5. Contributions Table (Full Bus Route Maps & Updates submitted by users)
--- ====================================================================
-CREATE TABLE IF NOT EXISTS contributions (
+-- 1. contributions_Bus
+CREATE TABLE IF NOT EXISTS contributions_Bus (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     public_user_id TEXT NOT NULL,
-    status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
-    company_name TEXT NOT NULL,
+    company_name TEXT,
     vehicle_plate TEXT,
     contact_number TEXT,
     climate_control TEXT,
     service_type TEXT,
     route_map TEXT,
     assigned_bus_id TEXT,
-    rejection_reason TEXT,
-    submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (public_user_id) REFERENCES user_profiles(public_user_id)
+    submitted_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    remarks TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending'
 );
 
-CREATE INDEX IF NOT EXISTS idx_contributions_user ON contributions(public_user_id);
-
-
--- ====================================================================
--- 6. Contribution Stops Table (Sequenced stops for user contributions)
--- ====================================================================
-CREATE TABLE IF NOT EXISTS contribution_stops (
+-- 2. contributions_Stops
+CREATE TABLE IF NOT EXISTS contributions_Stops (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     contribution_id INTEGER NOT NULL,
-    stop_sequence INTEGER NOT NULL,
-    city_name TEXT NOT NULL,
+    stop_sequence INTEGER,
+    city_name TEXT,
     arrival_time TEXT,
     departure_time TEXT,
     location TEXT,
     stand TEXT,
-    FOREIGN KEY (contribution_id) REFERENCES contributions(id) ON DELETE CASCADE
+    remarks TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending',
+    FOREIGN KEY (contribution_id) REFERENCES contributions_Bus(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_contrib_stops_contrib ON contribution_stops(contribution_id);
+-- 3. contributions_Fare
+CREATE TABLE IF NOT EXISTS contributions_Fare (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    public_user_id TEXT NOT NULL,
+    origin TEXT,
+    destination TEXT,
+    non_ac INTEGER DEFAULT 0,
+    ac INTEGER DEFAULT 0,
+    executive INTEGER DEFAULT 0,
+    business INTEGER DEFAULT 0,
+    sleeper INTEGER DEFAULT 0,
+    submitted_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    remarks TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending'
+);
+
+-- 4. User_Detail
+CREATE TABLE IF NOT EXISTS User_Detail (
+    user_id TEXT PRIMARY KEY,
+    public_user_id TEXT UNIQUE NOT NULL,
+    email TEXT,
+    display_name TEXT,
+    mobile TEXT,
+    photo_url TEXT,
+    cnic TEXT,
+    home_city TEXT,
+    gender TEXT,
+    bio TEXT,
+    emergency_contact_name TEXT,
+    emergency_contact_number TEXT,
+    registration_date TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- 5. volunteer_card
+CREATE TABLE IF NOT EXISTS volunteer_card (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    public_user_id TEXT NOT NULL,
+    cnic TEXT,
+    home_city TEXT,
+    registration_date TEXT,
+    volunteer_card_id TEXT,
+    submitted_at TEXT DEFAULT (datetime('now')),
+    reviewed_at TEXT,
+    reviewed_by TEXT,
+    remarks TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending'
+);
+
+-- 6. experience_certificate
+CREATE TABLE IF NOT EXISTS experience_certificate (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    public_user_id TEXT NOT NULL,
+    registration_date TEXT,
+    duration_months INTEGER,
+    contributions_count INTEGER,
+    user_notes TEXT,
+    verification_id TEXT,
+    submitted_at TEXT DEFAULT (datetime('now')),
+    reviewed_at TEXT,
+    reviewed_by TEXT,
+    remarks TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending'
+);
 
 
 -- Seed buses:

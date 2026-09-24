@@ -982,10 +982,10 @@ async function startServer() {
       if (stopList.length === 0) return res.status(400).json({ success: false, message: "At least one stop required" });
 
       const busInfo = bus || {};
-      const insertSql = `INSERT INTO contributions (public_user_id, status, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES ('${pubId.replace(/'/g, "''")}', 'pending', '${String(busInfo.company_name || '').replace(/'/g, "''")}', '${String(busInfo.vehicle_plate || '').replace(/'/g, "''")}', '${String(busInfo.contact_number || '').replace(/'/g, "''")}', '${String(busInfo.climate_control || 'Non-AC').replace(/'/g, "''")}', '${String(busInfo.service_type || 'Standard').replace(/'/g, "''")}', '${String(busInfo.route_map || '').replace(/'/g, "''")}')`;
+      const insertSql = `INSERT INTO contributions_Bus (public_user_id, status, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES ('${pubId.replace(/'/g, "''")}', 'Pending', '${String(busInfo.company_name || '').replace(/'/g, "''")}', '${String(busInfo.vehicle_plate || '').replace(/'/g, "''")}', '${String(busInfo.contact_number || '').replace(/'/g, "''")}', '${String(busInfo.climate_control || 'Non-AC').replace(/'/g, "''")}', '${String(busInfo.service_type || 'Standard').replace(/'/g, "''")}', '${String(busInfo.route_map || '').replace(/'/g, "''")}')`;
       
       await queryD1(insertSql);
-      const maxRows = await queryD1("SELECT MAX(id) AS maxId FROM contributions WHERE public_user_id = ?", [pubId]);
+      const maxRows = await queryD1("SELECT MAX(id) AS maxId FROM contributions_Bus WHERE public_user_id = ?", [pubId]);
       const contribId = maxRows[0]?.maxId;
 
       if (!contribId) throw new Error("Failed to retrieve inserted contribution ID");
@@ -998,7 +998,7 @@ async function startServer() {
         const loc = String(s.location || "").replace(/'/g, "''");
         const stand = String(s.stand || "").replace(/'/g, "''");
         const seq = s.stop_sequence || (idx + 1);
-        stopStatements.push(`INSERT INTO contribution_stops (contribution_id, stop_sequence, city_name, arrival_time, departure_time, location, stand) VALUES (${contribId}, ${seq}, '${cityName}', '${arr}', '${dep}', '${loc}', '${stand}');`);
+        stopStatements.push(`INSERT INTO contributions_Stops (contribution_id, stop_sequence, city_name, arrival_time, departure_time, location, stand, status) VALUES (${contribId}, ${seq}, '${cityName}', '${arr}', '${dep}', '${loc}', '${stand}', 'Pending');`);
       });
 
       if (stopStatements.length > 0) {
@@ -1016,9 +1016,9 @@ async function startServer() {
       const pubId = String(req.query.public_user_id || "").trim();
       if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
 
-      const contribs = await queryD1("SELECT * FROM contributions WHERE public_user_id = ? ORDER BY submitted_at DESC", [pubId]);
+      const contribs = await queryD1("SELECT * FROM contributions_Bus WHERE public_user_id = ? ORDER BY submitted_at DESC", [pubId]);
       for (const c of contribs) {
-        const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
+        const stops = await queryD1("SELECT * FROM contributions_Stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
         c.stops = stops || [];
       }
 
@@ -1033,9 +1033,9 @@ async function startServer() {
       const email = String(req.query.email || "").trim();
       if (!ADMIN_EMAILS.includes(email)) return res.status(403).json({ success: false, message: "Forbidden" });
 
-      const contribs = await queryD1("SELECT * FROM contributions ORDER BY submitted_at DESC");
+      const contribs = await queryD1("SELECT * FROM contributions_Bus ORDER BY submitted_at DESC");
       for (const c of contribs) {
-        const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
+        const stops = await queryD1("SELECT * FROM contributions_Stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
         c.stops = stops || [];
       }
 
@@ -1051,11 +1051,11 @@ async function startServer() {
       if (!ADMIN_EMAILS.includes(admin_email)) return res.status(403).json({ success: false, message: "Forbidden" });
       const contribId = req.params.id;
 
-      const contribs = await queryD1("SELECT * FROM contributions WHERE id = ?", [contribId]);
+      const contribs = await queryD1("SELECT * FROM contributions_Bus WHERE id = ?", [contribId]);
       const contrib = contribs[0];
       if (!contrib) return res.status(404).json({ success: false, message: "Not found" });
 
-      const stops = await queryD1("SELECT * FROM contribution_stops WHERE contribution_id = ? ORDER BY stop_sequence", [contribId]);
+      const stops = await queryD1("SELECT * FROM contributions_Stops WHERE contribution_id = ? ORDER BY stop_sequence", [contribId]);
 
       const maxRow = await queryD1("SELECT MAX(CAST(SUBSTR(bus_id, INSTR(bus_id, '-') + 1) AS INTEGER)) AS maxId FROM buses");
       const nextNum = (maxRow[0]?.maxId || 10000) + 1;
@@ -1069,7 +1069,8 @@ async function startServer() {
         sqlStatements.push(`INSERT INTO bus_stops (bus_id, stop_sequence, city_name, arrival_time, departure_time, location, stand) VALUES (${escapeSql(newBusId)}, ${s.stop_sequence || (idx + 1)}, ${escapeSql(s.city_name)}, ${escapeSql(s.arrival_time)}, ${escapeSql(s.departure_time)}, ${escapeSql(s.location)}, ${escapeSql(s.stand)});`);
       });
 
-      sqlStatements.push(`UPDATE contributions SET status='approved', assigned_bus_id=${escapeSql(newBusId)}, updated_at=datetime('now') WHERE id = ${contribId};`);
+      sqlStatements.push(`UPDATE contributions_Bus SET status='Approved', assigned_bus_id=${escapeSql(newBusId)}, updated_at=datetime('now') WHERE id = ${contribId};`);
+      sqlStatements.push(`UPDATE contributions_Stops SET status='Approved' WHERE contribution_id = ${contribId};`);
 
       await executeBatchD1(sqlStatements.join("\n"));
 
@@ -1086,7 +1087,11 @@ async function startServer() {
       const contribId = req.params.id;
       const rejReason = String(reason || "Not specified").trim();
 
-      await queryD1("UPDATE contributions SET status='rejected', rejection_reason=?, updated_at=datetime('now') WHERE id = ?", [rejReason, contribId]);
+      const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
+      await executeBatchD1(`
+        UPDATE contributions_Bus SET status='Rejected', remarks=${escapeSql(rejReason)}, updated_at=datetime('now') WHERE id = ${contribId};
+        UPDATE contributions_Stops SET status='Rejected', remarks=${escapeSql(rejReason)} WHERE contribution_id = ${contribId};
+      `);
       return res.json({ success: true });
     } catch (err: any) {
       return res.status(500).json({ success: false, message: err.message });
