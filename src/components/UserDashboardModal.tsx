@@ -178,6 +178,31 @@ export default function UserDashboardModal({
                 </div>
               </div>
 
+              {/* + Full Bus Route Map and + Update Fares buttons right before Contributed Buses */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <button
+                  onClick={() => {
+                    onClose();
+                    if (onOpenFullBusRouteMap) onOpenFullBusRouteMap();
+                  }}
+                  className="p-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-teal-700/20 cursor-pointer"
+                >
+                  <span>+ Full Bus Route Map</span>
+                  <Layers className="w-4 h-4 text-teal-200" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    onClose();
+                    if (onOpenUpdateFares) onOpenUpdateFares();
+                  }}
+                  className="p-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-700/20 cursor-pointer"
+                >
+                  <span>+ Update Fares</span>
+                  <Tag className="w-4 h-4 text-emerald-200" />
+                </button>
+              </div>
+
               {/* Contributed Buses Table Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -319,34 +344,10 @@ export default function UserDashboardModal({
                 </div>
               </div>
 
-              {/* Quick Actions / Navigation matching the menu request */}
+              {/* Quick Actions / Navigation at bottom */}
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Quick Volunteer Actions</h4>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* + Full Bus Route Map Button */}
-                  <button
-                    onClick={() => {
-                      onClose();
-                      if (onOpenFullBusRouteMap) onOpenFullBusRouteMap();
-                    }}
-                    className="p-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-teal-700/20 cursor-pointer"
-                  >
-                    <span>+ Full Bus Route Map</span>
-                    <Layers className="w-4 h-4 text-teal-200" />
-                  </button>
-
-                  {/* + Update Fares Button */}
-                  <button
-                    onClick={() => {
-                      onClose();
-                      if (onOpenUpdateFares) onOpenUpdateFares();
-                    }}
-                    className="p-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-between transition-all shadow-md shadow-emerald-700/20 cursor-pointer"
-                  >
-                    <span>+ Update Fares</span>
-                    <Tag className="w-4 h-4 text-emerald-200" />
-                  </button>
-
                   <button
                     onClick={() => {
                       onClose();
