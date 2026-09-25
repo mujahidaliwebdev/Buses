@@ -29,7 +29,11 @@ import {
   Activity,
   Award,
   Calendar,
-  ShieldCheck
+  ShieldCheck,
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem, volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
@@ -83,6 +87,13 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [rejectingVCId, setRejectingVCId] = useState<string | null>(null);
   const [vcRejectionReasonInput, setVcRejectionReasonInput] = useState('');
   const [submittingVCReject, setSubmittingVCReject] = useState(false);
+
+  // User route contributions admin states
+  const [contributionFilterStatus, setContributionFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [rejectingContribId, setRejectingContribId] = useState<string | null>(null);
+  const [contribRejectionReason, setContribRejectionReason] = useState('');
+  const [processingContribId, setProcessingContribId] = useState<string | null>(null);
+  const [expandedContribId, setExpandedContribId] = useState<string | null>(null);
 
   // User registration date editor state
   const [editingUserRegDate, setEditingUserRegDate] = useState<{ userId: string; userName: string; currentDate: string } | null>(null);
@@ -344,17 +355,54 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     return unsubscribe;
   }, []);
 
-  // User contributions collection real-time subscription
+  // User contributions collection real-time subscription (Firestore + Cloudflare D1 Unified)
   const [contributions, setContributions] = useState<any[]>([]);
   const [loadingContributions, setLoadingContributions] = useState(true);
 
   React.useEffect(() => {
     const q = query(collection(db, 'contributions'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const fetchedContribs: any[] = [];
       snapshot.forEach(docSnap => {
         fetchedContribs.push({ id: docSnap.id, ...docSnap.data() });
       });
+
+      // Also fetch from D1 user table contributions_Bus & contributions_Stops
+      try {
+        const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+        const d1Res = await fetch(`/api/contributions/admin/all?email=${encodeURIComponent(adminEmail)}`);
+        if (d1Res.ok) {
+          const d1Data = await d1Res.json();
+          if (d1Data.success && Array.isArray(d1Data.contributions)) {
+            for (const d1c of d1Data.contributions) {
+              const alreadyExists = fetchedContribs.some(it => it.d1ContributionId === d1c.id || it.id === `d1-${d1c.id}`);
+              if (!alreadyExists) {
+                fetchedContribs.push({
+                  id: `d1-${d1c.id}`,
+                  d1ContributionId: d1c.id,
+                  companyName: d1c.company_name || 'Bus Service',
+                  origin: d1c.stops?.[0]?.city_name || 'Origin',
+                  destination: d1c.stops?.[d1c.stops?.length - 1]?.city_name || 'Destination',
+                  departureTime: d1c.stops?.[0]?.departure_time || '08:00',
+                  busNumber: d1c.vehicle_plate || 'N/A',
+                  contactNumber: d1c.contact_number,
+                  type: d1c.service_type || 'Standard',
+                  isAC: d1c.climate_control === 'AC',
+                  status: d1c.status || 'Pending',
+                  remarks: d1c.remarks,
+                  submittedAt: d1c.submitted_at,
+                  routeMap: d1c.route_map,
+                  stops: d1c.stops || [],
+                  source: 'Cloudflare D1'
+                });
+              }
+            }
+          }
+        }
+      } catch (d1Err) {
+        console.warn('D1 all fetch note:', d1Err);
+      }
+
       // Sort by submittedAt descending
       fetchedContribs.sort((a, b) => {
         const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
@@ -2709,17 +2757,45 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </button>
 
               <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
-                    <BusIcon className="w-8 h-8" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0 shadow-sm">
+                      <BusIcon className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight">Proposed Schedules</h2>
+                      <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest">
+                        مسافروں کی طرف سے تجویز کردہ روٹس ({contributions.length})
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Proposed Schedules</h2>
-                    <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest">مسافروں کی طرف سے تجویز کردہ روٹس ({contributions.length})</p>
+
+                  {/* Status Filters */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                    {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => {
+                      const count = st === 'all' 
+                        ? contributions.length 
+                        : contributions.filter(c => (c.status || 'pending').toLowerCase() === st).length;
+                      const isActive = contributionFilterStatus === st;
+                      return (
+                        <button
+                          key={st}
+                          onClick={() => setContributionFilterStatus(st)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                            isActive
+                              ? 'bg-white text-slate-900 shadow-sm'
+                              : 'text-slate-500 hover:text-slate-900'
+                          }`}
+                        >
+                          {st} ({count})
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  These routes were suggested by users through the website contribution system. Review, edit if needed, and click <span className="font-bold text-emerald-600">"Approve to Database"</span> to make them live on the app.
+
+                <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                  These routes were suggested by users through the website contribution system. Review full stops, edit if needed, and click <span className="font-bold text-emerald-600">"Approve Route"</span> to make them live on the app. Data remains in place with real-time status updates.
                 </p>
               </div>
 
@@ -2735,125 +2811,471 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                     <p className="text-slate-300 text-xs">مسافروں کی طرف سے تجویز کردہ کوئی روٹ نہیں ہے۔</p>
                   </div>
                 ) : (
-                  contributions.map((contrib) => (
-                    <div 
-                      key={contrib.id} 
-                      className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow"
-                    >
-                      <div className="space-y-3 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-black uppercase tracking-wider rounded-lg">
-                            User Proposal
-                          </span>
-                          <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-lg">
-                            {contrib.type || 'Non-AC'}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-bold ml-auto md:ml-0">
-                            {contrib.submittedAt 
-                              ? new Date(contrib.submittedAt).toLocaleString() 
-                              : 'Recent'}
-                          </span>
-                        </div>
-                        
-                        <div>
-                          <h4 className="font-black text-slate-900 text-xl tracking-tight leading-snug">
-                            {contrib.companyName}
-                          </h4>
-                          <p className="text-emerald-600 font-extrabold text-sm flex items-center gap-2.5 mt-1">
-                            <span>{contrib.origin}</span>
-                            <span className="text-slate-350 font-normal">➔</span>
-                            <span>{contrib.destination}</span>
-                          </p>
-                        </div>
+                  contributions
+                    .filter((contrib) => {
+                      const st = (contrib.status || 'pending').toLowerCase();
+                      if (contributionFilterStatus === 'all') return true;
+                      return st === contributionFilterStatus;
+                    })
+                    .map((contrib) => {
+                      const currentStatus = (contrib.status || 'pending').toLowerCase();
+                      const isApproved = currentStatus === 'approved';
+                      const isRejected = currentStatus === 'rejected';
+                      const isPending = !isApproved && !isRejected;
+                      const isProcessing = processingContribId === contrib.id;
+                      const hasStops = Array.isArray(contrib.stops) && contrib.stops.length > 0;
+                      const isExpanded = expandedContribId === contrib.id;
 
-                        {/* Detailed information row */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/50 p-4 rounded-2xl text-[11px] font-bold text-slate-600">
-                          <div>
-                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Departure</span>
-                            <span className="text-slate-800">{contrib.departureTime}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Arrival</span>
-                            <span className="text-slate-800">{contrib.arrivalTime || 'N/A'}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Duration</span>
-                            <span className="text-slate-800">{contrib.duration || 'N/A'}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Price</span>
-                            <span className="text-emerald-700 font-black">Rs. {contrib.fare}</span>
-                          </div>
-                        </div>
-
-                        {/* Additional identifiers */}
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-slate-500 font-medium">
-                          {contrib.busNumber && (
-                            <div>
-                              <span>Reg/Bus #: </span>
-                              <span className="font-bold text-slate-700">{contrib.busNumber}</span>
-                            </div>
-                          )}
-                          {contrib.contactNumber && (
-                            <div>
-                              <span>Contact Operator: </span>
-                              <span className="font-bold text-slate-700">{contrib.contactNumber}</span>
-                            </div>
-                          )}
-                          {contrib.terminalLocation && (
-                            <div className="w-full">
-                              <span>Terminal: </span>
-                              <span className="font-bold text-slate-700">{contrib.terminalLocation} {contrib.standNumber ? `(Stand ${contrib.standNumber})` : ''}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Control buttons */}
-                      <div className="flex md:flex-col gap-2 w-full md:w-auto shrink-0">
-                        <button
-                          onClick={async () => {
-                            if (confirm('Approve this suggested route? This will make it LIVE on the database. \n\nKya aap is route ko approve kar k database me shamil karna chahte hain?')) {
-                              try {
-                                const { id, submittedAt, userId, ...busData } = contrib;
-                                // Force accurate dynamic defaults
-                                const verifiedBusData = {
-                                  ...busData,
-                                  status: 'On Schedule',
-                                  isAC: busData.isAC ?? (busData.type !== 'Non-AC')
-                                };
-                                await busService.addBus(verifiedBusData);
-                                await contributionService.deleteContribution(id);
-                                alert('Route has been approved and is now live!');
-                              } catch (error) {
-                                console.error(error);
-                                alert('Failed to approve route.');
-                              }
-                            }
-                          }}
-                          className="flex-1 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap shadow-md shadow-emerald-500/10 active:scale-95"
+                      return (
+                        <div 
+                          key={contrib.id} 
+                          className={`bg-white border rounded-[2rem] p-6 shadow-sm flex flex-col justify-between gap-6 transition-all ${
+                            isApproved 
+                              ? 'border-emerald-200 bg-emerald-50/10' 
+                              : isRejected 
+                              ? 'border-rose-200 bg-rose-50/10' 
+                              : 'border-slate-100 hover:shadow-md'
+                          }`}
                         >
-                          ✓ Approve Route
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (confirm('Reject and delete this route suggestion? This action is permanent.')) {
-                              try {
-                                await contributionService.deleteContribution(contrib.id);
-                              } catch (error) {
-                                alert('Failed to reject route.');
-                              }
-                            }
-                          }}
-                          className="px-4 py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold rounded-2xl text-xs uppercase tracking-wider transition-all text-center active:scale-95"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                          <div className="space-y-4">
+                            {/* Badges & Meta */}
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="px-2.5 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider rounded-lg">
+                                  {contrib.source || 'User Proposal'}
+                                </span>
+                                <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[9px] font-bold rounded-lg">
+                                  {contrib.type || 'Non-AC'}
+                                </span>
+                                {contrib.isAC && (
+                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded-lg">
+                                    AC
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Prominent Status Badge */}
+                              <div>
+                                {isApproved && (
+                                  <span className="px-3.5 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-200">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                    Approved (منظور شدہ)
+                                  </span>
+                                )}
+                                {isRejected && (
+                                  <span className="px-3.5 py-1 bg-rose-100 text-rose-800 text-[11px] font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-rose-200">
+                                    <XCircle className="w-4 h-4 text-rose-600" />
+                                    Rejected (مسترد شدہ)
+                                  </span>
+                                )}
+                                {isPending && (
+                                  <span className="px-3.5 py-1 bg-amber-100 text-amber-800 text-[11px] font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-amber-200">
+                                    <Clock className="w-4 h-4 text-amber-600" />
+                                    Pending Review (زیرِ التواء)
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-black text-slate-900 text-xl tracking-tight leading-snug">
+                                  {contrib.companyName}
+                                </h4>
+                                <span className="text-[11px] text-slate-400 font-bold">
+                                  {contrib.submittedAt 
+                                    ? new Date(contrib.submittedAt).toLocaleString() 
+                                    : 'Recent'}
+                                </span>
+                              </div>
+                              <p className="text-emerald-600 font-extrabold text-base flex items-center gap-2.5 mt-1">
+                                <span>{contrib.origin}</span>
+                                <span className="text-slate-350 font-normal">➔</span>
+                                <span>{contrib.destination}</span>
+                              </p>
+                              {contrib.routeMap && (
+                                <p className="text-slate-500 text-xs mt-1 font-medium line-clamp-1">
+                                  <span className="text-slate-400 font-bold">Via:</span> {contrib.routeMap}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Detailed information row */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-2xl text-[11px] font-bold text-slate-600 border border-slate-100">
+                              <div>
+                                <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Departure</span>
+                                <span className="text-slate-800">{contrib.departureTime || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Arrival</span>
+                                <span className="text-slate-800">{contrib.arrivalTime || (hasStops ? contrib.stops[contrib.stops.length - 1]?.arrival_time : 'N/A')}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Duration</span>
+                                <span className="text-slate-800">{contrib.duration || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block text-[9px] uppercase tracking-wider">Estimated Fare</span>
+                                <span className="text-emerald-700 font-black">
+                                  {contrib.fare ? `Rs. ${contrib.fare}` : 'Dynamic / Standard'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Additional identifiers */}
+                            <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-slate-500 font-medium">
+                              {contrib.busNumber && (
+                                <div>
+                                  <span>Reg/Bus #: </span>
+                                  <span className="font-bold text-slate-700">{contrib.busNumber}</span>
+                                </div>
+                              )}
+                              {contrib.contactNumber && (
+                                <div>
+                                  <span>Contact: </span>
+                                  <span className="font-bold text-slate-700">{contrib.contactNumber}</span>
+                                </div>
+                              )}
+                              {contrib.terminalLocation && (
+                                <div>
+                                  <span>Terminal: </span>
+                                  <span className="font-bold text-slate-700">
+                                    {contrib.terminalLocation} {contrib.standNumber ? `(Stand ${contrib.standNumber})` : ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Rejection remarks note */}
+                            {isRejected && contrib.remarks && (
+                              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-start gap-2.5">
+                                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                                <div>
+                                  <span className="font-black uppercase tracking-wider text-[10px] block">Rejection Remarks:</span>
+                                  <span>{contrib.remarks}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Sequential Stops Dropdown View */}
+                            {hasStops && (
+                              <div className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedContribId(isExpanded ? null : contrib.id)}
+                                  className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-black text-slate-700 hover:bg-slate-100/80 transition-colors"
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                                    Complete Stops Route Map ({contrib.stops.length} Stops)
+                                  </span>
+                                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                </button>
+                                
+                                {isExpanded && (
+                                  <div className="p-4 border-t border-slate-200 bg-white space-y-2">
+                                    <div className="grid grid-cols-5 text-[10px] font-black uppercase tracking-wider text-slate-400 pb-1 border-b border-slate-100">
+                                      <span>Seq</span>
+                                      <span>City</span>
+                                      <span>Arrival</span>
+                                      <span>Departure</span>
+                                      <span>Terminal / Stand</span>
+                                    </div>
+                                    {contrib.stops.map((st: any, sIdx: number) => (
+                                      <div key={sIdx} className="grid grid-cols-5 text-xs text-slate-700 py-1 border-b border-slate-50 last:border-b-0 items-center">
+                                        <span className="font-black text-slate-400">#{st.stop_sequence || (sIdx + 1)}</span>
+                                        <span className="font-black text-slate-900">{st.city_name}</span>
+                                        <span className="font-semibold text-slate-600">{st.arrival_time || '--:--'}</span>
+                                        <span className="font-semibold text-slate-600">{st.departure_time || '--:--'}</span>
+                                        <span className="text-[11px] text-slate-500 font-medium truncate">
+                                          {st.location || 'Terminal'} {st.stand ? `(${st.stand})` : ''}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Control buttons: Keeps data in place, updates status */}
+                          <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                            {isPending && (
+                              <>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={async () => {
+                                    if (confirm('Approve this suggested route? This will make it LIVE on the database. \n\nKya aap is route ko approve kar k database me shamil karna chahte hain?')) {
+                                      try {
+                                        setProcessingContribId(contrib.id);
+                                        const { id, submittedAt, userId, ...busData } = contrib;
+                                        const verifiedBusData = {
+                                          ...busData,
+                                          busId: contrib.busId || `B-${Date.now().toString().slice(-5)}`,
+                                          status: 'On Schedule',
+                                          isAC: busData.isAC ?? (busData.type !== 'Non-AC'),
+                                          stopsList: contrib.stops || []
+                                        };
+
+                                        // 1. Add bus to live database
+                                        await busService.addBus(verifiedBusData);
+
+                                        // 2. If Cloudflare D1 record, call approve endpoint
+                                        const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
+                                        if (d1Id) {
+                                          try {
+                                            const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                                            await fetch(`/api/contributions/${d1Id}/approve`, {
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ admin_email: adminEmail })
+                                            });
+                                          } catch (e) {
+                                            console.warn('D1 approve endpoint notice:', e);
+                                          }
+                                        }
+
+                                        // 3. If Firestore record, update status to Approved (KEEP IN PLACE, DO NOT DELETE)
+                                        if (!String(contrib.id).startsWith('d1-')) {
+                                          await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                        }
+
+                                        // Optimistically update local state so card updates in place immediately
+                                        setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Approved' } : c));
+                                        alert('Route has been approved and is now live! Status changed to Approved.');
+                                      } catch (error: any) {
+                                        console.error('Approve error:', error);
+                                        alert('Failed to approve route: ' + (error.message || 'Unknown error'));
+                                      } finally {
+                                        setProcessingContribId(null);
+                                      }
+                                    }
+                                  }}
+                                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-2xl text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap shadow-md shadow-emerald-500/10 active:scale-95 flex items-center gap-2"
+                                >
+                                  {isProcessing ? (
+                                    <>
+                                      <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                      Approving...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Check className="w-4 h-4" />
+                                      Approve Route
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={() => {
+                                    setRejectingContribId(contrib.id);
+                                    setContribRejectionReason('');
+                                  }}
+                                  className="px-5 py-3 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 text-rose-700 font-extrabold rounded-2xl text-xs uppercase tracking-wider transition-all text-center active:scale-95 flex items-center gap-1.5"
+                                >
+                                  <X className="w-4 h-4" />
+                                  Reject
+                                </button>
+                              </>
+                            )}
+
+                            {isApproved && (
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5">
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  Active Live on Schedule
+                                </span>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={() => {
+                                    setRejectingContribId(contrib.id);
+                                    setContribRejectionReason('Changed after approval');
+                                  }}
+                                  className="px-4 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-bold rounded-xl text-xs transition-colors"
+                                >
+                                  Change to Rejected
+                                </button>
+                              </div>
+                            )}
+
+                            {isRejected && (
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold text-rose-700 bg-rose-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5">
+                                  <XCircle className="w-4 h-4" />
+                                  Route Rejected
+                                </span>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={async () => {
+                                    if (confirm('Re-approve this route and make it live?')) {
+                                      try {
+                                        setProcessingContribId(contrib.id);
+                                        const { id, submittedAt, userId, ...busData } = contrib;
+                                        const verifiedBusData = {
+                                          ...busData,
+                                          busId: contrib.busId || `B-${Date.now().toString().slice(-5)}`,
+                                          status: 'On Schedule',
+                                          isAC: busData.isAC ?? (busData.type !== 'Non-AC'),
+                                          stopsList: contrib.stops || []
+                                        };
+                                        await busService.addBus(verifiedBusData);
+
+                                        const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
+                                        if (d1Id) {
+                                          const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                                          await fetch(`/api/contributions/${d1Id}/approve`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ admin_email: adminEmail })
+                                          });
+                                        }
+
+                                        if (!String(contrib.id).startsWith('d1-')) {
+                                          await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                        }
+                                        setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Approved' } : c));
+                                        alert('Route has been re-approved and is now active!');
+                                      } catch (e: any) {
+                                        alert('Re-approve error: ' + (e.message || 'Unknown error'));
+                                      } finally {
+                                        setProcessingContribId(null);
+                                      }
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs transition-colors"
+                                >
+                                  Re-Approve Route
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
                 )}
               </div>
+
+              {/* Rejection Modal Dialog */}
+              <AnimatePresence>
+                {rejectingContribId && (
+                  <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setRejectingContribId(null)}
+                      className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
+                    />
+                    <motion.div 
+                      initial={{ scale: 0.95, y: 15 }}
+                      animate={{ scale: 1, y: 0 }}
+                      exit={{ scale: 0.95, y: 15 }}
+                      className="relative w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4"
+                    >
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+                            <XCircle className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-black text-slate-900">Reject Route Proposal</h3>
+                            <p className="text-xs text-slate-500">Specify why this route suggestion is being rejected</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => setRejectingContribId(null)}
+                          className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-600">
+                          Rejection Reason (مسترد کرنے کی وجہ)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={contribRejectionReason}
+                          onChange={(e) => setContribRejectionReason(e.target.value)}
+                          placeholder="e.g. Duplicate route suggestion, stops schedule incomplete, or timings conflict..."
+                          className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                        />
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            'Duplicate route suggestion',
+                            'Incomplete sequential stops',
+                            'Schedule / timing conflict',
+                            'Inaccurate fares information'
+                          ].map((tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => setContribRejectionReason(tag)}
+                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg transition-colors"
+                            >
+                              + {tag}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setRejectingContribId(null)}
+                          className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          disabled={processingContribId !== null}
+                          onClick={async () => {
+                            if (!rejectingContribId) return;
+                            try {
+                              setProcessingContribId(rejectingContribId);
+                              const target = contributions.find(c => c.id === rejectingContribId);
+                              const reason = contribRejectionReason.trim() || 'Route proposal could not be verified.';
+                              
+                              const d1Id = target?.d1ContributionId || (String(rejectingContribId).startsWith('d1-') ? rejectingContribId.replace('d1-', '') : null);
+                              if (d1Id) {
+                                try {
+                                  const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                                  await fetch(`/api/contributions/${d1Id}/reject`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ admin_email: adminEmail, reason })
+                                  });
+                                } catch (e) {
+                                  console.warn('D1 reject endpoint notice:', e);
+                                }
+                              }
+
+                              if (!String(rejectingContribId).startsWith('d1-')) {
+                                await contributionService.updateContributionStatus(rejectingContribId, 'Rejected', reason);
+                              }
+
+                              // Optimistically update in place - NEVER delete
+                              setContributions(prev => prev.map(c => c.id === rejectingContribId ? { ...c, status: 'Rejected', remarks: reason } : c));
+                              setRejectingContribId(null);
+                              setContribRejectionReason('');
+                              alert('Route proposal has been marked as Rejected. Data remains in place with updated status.');
+                            } catch (err: any) {
+                              alert('Failed to reject route: ' + (err.message || 'Unknown error'));
+                            } finally {
+                              setProcessingContribId(null);
+                            }
+                          }}
+                          className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-rose-500/10 active:scale-95"
+                        >
+                          Confirm Rejection
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         )}

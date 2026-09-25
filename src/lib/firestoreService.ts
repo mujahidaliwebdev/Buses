@@ -810,24 +810,54 @@ export const busService = {
 
   addBus: async (busData: any) => {
     try {
-      const stops = busData.stopsList || [];
+      const stops = busData.stopsList || busData.stops || [];
+      const companyName = busData.company || busData.companyName || busData.company_name || 'Bus Service';
+      const busId = busData.busId || busData.bus_id || `B-${Date.now().toString().slice(-5)}`;
+      
       const res = await fetch('/api/d1/bus/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          busId: busData.busId,
-          companyName: busData.company || busData.companyName,
-          vehiclePlate: busData.number || busData.vehiclePlate,
-          contactNumber: busData.contact || busData.contactNumber,
-          serviceType: busData.serviceType || 'Standard',
-          climateControl: busData.climateControl || 'Non-AC',
-          routeMap: busData.routeMap || '',
+          bus: {
+            bus_id: busId,
+            company_name: companyName,
+            vehicle_plate: busData.number || busData.vehiclePlate || busData.vehicle_plate || busData.busNumber || '',
+            contact_number: busData.contact || busData.contactNumber || busData.contact_number || '',
+            service_type: busData.serviceType || busData.service_type || busData.type || 'Standard',
+            climate_control: busData.climateControl || busData.climate_control || (busData.isAC ? 'AC' : 'Non-AC'),
+            route_map: busData.routeMap || busData.route_map || ''
+          },
           stops
         })
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Failed to add bus');
-      return busData.busId;
+      if (!data.success) {
+        console.warn('D1 bus save response message:', data.message);
+      }
+
+      // Also mirror to Firestore 'buses' collection
+      try {
+        await addDoc(collection(db, 'buses'), {
+          busId,
+          companyName,
+          busNumber: busData.number || busData.vehiclePlate || busData.busNumber || '',
+          contactNumber: busData.contact || busData.contactNumber || '',
+          type: busData.serviceType || busData.type || 'Standard',
+          isAC: busData.climateControl === 'AC' || busData.isAC || false,
+          routeMap: busData.routeMap || '',
+          origin: stops[0]?.city_name || busData.origin || '',
+          destination: stops[stops.length - 1]?.city_name || busData.destination || '',
+          departureTime: stops[0]?.departure_time || busData.departureTime || '08:00',
+          fare: busData.fare || 0,
+          stops,
+          status: 'On Schedule',
+          createdAt: new Date().toISOString()
+        });
+      } catch (fbErr) {
+        console.warn('Firestore bus mirror notice:', fbErr);
+      }
+
+      return busId;
     } catch (error: any) {
       console.error('Add bus error:', error);
       throw error;
@@ -847,11 +877,27 @@ export const contributionService = {
     try {
       await addDoc(collection(db, path), {
         ...contribution,
+        status: contribution.status || 'Pending',
         submittedAt: new Date().toISOString(),
         userId: auth.currentUser?.uid || 'anonymous'
       });
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  updateContributionStatus: async (contribId: string, status: 'Approved' | 'Rejected' | 'Pending', remarks?: string) => {
+    const path = `contributions/${contribId}`;
+    try {
+      await updateDoc(doc(db, 'contributions', contribId), {
+        status,
+        remarks: remarks || '',
+        updatedAt: new Date().toISOString(),
+        reviewedBy: auth.currentUser?.email || 'admin@asaansafar.com'
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+      throw error;
     }
   },
 

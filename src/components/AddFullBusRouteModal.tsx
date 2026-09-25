@@ -133,7 +133,7 @@ export default function AddFullBusRouteModal({ onClose }: AddFullBusRouteModalPr
       // 2. Submit directly to D1 user tables: contributions_Bus & contributions_Stops (Status: Pending)
       const result = await d1UserBridge.submitBusContribution(publicUserId, busPayload, stopsPayload);
 
-      // 3. Also record in user activity/contributions for backward UI compatibility
+      // 3. Also record in user activity/contributions for backward UI compatibility & real-time Admin review
       try {
         await contributionService.submitContribution({
           companyName: basicInfo.company_name,
@@ -146,7 +146,10 @@ export default function AddFullBusRouteModal({ onClose }: AddFullBusRouteModalPr
           isAC: basicInfo.climate_control === 'AC',
           type: basicInfo.service_type,
           routeMap: routeMapStr,
+          stops: stopsPayload,
+          d1ContributionId: result.id || null,
           userId: currentUser.uid,
+          publicUserId: publicUserId,
           status: 'pending'
         });
       } catch (fbErr) {

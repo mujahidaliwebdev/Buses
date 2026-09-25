@@ -86,9 +86,11 @@ CREATE TABLE IF NOT EXISTS contributions_Stops (
     location TEXT,
     stand TEXT,
     remarks TEXT,
-    status TEXT NOT NULL DEFAULT 'Pending',
-    FOREIGN KEY (contribution_id) REFERENCES contributions_Bus(id) ON DELETE CASCADE
+    status TEXT NOT NULL DEFAULT 'Pending'
 );
+
+CREATE INDEX IF NOT EXISTS idx_contrib_stops_cid ON contributions_Stops (contribution_id);
+CREATE INDEX IF NOT EXISTS idx_contrib_bus_puid ON contributions_Bus (public_user_id);
 
 -- 3. contributions_Fare
 CREATE TABLE IF NOT EXISTS contributions_Fare (
