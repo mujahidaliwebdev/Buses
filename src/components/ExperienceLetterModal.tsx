@@ -263,7 +263,7 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
               min-height: 297mm;
               height: 297mm;
               margin: 0 auto;
-              background-image: url('https://asaansafar.com/letter_pad.png');
+              background-image: url('https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is');
               background-size: 100% 100%;
               background-repeat: no-repeat;
               background-position: top center;
