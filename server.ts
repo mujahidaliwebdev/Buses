@@ -1389,6 +1389,56 @@ async function startServer() {
     }
   });
 
+  // Helpers to safely ensure D1 user tables exist
+  const ensureVolunteerCardTable = async () => {
+    try {
+      await queryD1(`
+        CREATE TABLE IF NOT EXISTS volunteer_card (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            public_user_id TEXT NOT NULL,
+            cnic TEXT,
+            home_city TEXT,
+            registration_date TEXT,
+            volunteer_card_id TEXT,
+            remarks TEXT,
+            reviewed_at TEXT,
+            reviewed_by TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            status TEXT NOT NULL DEFAULT 'Pending'
+        );
+      `);
+    } catch (e) {}
+    try { await queryD1(`ALTER TABLE volunteer_card ADD COLUMN reviewed_at TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE volunteer_card ADD COLUMN reviewed_by TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE volunteer_card ADD COLUMN updated_at TEXT;`); } catch (e) {}
+  };
+
+  const ensureExperienceCertificateTable = async () => {
+    try {
+      await queryD1(`
+        CREATE TABLE IF NOT EXISTS experience_certificate (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            public_user_id TEXT NOT NULL,
+            registration_date TEXT,
+            duration_months INTEGER,
+            contributions_count INTEGER,
+            user_notes TEXT,
+            verification_id TEXT,
+            remarks TEXT,
+            reviewed_at TEXT,
+            reviewed_by TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            status TEXT NOT NULL DEFAULT 'Pending'
+        );
+      `);
+    } catch (e) {}
+    try { await queryD1(`ALTER TABLE experience_certificate ADD COLUMN reviewed_at TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE experience_certificate ADD COLUMN reviewed_by TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE experience_certificate ADD COLUMN updated_at TEXT;`); } catch (e) {}
+  };
+
   // 4. User Volunteer Card -> volunteer_card table
   app.post("/api/volunteer-card/submit", async (req, res) => {
     try {
@@ -1396,6 +1446,7 @@ async function startServer() {
       const pubId = String(public_user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
+      await ensureVolunteerCardTable();
       const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
 
       await queryD1(
@@ -1408,6 +1459,111 @@ async function startServer() {
     }
   });
 
+  // Admin Approve Volunteer Card in D1
+  app.post("/api/volunteer-card/approve", async (req, res) => {
+    try {
+      const { public_user_id, user_id, user_email, volunteer_card_id, admin_email } = req.body;
+      let pubId = String(public_user_id || "").trim();
+
+      // Look up public_user_id from User_Detail if missing
+      if (!pubId && (user_id || user_email)) {
+        try {
+          const uRows = await queryD1(
+            "SELECT public_user_id FROM User_Detail WHERE user_id = ? OR email = ? LIMIT 1",
+            [String(user_id || ""), String(user_email || "")]
+          );
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id) {
+            pubId = String(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      if (!pubId && user_id) {
+        pubId = String(user_id);
+      }
+
+      await ensureVolunteerCardTable();
+      const cardId = String(volunteer_card_id || "").trim();
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      let existing: any[] = [];
+      if (pubId) {
+        try {
+          existing = await queryD1("SELECT * FROM volunteer_card WHERE public_user_id = ? ORDER BY id DESC LIMIT 1", [pubId]);
+        } catch (e) {}
+      }
+
+      if (existing && existing.length > 0) {
+        await queryD1(
+          "UPDATE volunteer_card SET status = 'Approved', volunteer_card_id = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
+          [cardId || existing[0].volunteer_card_id || 'Approved', admin, pubId]
+        );
+      } else if (pubId) {
+        await queryD1(
+          "INSERT INTO volunteer_card (public_user_id, volunteer_card_id, status, reviewed_at, reviewed_by, remarks, updated_at) VALUES (?, ?, 'Approved', datetime('now'), ?, 'Approved by Admin', datetime('now'))",
+          [pubId, cardId, admin]
+        );
+      }
+
+      return res.json({ success: true, message: "Volunteer card approved in D1 successfully." });
+    } catch (err: any) {
+      console.error("Error approving volunteer card in D1:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Admin Reject Volunteer Card in D1
+  app.post("/api/volunteer-card/reject", async (req, res) => {
+    try {
+      const { public_user_id, user_id, user_email, reason, admin_email } = req.body;
+      let pubId = String(public_user_id || "").trim();
+
+      if (!pubId && (user_id || user_email)) {
+        try {
+          const uRows = await queryD1(
+            "SELECT public_user_id FROM User_Detail WHERE user_id = ? OR email = ? LIMIT 1",
+            [String(user_id || ""), String(user_email || "")]
+          );
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id) {
+            pubId = String(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      if (!pubId && user_id) {
+        pubId = String(user_id);
+      }
+
+      await ensureVolunteerCardTable();
+      const rejReason = String(reason || "Declined by Admin").trim();
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      let existing: any[] = [];
+      if (pubId) {
+        try {
+          existing = await queryD1("SELECT * FROM volunteer_card WHERE public_user_id = ? ORDER BY id DESC LIMIT 1", [pubId]);
+        } catch (e) {}
+      }
+
+      if (existing && existing.length > 0) {
+        await queryD1(
+          "UPDATE volunteer_card SET status = 'Rejected', remarks = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
+          [rejReason, admin, pubId]
+        );
+      } else if (pubId) {
+        await queryD1(
+          "INSERT INTO volunteer_card (public_user_id, status, remarks, reviewed_at, reviewed_by, updated_at) VALUES (?, 'Rejected', ?, datetime('now'), ?, datetime('now'))",
+          [pubId, rejReason, admin]
+        );
+      }
+
+      return res.json({ success: true, message: "Volunteer card marked as Rejected in D1." });
+    } catch (err: any) {
+      console.error("Error rejecting volunteer card in D1:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // 5. User Experience Certificate -> experience_certificate table
   app.post("/api/experience-certificate/submit", async (req, res) => {
     try {
@@ -1415,6 +1571,7 @@ async function startServer() {
       const pubId = String(public_user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
+      await ensureExperienceCertificateTable();
       const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
 
       await queryD1(
@@ -1423,6 +1580,110 @@ async function startServer() {
 
       return res.json({ success: true, message: "Experience certificate request saved to experience_certificate with Pending status." });
     } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Admin Approve Experience Certificate in D1
+  app.post("/api/experience-certificate/approve", async (req, res) => {
+    try {
+      const { public_user_id, user_id, user_email, verification_id, registration_date, duration_months, contributions_count, admin_email } = req.body;
+      let pubId = String(public_user_id || "").trim();
+
+      if (!pubId && (user_id || user_email)) {
+        try {
+          const uRows = await queryD1(
+            "SELECT public_user_id FROM User_Detail WHERE user_id = ? OR email = ? LIMIT 1",
+            [String(user_id || ""), String(user_email || "")]
+          );
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id) {
+            pubId = String(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      if (!pubId && user_id) {
+        pubId = String(user_id);
+      }
+
+      await ensureExperienceCertificateTable();
+      const verId = String(verification_id || "").trim();
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      let existing: any[] = [];
+      if (pubId) {
+        try {
+          existing = await queryD1("SELECT * FROM experience_certificate WHERE public_user_id = ? ORDER BY id DESC LIMIT 1", [pubId]);
+        } catch (e) {}
+      }
+
+      if (existing && existing.length > 0) {
+        await queryD1(
+          "UPDATE experience_certificate SET status = 'Approved', verification_id = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
+          [verId || existing[0].verification_id || 'Approved', admin, pubId]
+        );
+      } else if (pubId) {
+        await queryD1(
+          "INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, verification_id, status, reviewed_at, reviewed_by, remarks, updated_at) VALUES (?, ?, ?, ?, ?, 'Approved', datetime('now'), ?, 'Approved by Admin', datetime('now'))",
+          [pubId, String(registration_date || ''), Number(duration_months) || 0, Number(contributions_count) || 0, verId, admin]
+        );
+      }
+
+      return res.json({ success: true, message: "Experience certificate approved in D1 successfully." });
+    } catch (err: any) {
+      console.error("Error approving experience certificate in D1:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Admin Reject Experience Certificate in D1
+  app.post("/api/experience-certificate/reject", async (req, res) => {
+    try {
+      const { public_user_id, user_id, user_email, reason, admin_email } = req.body;
+      let pubId = String(public_user_id || "").trim();
+
+      if (!pubId && (user_id || user_email)) {
+        try {
+          const uRows = await queryD1(
+            "SELECT public_user_id FROM User_Detail WHERE user_id = ? OR email = ? LIMIT 1",
+            [String(user_id || ""), String(user_email || "")]
+          );
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id) {
+            pubId = String(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      if (!pubId && user_id) {
+        pubId = String(user_id);
+      }
+
+      await ensureExperienceCertificateTable();
+      const rejReason = String(reason || "Declined by Admin").trim();
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      let existing: any[] = [];
+      if (pubId) {
+        try {
+          existing = await queryD1("SELECT * FROM experience_certificate WHERE public_user_id = ? ORDER BY id DESC LIMIT 1", [pubId]);
+        } catch (e) {}
+      }
+
+      if (existing && existing.length > 0) {
+        await queryD1(
+          "UPDATE experience_certificate SET status = 'Rejected', remarks = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
+          [rejReason, admin, pubId]
+        );
+      } else if (pubId) {
+        await queryD1(
+          "INSERT INTO experience_certificate (public_user_id, status, remarks, reviewed_at, reviewed_by, updated_at) VALUES (?, 'Rejected', ?, datetime('now'), ?, datetime('now'))",
+          [pubId, rejReason, admin]
+        );
+      }
+
+      return res.json({ success: true, message: "Experience certificate marked as Rejected in D1." });
+    } catch (err: any) {
+      console.error("Error rejecting experience certificate in D1:", err);
       return res.status(500).json({ success: false, message: err.message });
     }
   });

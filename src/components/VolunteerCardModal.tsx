@@ -102,6 +102,7 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
       // Also submit request for Admin Dashboard compatibility
       await volunteerCardRequestService.submitRequest({
         userId: currentUser.uid,
+        publicUserId: publicUserId,
         userName: userData.displayName,
         userEmail: userData.email,
         userPhoto: userData.photoURL,

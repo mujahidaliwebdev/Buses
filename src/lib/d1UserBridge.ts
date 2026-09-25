@@ -161,5 +161,92 @@ export const d1UserBridge = {
     } catch (e) {
       return { count: 0, success: false };
     }
+  },
+
+  // 8. Admin Approve Volunteer Card in D1
+  approveVolunteerCard: async (data: {
+    public_user_id?: string;
+    user_id?: string;
+    user_email?: string;
+    volunteer_card_id?: string;
+    admin_email?: string;
+  }): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch('/api/volunteer-card/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    } catch (e: any) {
+      console.warn('d1UserBridge.approveVolunteerCard note:', e);
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 9. Admin Reject Volunteer Card in D1
+  rejectVolunteerCard: async (data: {
+    public_user_id?: string;
+    user_id?: string;
+    user_email?: string;
+    reason?: string;
+    admin_email?: string;
+  }): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch('/api/volunteer-card/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    } catch (e: any) {
+      console.warn('d1UserBridge.rejectVolunteerCard note:', e);
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 10. Admin Approve Experience Certificate in D1
+  approveExperienceCertificate: async (data: {
+    public_user_id?: string;
+    user_id?: string;
+    user_email?: string;
+    verification_id?: string;
+    registration_date?: string;
+    duration_months?: number;
+    contributions_count?: number;
+    admin_email?: string;
+  }): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch('/api/experience-certificate/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    } catch (e: any) {
+      console.warn('d1UserBridge.approveExperienceCertificate note:', e);
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 11. Admin Reject Experience Certificate in D1
+  rejectExperienceCertificate: async (data: {
+    public_user_id?: string;
+    user_id?: string;
+    user_email?: string;
+    reason?: string;
+    admin_email?: string;
+  }): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch('/api/experience-certificate/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    } catch (e: any) {
+      console.warn('d1UserBridge.rejectExperienceCertificate note:', e);
+      return { success: false, message: e.message };
+    }
   }
 };

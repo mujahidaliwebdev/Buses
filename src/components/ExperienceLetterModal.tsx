@@ -209,6 +209,7 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
       // Also submit request for Admin Dashboard compatibility
       await experienceRequestService.submitRequest({
         userId: currentUser.uid,
+        publicUserId: publicUserId,
         userName: volunteerName,
         userEmail: currentUser.email || '',
         userPhoto: currentUser.photoURL || '',
@@ -555,7 +556,7 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
                     width: '100%',
                     maxWidth: '680px',
                     aspectRatio: '1 / 1.414',
-                    backgroundImage: "url('https://asaansafar.com/letter_pad.png')",
+                    backgroundImage: "url('https://lh3.googleusercontent.com/d/1s96a3I35d6BtvHIREvH4ce53tfb1g-Is')",
                     backgroundSize: '100% 100%',
                     backgroundPosition: 'top center',
                     backgroundRepeat: 'no-repeat',

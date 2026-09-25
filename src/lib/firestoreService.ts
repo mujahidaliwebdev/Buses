@@ -14,6 +14,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
+import { d1UserBridge } from './d1UserBridge';
 
 enum OperationType {
   CREATE = 'create',
@@ -331,6 +332,7 @@ export const userService = {
 export interface ExperienceRequestItem {
   id: string;
   userId: string;
+  publicUserId?: string;
   userName: string;
   userEmail: string;
   userPhoto?: string;
@@ -351,6 +353,7 @@ export interface ExperienceRequestItem {
 export interface VolunteerCardRequestItem {
   id: string;
   userId: string;
+  publicUserId?: string;
   userName: string;
   userEmail?: string;
   userPhoto?: string;
@@ -369,6 +372,7 @@ export interface VolunteerCardRequestItem {
 export const volunteerCardRequestService = {
   submitRequest: async (data: {
     userId: string;
+    publicUserId?: string;
     userName: string;
     userEmail?: string;
     userPhoto?: string;
@@ -470,6 +474,19 @@ export const volunteerCardRequestService = {
         volunteerCardId
       }, { merge: true });
 
+      // Synchronize Approval with Cloudflare D1 volunteer_card table
+      try {
+        await d1UserBridge.approveVolunteerCard({
+          public_user_id: reqData?.publicUserId,
+          user_id: targetUserId,
+          user_email: reqData?.userEmail,
+          volunteer_card_id: volunteerCardId,
+          admin_email: reviewerEmail
+        });
+      } catch (d1Err) {
+        console.warn('Notice syncing volunteer card approval to D1:', d1Err);
+      }
+
       return volunteerCardId;
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
@@ -481,12 +498,28 @@ export const volunteerCardRequestService = {
     const path = `volunteer_card_requests/${requestId}`;
     try {
       const reqRef = doc(db, 'volunteer_card_requests', requestId);
+      const snap = await getDoc(reqRef);
+      const reqData = snap.exists() ? snap.data() : null;
+
       await setDoc(reqRef, {
         status: 'rejected',
         reviewedAt: new Date().toISOString(),
         reviewedBy: reviewerEmail,
         rejectionReason
       }, { merge: true });
+
+      // Synchronize Rejection with Cloudflare D1 volunteer_card table
+      try {
+        await d1UserBridge.rejectVolunteerCard({
+          public_user_id: reqData?.publicUserId,
+          user_id: reqData?.userId || requestId,
+          user_email: reqData?.userEmail,
+          reason: rejectionReason,
+          admin_email: reviewerEmail
+        });
+      } catch (d1Err) {
+        console.warn('Notice syncing volunteer card rejection to D1:', d1Err);
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
       throw error;
@@ -497,6 +530,7 @@ export const volunteerCardRequestService = {
 export const experienceRequestService = {
   submitRequest: async (data: {
     userId: string;
+    publicUserId?: string;
     userName: string;
     userEmail?: string;
     userPhoto?: string;
@@ -599,6 +633,22 @@ export const experienceRequestService = {
         certificateId: finalVerificationId
       }, { merge: true });
 
+      // Synchronize Approval with Cloudflare D1 experience_certificate table
+      try {
+        await d1UserBridge.approveExperienceCertificate({
+          public_user_id: reqData?.publicUserId,
+          user_id: targetUserId,
+          user_email: reqData?.userEmail,
+          verification_id: finalVerificationId,
+          registration_date: reqData?.registrationDate,
+          duration_months: reqData?.durationMonths,
+          contributions_count: reqData?.contributionsCount,
+          admin_email: reviewerEmail
+        });
+      } catch (d1Err) {
+        console.warn('Notice syncing experience certificate approval to D1:', d1Err);
+      }
+
       return finalVerificationId;
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
@@ -610,12 +660,28 @@ export const experienceRequestService = {
     const path = `experience_requests/${requestId}`;
     try {
       const reqRef = doc(db, 'experience_requests', requestId);
+      const snap = await getDoc(reqRef);
+      const reqData = snap.exists() ? snap.data() : null;
+
       await setDoc(reqRef, {
         status: 'rejected',
         rejectionReason: reason,
         reviewedAt: new Date().toISOString(),
         reviewedBy: reviewerEmail
       }, { merge: true });
+
+      // Synchronize Rejection with Cloudflare D1 experience_certificate table
+      try {
+        await d1UserBridge.rejectExperienceCertificate({
+          public_user_id: reqData?.publicUserId,
+          user_id: reqData?.userId || requestId,
+          user_email: reqData?.userEmail,
+          reason: reason,
+          admin_email: reviewerEmail
+        });
+      } catch (d1Err) {
+        console.warn('Notice syncing experience certificate rejection to D1:', d1Err);
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, path);
       throw error;
