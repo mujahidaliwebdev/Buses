@@ -1284,68 +1284,66 @@ async function startServer() {
       }
 
       const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, message: "D1 credentials not configured, skipping D1 cleanup", deleted_buses: 0 });
-      }
-
-      if (target_user_id) {
-        try {
-          const userRows = await queryD1("SELECT public_user_id FROM User_Detail WHERE user_id = ?", [target_user_id]);
-          userRows.forEach((r: any) => {
-            if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
-              pubIds.push(r.public_user_id);
-            }
-          });
-        } catch (e) {}
-      }
-
-      if (target_user_name) {
-        try {
-          const userRows = await queryD1(
-            "SELECT public_user_id FROM User_Detail WHERE LOWER(display_name) LIKE ? OR LOWER(email) LIKE ?", 
-            [`%${String(target_user_name).toLowerCase().trim()}%`, `%${String(target_user_name).toLowerCase().trim()}%`]
-          );
-          userRows.forEach((r: any) => {
-            if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
-              pubIds.push(r.public_user_id);
-            }
-          });
-        } catch (e) {}
-      }
-
       let deletedStops = 0;
       let deletedBuses = 0;
 
-      for (const pId of pubIds) {
-        try {
-          const contribRows = await queryD1("SELECT id FROM contributions_Bus WHERE public_user_id = ?", [pId]);
-          const contribIds = contribRows.map((r: any) => r.id).filter(Boolean);
-          
-          if (contribIds.length > 0) {
-            const inList = contribIds.join(",");
-            await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
-            deletedStops += contribIds.length;
-          }
-
-          await queryD1("DELETE FROM contributions_Bus WHERE public_user_id = ?", [pId]);
-          deletedBuses += contribRows.length;
-        } catch (delErr) {
-          console.warn("Notice deleting D1 user contributions:", delErr);
+      if (config.accountId && config.databaseId && config.apiToken) {
+        if (target_user_id) {
+          try {
+            const userRows = await queryD1("SELECT public_user_id FROM User_Detail WHERE user_id = ?", [target_user_id]);
+            userRows.forEach((r: any) => {
+              if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
+                pubIds.push(r.public_user_id);
+              }
+            });
+          } catch (e) {}
         }
-      }
 
-      // Also if target_user_name is Naeem Khan or contains TEST, delete any orphaned TEST entries
-      if (String(target_user_name || '').toLowerCase().includes('naeem')) {
-        try {
-          const testRows = await queryD1("SELECT id FROM contributions_Bus WHERE company_name LIKE '%TEST%' OR company_name LIKE '%Test%'");
-          const testIds = testRows.map((r: any) => r.id).filter(Boolean);
-          if (testIds.length > 0) {
-            const inList = testIds.join(",");
-            await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
-            await queryD1(`DELETE FROM contributions_Bus WHERE id IN (${inList})`);
-            deletedBuses += testIds.length;
+        if (target_user_name) {
+          try {
+            const userRows = await queryD1(
+              "SELECT public_user_id FROM User_Detail WHERE LOWER(display_name) LIKE ? OR LOWER(email) LIKE ?", 
+              [`%${String(target_user_name).toLowerCase().trim()}%`, `%${String(target_user_name).toLowerCase().trim()}%`]
+            );
+            userRows.forEach((r: any) => {
+              if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
+                pubIds.push(r.public_user_id);
+              }
+            });
+          } catch (e) {}
+        }
+
+        for (const pId of pubIds) {
+          try {
+            const contribRows = await queryD1("SELECT id FROM contributions_Bus WHERE public_user_id = ?", [pId]);
+            const contribIds = contribRows.map((r: any) => r.id).filter(Boolean);
+            
+            if (contribIds.length > 0) {
+              const inList = contribIds.join(",");
+              await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
+              deletedStops += contribIds.length;
+            }
+
+            await queryD1("DELETE FROM contributions_Bus WHERE public_user_id = ?", [pId]);
+            deletedBuses += contribRows.length;
+          } catch (delErr) {
+            console.warn("Notice deleting D1 user contributions:", delErr);
           }
-        } catch (e) {}
+        }
+
+        // If target_user_name is Naeem Khan or contains naeem / test, clear ALL test/sample/naeem contributions in D1
+        if (String(target_user_name || '').toLowerCase().includes('naeem') || String(target_user_name || '').toLowerCase().includes('test')) {
+          try {
+            const testRows = await queryD1("SELECT id FROM contributions_Bus WHERE LOWER(company_name) LIKE '%test%' OR LOWER(company_name) LIKE '%naeem%' OR LOWER(vehicle_plate) LIKE '%test%' OR LOWER(vehicle_plate) LIKE '%abc%'");
+            const testIds = testRows.map((r: any) => r.id).filter(Boolean);
+            if (testIds.length > 0) {
+              const inList = testIds.join(",");
+              await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
+              await queryD1(`DELETE FROM contributions_Bus WHERE id IN (${inList})`);
+              deletedBuses += testIds.length;
+            }
+          } catch (e) {}
+        }
       }
 
       return res.json({
