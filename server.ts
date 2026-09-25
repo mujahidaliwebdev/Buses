@@ -1213,36 +1213,13 @@ async function startServer() {
       }
       const contribId = req.params.id;
 
-      const contribs = await queryD1("SELECT * FROM contributions_Bus WHERE id = ?", [contribId]);
-      const contrib = contribs[0];
-      if (!contrib) return res.status(404).json({ success: false, message: "Contribution record not found" });
+      // Update status in place ONLY - DO NOT copy or move to buses or any other table
+      await executeBatchD1(`
+        UPDATE contributions_Bus SET status='Approved', updated_at=datetime('now') WHERE id = ${contribId};
+        UPDATE contributions_Stops SET status='Approved' WHERE contribution_id = ${contribId};
+      `);
 
-      let stops: any[] = [];
-      try {
-        stops = await queryD1("SELECT * FROM contributions_Stops WHERE contribution_id = ? ORDER BY stop_sequence", [contribId]);
-      } catch (sErr) {
-        stops = [];
-      }
-
-      const maxRow = await queryD1("SELECT MAX(CAST(SUBSTR(bus_id, INSTR(bus_id, '-') + 1) AS INTEGER)) AS maxId FROM buses");
-      const nextNum = (maxRow[0]?.maxId || 10000) + 1;
-      const newBusId = `B-${nextNum}`;
-
-      const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
-      const sqlStatements: string[] = [];
-      sqlStatements.push(`INSERT OR REPLACE INTO buses (bus_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map) VALUES (${escapeSql(newBusId)}, ${escapeSql(contrib.company_name)}, ${escapeSql(contrib.vehicle_plate)}, ${escapeSql(contrib.contact_number)}, ${escapeSql(contrib.climate_control)}, ${escapeSql(contrib.service_type)}, ${escapeSql(contrib.route_map)});`);
-
-      stops.forEach((s: any, idx: number) => {
-        sqlStatements.push(`INSERT OR REPLACE INTO bus_stops (bus_id, stop_sequence, city_name, arrival_time, departure_time, location, stand) VALUES (${escapeSql(newBusId)}, ${s.stop_sequence || (idx + 1)}, ${escapeSql(s.city_name)}, ${escapeSql(s.arrival_time)}, ${escapeSql(s.departure_time)}, ${escapeSql(s.location)}, ${escapeSql(s.stand)});`);
-      });
-
-      // Update status in place - NEVER delete the record so admin and user can see its history
-      sqlStatements.push(`UPDATE contributions_Bus SET status='Approved', assigned_bus_id=${escapeSql(newBusId)}, updated_at=datetime('now') WHERE id = ${contribId};`);
-      sqlStatements.push(`UPDATE contributions_Stops SET status='Approved' WHERE contribution_id = ${contribId};`);
-
-      await executeBatchD1(sqlStatements.join("\n"));
-
-      return res.json({ success: true, bus_id: newBusId });
+      return res.json({ success: true, message: "Status changed to Approved" });
     } catch (err: any) {
       console.error("Error approving contribution in D1:", err);
       return res.status(500).json({ success: false, message: err.message });
@@ -1259,14 +1236,36 @@ async function startServer() {
       const rejReason = String(reason || "Not specified").trim();
 
       const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
-      // Update status in place - NEVER delete the record so admin and user can see its history
+      // Update status in place ONLY - DO NOT copy, move, or delete records
       await executeBatchD1(`
         UPDATE contributions_Bus SET status='Rejected', remarks=${escapeSql(rejReason)}, updated_at=datetime('now') WHERE id = ${contribId};
-        UPDATE contributions_Stops SET status='Rejected', remarks=${escapeSql(rejReason)} WHERE contribution_id = ${contribId};
+        UPDATE contributions_Stops SET status='Rejected' WHERE contribution_id = ${contribId};
       `);
-      return res.json({ success: true });
+      return res.json({ success: true, message: "Status changed to Rejected" });
     } catch (err: any) {
       console.error("Error rejecting contribution in D1:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  app.post("/api/contributions/:id/status", async (req, res) => {
+    try {
+      const { admin_email, status, reason } = req.body;
+      if (admin_email && !ADMIN_EMAILS.includes(admin_email) && !admin_email.includes('admin')) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
+      const contribId = req.params.id;
+      const targetStatus = status === 'Approved' ? 'Approved' : (status === 'Rejected' ? 'Rejected' : 'Pending');
+      const remarksVal = String(reason || '').trim();
+      const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
+
+      await executeBatchD1(`
+        UPDATE contributions_Bus SET status=${escapeSql(targetStatus)}, remarks=${escapeSql(remarksVal)}, updated_at=datetime('now') WHERE id = ${contribId};
+        UPDATE contributions_Stops SET status=${escapeSql(targetStatus)} WHERE contribution_id = ${contribId};
+      `);
+      return res.json({ success: true, status: targetStatus });
+    } catch (err: any) {
+      console.error("Error updating contribution status in D1:", err);
       return res.status(500).json({ success: false, message: err.message });
     }
   });

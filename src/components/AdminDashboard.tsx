@@ -2998,51 +2998,49 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                             )}
                           </div>
 
-                          {/* Control buttons: Keeps data in place, updates status */}
+                          {/* Control buttons: Keeps data in place, updates status ONLY (No copy/move) */}
                           <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100">
                             {isPending && (
                               <>
                                 <button
                                   disabled={isProcessing}
                                   onClick={async () => {
-                                    if (confirm('Approve this suggested route? This will make it LIVE on the database. \n\nKya aap is route ko approve kar k database me shamil karna chahte hain?')) {
+                                    if (confirm('Approve this suggested route? Status will change to Approved. Data will remain in place without moving or copying. \n\nKya aap is route ko approve karna chahte hain? Status Approved ho jaye ga aur data isi jaga rahy ga.')) {
                                       try {
                                         setProcessingContribId(contrib.id);
-                                        const { id, submittedAt, userId, ...busData } = contrib;
-                                        const verifiedBusData = {
-                                          ...busData,
-                                          busId: contrib.busId || `B-${Date.now().toString().slice(-5)}`,
-                                          status: 'On Schedule',
-                                          isAC: busData.isAC ?? (busData.type !== 'Non-AC'),
-                                          stopsList: contrib.stops || []
-                                        };
 
-                                        // 1. Add bus to live database
-                                        await busService.addBus(verifiedBusData);
-
-                                        // 2. If Cloudflare D1 record, call approve endpoint
+                                        // 1. If Cloudflare D1 record, call approve endpoint (Updates status in contributions_Bus & contributions_Stops)
                                         const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
                                         if (d1Id) {
                                           try {
-                                            const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
-                                            await fetch(`/api/contributions/${d1Id}/approve`, {
+                                            const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                                            const res = await fetch(`/api/contributions/${d1Id}/approve`, {
                                               method: 'POST',
                                               headers: { 'Content-Type': 'application/json' },
                                               body: JSON.stringify({ admin_email: adminEmail })
                                             });
-                                          } catch (e) {
+                                            if (!res.ok) {
+                                              const errData = await res.json().catch(() => ({}));
+                                              throw new Error(errData.message || 'Server error on approving route');
+                                            }
+                                          } catch (e: any) {
                                             console.warn('D1 approve endpoint notice:', e);
+                                            throw e;
                                           }
                                         }
 
-                                        // 3. If Firestore record, update status to Approved (KEEP IN PLACE, DO NOT DELETE)
+                                        // 2. If Firestore record, update status to Approved (KEEP IN PLACE, DO NOT DELETE OR COPY)
                                         if (!String(contrib.id).startsWith('d1-')) {
-                                          await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                          try {
+                                            await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                          } catch (fbErr) {
+                                            console.warn('Notice updating Firestore contribution status:', fbErr);
+                                          }
                                         }
 
-                                        // Optimistically update local state so card updates in place immediately
+                                        // 3. Optimistically update local state so card updates in place immediately
                                         setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Approved' } : c));
-                                        alert('Route has been approved and is now live! Status changed to Approved.');
+                                        alert('Route status has been changed to Approved (منظور شدہ). Data remains in place with updated status.');
                                       } catch (error: any) {
                                         console.error('Approve error:', error);
                                         alert('Failed to approve route: ' + (error.message || 'Unknown error'));
@@ -3080,10 +3078,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                             )}
 
                             {isApproved && (
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  Active Live on Schedule
+                              <div className="flex flex-wrap items-center gap-2.5">
+                                <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5 border border-emerald-200">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                  Approved
                                 </span>
                                 <button
                                   disabled={isProcessing}
@@ -3091,38 +3089,63 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                                     setRejectingContribId(contrib.id);
                                     setContribRejectionReason('Changed after approval');
                                   }}
-                                  className="px-4 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-bold rounded-xl text-xs transition-colors"
+                                  className="px-3.5 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5"
                                 >
+                                  <X className="w-3.5 h-3.5" />
                                   Change to Rejected
+                                </button>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={async () => {
+                                    if (confirm('Revert this route status back to Pending? \n\nKya aap is route ko wapis Pending status me lana chahte hain?')) {
+                                      try {
+                                        setProcessingContribId(contrib.id);
+                                        const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
+                                        if (d1Id) {
+                                          const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                                          await fetch(`/api/contributions/${d1Id}/status`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ admin_email: adminEmail, status: 'Pending' })
+                                          });
+                                        }
+                                        if (!String(contrib.id).startsWith('d1-')) {
+                                          try {
+                                            await contributionService.updateContributionStatus(contrib.id, 'Pending', '');
+                                          } catch (e) {}
+                                        }
+                                        setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Pending', remarks: '' } : c));
+                                        alert('Status reverted to Pending. Data remains in place.');
+                                      } catch (e: any) {
+                                        alert('Error reverting status: ' + (e.message || 'Unknown error'));
+                                      } finally {
+                                        setProcessingContribId(null);
+                                      }
+                                    }
+                                  }}
+                                  className="px-3.5 py-2 bg-slate-100 hover:bg-amber-50 text-slate-600 hover:text-amber-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5"
+                                >
+                                  <Clock className="w-3.5 h-3.5" />
+                                  Revert to Pending
                                 </button>
                               </div>
                             )}
 
                             {isRejected && (
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-rose-700 bg-rose-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                                  <XCircle className="w-4 h-4" />
-                                  Route Rejected
+                              <div className="flex flex-wrap items-center gap-2.5">
+                                <span className="text-xs font-bold text-rose-700 bg-rose-100/70 px-4 py-2 rounded-xl flex items-center gap-1.5 border border-rose-200">
+                                  <XCircle className="w-4 h-4 text-rose-600" />
+                                  Rejected
                                 </span>
                                 <button
                                   disabled={isProcessing}
                                   onClick={async () => {
-                                    if (confirm('Re-approve this route and make it live?')) {
+                                    if (confirm('Approve this rejected route? Status will change to Approved. Data remains in place without copying. \n\nKya aap is route ko approve karna chahte hain?')) {
                                       try {
                                         setProcessingContribId(contrib.id);
-                                        const { id, submittedAt, userId, ...busData } = contrib;
-                                        const verifiedBusData = {
-                                          ...busData,
-                                          busId: contrib.busId || `B-${Date.now().toString().slice(-5)}`,
-                                          status: 'On Schedule',
-                                          isAC: busData.isAC ?? (busData.type !== 'Non-AC'),
-                                          stopsList: contrib.stops || []
-                                        };
-                                        await busService.addBus(verifiedBusData);
-
                                         const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
                                         if (d1Id) {
-                                          const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                                          const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
                                           await fetch(`/api/contributions/${d1Id}/approve`, {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
@@ -3131,20 +3154,57 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                                         }
 
                                         if (!String(contrib.id).startsWith('d1-')) {
-                                          await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                          try {
+                                            await contributionService.updateContributionStatus(contrib.id, 'Approved');
+                                          } catch (e) {}
                                         }
                                         setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Approved' } : c));
-                                        alert('Route has been re-approved and is now active!');
+                                        alert('Route has been approved! Status changed to Approved.');
                                       } catch (e: any) {
-                                        alert('Re-approve error: ' + (e.message || 'Unknown error'));
+                                        alert('Approve error: ' + (e.message || 'Unknown error'));
                                       } finally {
                                         setProcessingContribId(null);
                                       }
                                     }
                                   }}
-                                  className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs transition-colors"
+                                  className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5"
                                 >
-                                  Re-Approve Route
+                                  <Check className="w-3.5 h-3.5" />
+                                  Approve Route
+                                </button>
+                                <button
+                                  disabled={isProcessing}
+                                  onClick={async () => {
+                                    if (confirm('Revert this route status back to Pending? \n\nKya aap is route ko wapis Pending status me lana chahte hain?')) {
+                                      try {
+                                        setProcessingContribId(contrib.id);
+                                        const d1Id = contrib.d1ContributionId || (String(contrib.id).startsWith('d1-') ? contrib.id.replace('d1-', '') : null);
+                                        if (d1Id) {
+                                          const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                                          await fetch(`/api/contributions/${d1Id}/status`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ admin_email: adminEmail, status: 'Pending' })
+                                          });
+                                        }
+                                        if (!String(contrib.id).startsWith('d1-')) {
+                                          try {
+                                            await contributionService.updateContributionStatus(contrib.id, 'Pending', '');
+                                          } catch (e) {}
+                                        }
+                                        setContributions(prev => prev.map(c => c.id === contrib.id ? { ...c, status: 'Pending', remarks: '' } : c));
+                                        alert('Status reverted to Pending. Data remains in place.');
+                                      } catch (e: any) {
+                                        alert('Error reverting status: ' + (e.message || 'Unknown error'));
+                                      } finally {
+                                        setProcessingContribId(null);
+                                      }
+                                    }
+                                  }}
+                                  className="px-3.5 py-2 bg-slate-100 hover:bg-amber-50 text-slate-600 hover:text-amber-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5"
+                                >
+                                  <Clock className="w-3.5 h-3.5" />
+                                  Revert to Pending
                                 </button>
                               </div>
                             )}
