@@ -909,6 +909,53 @@ export const contributionService = {
       handleFirestoreError(error, OperationType.DELETE, path);
       throw error;
     }
+  },
+
+  resetUserContributions: async (targetUserId: string, targetNameOrEmail?: string) => {
+    const path = 'contributions';
+    let deletedCount = 0;
+    try {
+      // 1. Delete all records matching userId
+      if (targetUserId) {
+        try {
+          const q = query(collection(db, path), where('userId', '==', targetUserId));
+          const snap = await getDocs(q);
+          for (const d of snap.docs) {
+            await deleteDoc(d.ref);
+            deletedCount++;
+          }
+        } catch (e) {
+          console.warn("Notice querying contributions by userId:", e);
+        }
+      }
+
+      // 2. Also search all contributions if targetNameOrEmail is given
+      if (targetNameOrEmail) {
+        try {
+          const lowerTarget = targetNameOrEmail.toLowerCase().trim();
+          const allSnap = await getDocs(collection(db, path));
+          for (const d of allSnap.docs) {
+            const data = d.data();
+            const matches = 
+              (data.userId && data.userId === targetUserId) ||
+              (data.userName && String(data.userName).toLowerCase().includes(lowerTarget)) ||
+              (data.displayName && String(data.displayName).toLowerCase().includes(lowerTarget)) ||
+              (data.userEmail && String(data.userEmail).toLowerCase().includes(lowerTarget));
+            if (matches) {
+              await deleteDoc(d.ref);
+              deletedCount++;
+            }
+          }
+        } catch (e) {
+          console.warn("Notice checking all contributions:", e);
+        }
+      }
+
+      return deletedCount;
+    } catch (error) {
+      console.warn('Notice resetting Firestore contributions:', error);
+      return deletedCount;
+    }
   }
 };
 

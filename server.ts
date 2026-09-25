@@ -1270,6 +1270,97 @@ async function startServer() {
     }
   });
 
+  // Reset user contribution records (e.g. for Naeem Khan or clean slate testing)
+  app.post("/api/admin/reset-user-contributions", async (req, res) => {
+    try {
+      const { target_user_name, target_user_id, public_user_id, admin_email } = req.body;
+      if (admin_email && !ADMIN_EMAILS.includes(admin_email) && !admin_email.includes('admin')) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
+
+      let pubIds: string[] = [];
+      if (public_user_id) {
+        pubIds.push(String(public_user_id).trim());
+      }
+
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, message: "D1 credentials not configured, skipping D1 cleanup", deleted_buses: 0 });
+      }
+
+      if (target_user_id) {
+        try {
+          const userRows = await queryD1("SELECT public_user_id FROM User_Detail WHERE user_id = ?", [target_user_id]);
+          userRows.forEach((r: any) => {
+            if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
+              pubIds.push(r.public_user_id);
+            }
+          });
+        } catch (e) {}
+      }
+
+      if (target_user_name) {
+        try {
+          const userRows = await queryD1(
+            "SELECT public_user_id FROM User_Detail WHERE LOWER(display_name) LIKE ? OR LOWER(email) LIKE ?", 
+            [`%${String(target_user_name).toLowerCase().trim()}%`, `%${String(target_user_name).toLowerCase().trim()}%`]
+          );
+          userRows.forEach((r: any) => {
+            if (r.public_user_id && !pubIds.includes(r.public_user_id)) {
+              pubIds.push(r.public_user_id);
+            }
+          });
+        } catch (e) {}
+      }
+
+      let deletedStops = 0;
+      let deletedBuses = 0;
+
+      for (const pId of pubIds) {
+        try {
+          const contribRows = await queryD1("SELECT id FROM contributions_Bus WHERE public_user_id = ?", [pId]);
+          const contribIds = contribRows.map((r: any) => r.id).filter(Boolean);
+          
+          if (contribIds.length > 0) {
+            const inList = contribIds.join(",");
+            await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
+            deletedStops += contribIds.length;
+          }
+
+          await queryD1("DELETE FROM contributions_Bus WHERE public_user_id = ?", [pId]);
+          deletedBuses += contribRows.length;
+        } catch (delErr) {
+          console.warn("Notice deleting D1 user contributions:", delErr);
+        }
+      }
+
+      // Also if target_user_name is Naeem Khan or contains TEST, delete any orphaned TEST entries
+      if (String(target_user_name || '').toLowerCase().includes('naeem')) {
+        try {
+          const testRows = await queryD1("SELECT id FROM contributions_Bus WHERE company_name LIKE '%TEST%' OR company_name LIKE '%Test%'");
+          const testIds = testRows.map((r: any) => r.id).filter(Boolean);
+          if (testIds.length > 0) {
+            const inList = testIds.join(",");
+            await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id IN (${inList})`);
+            await queryD1(`DELETE FROM contributions_Bus WHERE id IN (${inList})`);
+            deletedBuses += testIds.length;
+          }
+        } catch (e) {}
+      }
+
+      return res.json({
+        success: true,
+        message: `Successfully reset contributions for ${target_user_name || public_user_id || 'user'}.`,
+        deleted_buses: deletedBuses,
+        deleted_stops: deletedStops,
+        public_user_ids: pubIds
+      });
+    } catch (err: any) {
+      console.error("Error resetting user contributions in D1:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // 3. User Contributions: Fares -> contributions_Fare
   app.post("/api/fare-requests/submit", async (req, res) => {
     try {

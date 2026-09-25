@@ -2770,8 +2770,34 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                     </div>
                   </div>
 
-                  {/* Status Filters */}
-                  <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                  {/* Status Filters & Reset Button */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={async () => {
+                        if (confirm('Reset all contribution records for Naeem Khan? This will clear his previous entries so his report and dashboard stats start fresh. \n\nKya aap Naeem Khan ka data reset karna chahte hain?')) {
+                          try {
+                            const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
+                            const res = await fetch('/api/admin/reset-user-contributions', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ target_user_name: 'Naeem Khan', admin_email: adminEmail })
+                            });
+                            const data = await res.json();
+                            
+                            await contributionService.resetUserContributions('', 'Naeem Khan');
+                            
+                            alert(`Successfully reset data for Naeem Khan! Cleared ${data.deleted_buses || 0} entries.`);
+                            window.location.reload();
+                          } catch (err: any) {
+                            alert('Failed to reset user data: ' + err.message);
+                          }
+                        }
+                      }}
+                      className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold rounded-xl text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm"
+                    >
+                      🔄 Reset Naeem Khan Data
+                    </button>
+                    <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
                     {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => {
                       const count = st === 'all' 
                         ? contributions.length 
@@ -2791,6 +2817,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         </button>
                       );
                     })}
+                    </div>
                   </div>
                 </div>
 

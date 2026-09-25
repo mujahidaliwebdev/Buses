@@ -131,7 +131,7 @@ service cloud.firestore {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn() && isValidContribution(incoming());
       allow update: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
     // 4. Feedback, Complaints, Reports, Route Queries
