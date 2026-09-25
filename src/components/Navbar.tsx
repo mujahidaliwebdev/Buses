@@ -107,6 +107,15 @@ export default function Navbar({
             >
               Popular Routes
             </button>
+            {user && (
+              <button 
+                onClick={() => setShowDashboardModal(true)}
+                className={`flex items-center gap-1.5 ${activeTab === 'dashboard' ? 'text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-emerald-600" />
+                <span>User Dashboard</span>
+              </button>
+            )}
             {isAdmin && (
               <button 
                 onClick={onAdminClick}
@@ -312,15 +321,16 @@ export default function Navbar({
                   <span>Android App (.APK)</span>
                 </button>
               )}
-              {isAdmin && (
+              {user && (
                 <button 
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    onAdminClick?.();
+                    setShowDashboardModal(true);
                   }}
-                  className={`w-full text-left py-3 px-4 rounded-xl transition-all ${activeTab === 'admin' ? 'text-emerald-600 bg-emerald-50' : 'hover:text-emerald-600 hover:bg-slate-50'}`}
+                  className="w-full text-left py-3 px-4 rounded-xl transition-all text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50 hover:text-emerald-800 flex items-center gap-2"
                 >
-                  Admin Panel
+                  <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                  <span>User Dashboard</span>
                 </button>
               )}
             </div>
