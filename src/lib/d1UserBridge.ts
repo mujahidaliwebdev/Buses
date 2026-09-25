@@ -165,6 +165,7 @@ export const d1UserBridge = {
 
   // 8. Admin Approve Volunteer Card in D1
   approveVolunteerCard: async (data: {
+    id?: number | string;
     public_user_id?: string;
     user_id?: string;
     user_email?: string;
@@ -186,6 +187,7 @@ export const d1UserBridge = {
 
   // 9. Admin Reject Volunteer Card in D1
   rejectVolunteerCard: async (data: {
+    id?: number | string;
     public_user_id?: string;
     user_id?: string;
     user_email?: string;
@@ -207,6 +209,7 @@ export const d1UserBridge = {
 
   // 10. Admin Approve Experience Certificate in D1
   approveExperienceCertificate: async (data: {
+    id?: number | string;
     public_user_id?: string;
     user_id?: string;
     user_email?: string;
@@ -231,6 +234,7 @@ export const d1UserBridge = {
 
   // 11. Admin Reject Experience Certificate in D1
   rejectExperienceCertificate: async (data: {
+    id?: number | string;
     public_user_id?: string;
     user_id?: string;
     user_email?: string;
@@ -247,6 +251,68 @@ export const d1UserBridge = {
     } catch (e: any) {
       console.warn('d1UserBridge.rejectExperienceCertificate note:', e);
       return { success: false, message: e.message };
+    }
+  },
+
+  // 12. Fetch all Volunteer Card requests for Admin from D1
+  getAdminVolunteerCardRequests: async (): Promise<any[]> => {
+    try {
+      const res = await fetch('/api/volunteer-card/admin/all');
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data.requests) ? data.requests : [];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // 13. Fetch all Experience Certificate requests for Admin from D1
+  getAdminExperienceRequests: async (): Promise<any[]> => {
+    try {
+      const res = await fetch('/api/experience-certificate/admin/all');
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data.requests) ? data.requests : [];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // 14. Fetch user volunteer card from D1
+  getMyVolunteerCard: async (publicUserId?: string, userId?: string): Promise<any | null> => {
+    try {
+      const params = new URLSearchParams();
+      if (publicUserId) params.set('public_user_id', publicUserId);
+      if (userId) params.set('user_id', userId);
+      const res = await fetch(`/api/volunteer-card/mine?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.request || null;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // 15. Fetch user experience certificate from D1
+  getMyExperienceCertificate: async (publicUserId?: string, userId?: string): Promise<any | null> => {
+    try {
+      const params = new URLSearchParams();
+      if (publicUserId) params.set('public_user_id', publicUserId);
+      if (userId) params.set('user_id', userId);
+      const res = await fetch(`/api/experience-certificate/mine?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.request || null;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 };

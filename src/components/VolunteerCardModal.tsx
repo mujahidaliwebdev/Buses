@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Award, ShieldCheck, Sparkles, Download, CheckCircle2, AlertCircle, Send, Globe, Facebook, Youtube, Instagram, Twitter } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface VolunteerCardModalProps {
@@ -28,7 +27,7 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
     photoURL: currentUser?.photoURL || ''
   });
 
-  const [requestItem, setRequestItem] = useState<VolunteerCardRequestItem | null>(null);
+  const [requestItem, setRequestItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,12 +39,9 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
       return;
     }
 
-    // Subscribe to user request status
-    const unsubscribeReq = volunteerCardRequestService.subscribeUserRequest(currentUser.uid, (req) => {
-      setRequestItem(req);
-    });
+    let isMounted = true;
 
-    async function fetchUserData() {
+    async function fetchUserDataAndCard() {
       try {
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userDocRef);
@@ -56,28 +52,50 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
 
         const regDate = data.registrationDate || currentUser.metadata?.creationTime || '2026-05-12T00:00:00.000Z';
 
-        setUserData({
-          displayName: data.displayName || currentUser.displayName || 'Registered Volunteer',
-          email: currentUser.email || '',
-          cnic: data.cnic || '43201-7860123-5',
-          gender: data.gender || 'Not specified',
-          district: data.homeCity || 'Karachi',
-          registrationDate: regDate,
-          photoURL: data.photoURL || currentUser.photoURL || '',
-          volunteerCardApproved: data.volunteerCardApproved || false,
-          volunteerCardId: data.volunteerCardId || ''
-        });
+        if (isMounted) {
+          setUserData({
+            displayName: data.displayName || currentUser.displayName || 'Registered Volunteer',
+            email: currentUser.email || '',
+            cnic: data.cnic || '43201-7860123-5',
+            gender: data.gender || 'Not specified',
+            district: data.homeCity || 'Karachi',
+            registrationDate: regDate,
+            photoURL: data.photoURL || currentUser.photoURL || '',
+            volunteerCardApproved: data.volunteerCardApproved || false,
+            volunteerCardId: data.volunteerCardId || ''
+          });
+        }
+
+        // Fetch Volunteer Card status directly from Cloudflare D1
+        const pubId = await d1UserBridge.ensureProfile(currentUser);
+        const myCard = await d1UserBridge.getMyVolunteerCard(pubId, currentUser.uid);
+        if (isMounted && myCard) {
+          setRequestItem({
+            id: String(myCard.id),
+            status: String(myCard.status || 'Pending').toLowerCase(),
+            volunteerCardId: myCard.volunteer_card_id,
+            cnic: myCard.cnic,
+            homeCity: myCard.home_city,
+            registrationDate: myCard.registration_date,
+            remarks: myCard.remarks,
+            rejectionReason: myCard.remarks,
+            submittedAt: myCard.created_at
+          });
+          if (myCard.volunteer_card_id) {
+            setUserData((prev: any) => ({ ...prev, volunteerCardId: myCard.volunteer_card_id }));
+          }
+        }
       } catch (err) {
-        console.error('Error fetching volunteer user data:', err);
+        console.error('Error fetching volunteer user data from D1:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
-    fetchUserData();
+    fetchUserDataAndCard();
 
     return () => {
-      unsubscribeReq();
+      isMounted = false;
     };
   }, [currentUser]);
 
@@ -90,8 +108,8 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
     try {
       const publicUserId = await d1UserBridge.ensureProfile(currentUser);
 
-      // Save to D1 volunteer_card table
-      await d1UserBridge.submitVolunteerCard(publicUserId, {
+      // Save directly to D1 volunteer_card table
+      const res = await d1UserBridge.submitVolunteerCard(publicUserId, {
         cnic: userData.cnic,
         home_city: userData.district,
         registration_date: userData.registrationDate,
@@ -99,19 +117,27 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
         remarks: 'Submitted from Volunteer Card Modal'
       });
 
-      // Also submit request for Admin Dashboard compatibility
-      await volunteerCardRequestService.submitRequest({
-        userId: currentUser.uid,
-        publicUserId: publicUserId,
-        userName: userData.displayName,
-        userEmail: userData.email,
-        userPhoto: userData.photoURL,
-        userMobile: userData.mobile || '',
-        cnic: userData.cnic,
-        homeCity: userData.district,
-        registrationDate: userData.registrationDate
-      });
-      setSuccessMsg('Volunteer card request submitted successfully to Admin!');
+      if (!res.success && res.message) {
+        throw new Error(res.message);
+      }
+
+      setSuccessMsg('Volunteer card request submitted successfully to Cloudflare D1!');
+
+      // Reload card directly from D1
+      const myCard = await d1UserBridge.getMyVolunteerCard(publicUserId, currentUser.uid);
+      if (myCard) {
+        setRequestItem({
+          id: String(myCard.id),
+          status: String(myCard.status || 'Pending').toLowerCase(),
+          volunteerCardId: myCard.volunteer_card_id,
+          cnic: myCard.cnic,
+          homeCity: myCard.home_city,
+          registrationDate: myCard.registration_date,
+          remarks: myCard.remarks,
+          rejectionReason: myCard.remarks,
+          submittedAt: myCard.created_at
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to submit request.');
     } finally {
@@ -143,7 +169,7 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
     return dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  const isApproved = userData.volunteerCardApproved || requestItem?.status === 'approved';
+  const isApproved = String(requestItem?.status || '').toLowerCase() === 'approved';
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">

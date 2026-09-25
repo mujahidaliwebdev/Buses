@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { userService, experienceRequestService, ExperienceRequestItem } from '../lib/firestoreService';
+import { userService } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface ExperienceLetterModalProps {
@@ -163,25 +163,41 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
       }
     }
 
-    loadData();
-
-    // Subscribe to experience request
-    let unsubscribeReq: (() => void) | null = null;
-    if (currentUser?.uid) {
-      unsubscribeReq = experienceRequestService.subscribeUserRequest(currentUser.uid, (req) => {
-        if (isMounted) {
-          setRequestData(req);
+    // Fetch user's experience certificate status directly from Cloudflare D1
+    async function loadExperienceStatusFromD1() {
+      if (!currentUser?.uid) return;
+      try {
+        const pubId = await d1UserBridge.ensureProfile(currentUser);
+        const myCert = await d1UserBridge.getMyExperienceCertificate(pubId, currentUser.uid);
+        if (isMounted && myCert) {
+          setRequestData({
+            id: String(myCert.id),
+            status: String(myCert.status || 'Pending').toLowerCase(),
+            verificationId: myCert.verification_id,
+            durationMonths: myCert.duration_months,
+            contributionsCount: myCert.contributions_count,
+            submittedAt: myCert.created_at,
+            remarks: myCert.remarks,
+            rejectionReason: myCert.remarks
+          });
+          if (myCert.verification_id) {
+            setVerificationId(myCert.verification_id);
+          }
         }
-      });
+      } catch (e) {
+        console.warn('Notice loading experience cert from D1:', e);
+      }
     }
+
+    loadData();
+    loadExperienceStatusFromD1();
 
     return () => {
       isMounted = false;
-      if (unsubscribeReq) unsubscribeReq();
     };
   }, [currentUser, isMujahid, volunteerName]);
 
-  // Handle Request Submission
+  // Handle Request Submission directly to Cloudflare D1
   const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
@@ -196,8 +212,8 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
     try {
       const publicUserId = await d1UserBridge.ensureProfile(currentUser);
 
-      // Save to D1 experience_certificate table
-      await d1UserBridge.submitExperienceCertificate(publicUserId, {
+      // Save directly to D1 experience_certificate table
+      const res = await d1UserBridge.submitExperienceCertificate(publicUserId, {
         registration_date: registrationDateObj.toISOString(),
         duration_months: tenure.months,
         contributions_count: contributionsCount,
@@ -206,20 +222,26 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
         remarks: 'Experience certificate request submitted'
       });
 
-      // Also submit request for Admin Dashboard compatibility
-      await experienceRequestService.submitRequest({
-        userId: currentUser.uid,
-        publicUserId: publicUserId,
-        userName: volunteerName,
-        userEmail: currentUser.email || '',
-        userPhoto: currentUser.photoURL || '',
-        registrationDate: registrationDateObj.toISOString(),
-        durationMonths: tenure.months,
-        contributionsCount: contributionsCount,
-        userNotes: userNotes.trim()
-      });
+      if (!res.success && res.message) {
+        throw new Error(res.message);
+      }
 
       setSubmitSuccess(true);
+
+      // Refresh immediately from D1
+      const myCert = await d1UserBridge.getMyExperienceCertificate(publicUserId, currentUser.uid);
+      if (myCert) {
+        setRequestData({
+          id: String(myCert.id),
+          status: String(myCert.status || 'Pending').toLowerCase(),
+          verificationId: myCert.verification_id,
+          durationMonths: myCert.duration_months,
+          contributionsCount: myCert.contributions_count,
+          submittedAt: myCert.created_at,
+          remarks: myCert.remarks,
+          rejectionReason: myCert.remarks
+        });
+      }
     } catch (err: any) {
       console.error('Error submitting experience request:', err);
       setSubmitError(err.message || 'Failed to submit request. Please try again.');
@@ -434,9 +456,9 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
 
   // Determine which view to render:
   // Is approved if request is approved OR user is Mujahid / Admin
-  const isApproved = requestData?.status === 'approved' || (isAdmin && !showAdminPreview);
-  const isPending = requestData?.status === 'pending';
-  const isRejected = requestData?.status === 'rejected';
+  const isApproved = String(requestData?.status || '').toLowerCase() === 'approved' || (isAdmin && !showAdminPreview);
+  const isPending = String(requestData?.status || '').toLowerCase() === 'pending';
+  const isRejected = String(requestData?.status || '').toLowerCase() === 'rejected';
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">

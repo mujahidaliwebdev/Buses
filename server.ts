@@ -1459,11 +1459,81 @@ async function startServer() {
     }
   });
 
-  // Admin Approve Volunteer Card in D1
+  // Admin Fetch all Volunteer Card requests from D1
+  app.get("/api/volunteer-card/admin/all", async (req, res) => {
+    try {
+      await ensureVolunteerCardTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, requests: [] });
+      }
+
+      const rows = await queryD1(`
+        SELECT vc.*, 
+               COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
+               COALESCE(ud.email, ud2.email, '') AS email,
+               COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
+               COALESCE(ud.photo_url, ud2.photo_url, '') AS photo_url
+        FROM volunteer_card vc
+        LEFT JOIN User_Detail ud ON vc.public_user_id = ud.public_user_id
+        LEFT JOIN User_Detail ud2 ON vc.public_user_id = ud2.user_id
+        ORDER BY vc.id DESC
+      `);
+      return res.json({ success: true, requests: rows || [] });
+    } catch (err: any) {
+      console.warn("Error fetching volunteer cards from D1:", err);
+      return res.json({ success: true, requests: [] });
+    }
+  });
+
+  // User Fetch my Volunteer Card from D1
+  app.get("/api/volunteer-card/mine", async (req, res) => {
+    try {
+      const pubId = String(req.query.public_user_id || "").trim();
+      const uid = String(req.query.user_id || "").trim();
+      await ensureVolunteerCardTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, request: null });
+      }
+
+      const candidateIds: string[] = [];
+      if (pubId) candidateIds.push(pubId);
+      if (uid && !candidateIds.includes(uid)) candidateIds.push(uid);
+
+      if (uid) {
+        try {
+          const uRows = await queryD1("SELECT public_user_id FROM User_Detail WHERE user_id = ? LIMIT 1", [uid]);
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id && !candidateIds.includes(uRows[0].public_user_id)) {
+            candidateIds.push(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      let row: any = null;
+      for (const idCandidate of candidateIds) {
+        const rows = await queryD1(
+          "SELECT * FROM volunteer_card WHERE public_user_id = ? ORDER BY CASE WHEN LOWER(status) = 'approved' THEN 1 WHEN LOWER(status) = 'pending' THEN 2 ELSE 3 END, id DESC LIMIT 1",
+          [idCandidate]
+        );
+        if (rows && rows.length > 0) {
+          row = rows[0];
+          break;
+        }
+      }
+
+      return res.json({ success: true, request: row });
+    } catch (err: any) {
+      return res.json({ success: true, request: null });
+    }
+  });
+
+  // Admin Approve Volunteer Card in D1 (Directly by ID, public_user_id, or user_id)
   app.post("/api/volunteer-card/approve", async (req, res) => {
     try {
-      const { public_user_id, user_id, user_email, volunteer_card_id, admin_email } = req.body;
+      const { id, public_user_id, user_id, user_email, volunteer_card_id, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
+      const cardReqId = Number(id) || null;
 
       // Look up public_user_id from User_Detail if missing
       if (!pubId && (user_id || user_email)) {
@@ -1485,6 +1555,15 @@ async function startServer() {
       await ensureVolunteerCardTable();
       const cardId = String(volunteer_card_id || "").trim();
       const admin = String(admin_email || "admin@asaansafar.com").trim();
+      const autoCardId = cardId || `VC-${cardReqId || Date.now()}`;
+
+      if (cardReqId) {
+        await queryD1(
+          "UPDATE volunteer_card SET status = 'Approved', volunteer_card_id = COALESCE(NULLIF(?, ''), volunteer_card_id, ?), reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+          [cardId, autoCardId, admin, cardReqId]
+        );
+        return res.json({ success: true, message: "Volunteer card approved in D1 successfully." });
+      }
 
       let existing: any[] = [];
       if (pubId) {
@@ -1496,12 +1575,12 @@ async function startServer() {
       if (existing && existing.length > 0) {
         await queryD1(
           "UPDATE volunteer_card SET status = 'Approved', volunteer_card_id = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
-          [cardId || existing[0].volunteer_card_id || 'Approved', admin, pubId]
+          [cardId || existing[0].volunteer_card_id || autoCardId, admin, pubId]
         );
       } else if (pubId) {
         await queryD1(
           "INSERT INTO volunteer_card (public_user_id, volunteer_card_id, status, reviewed_at, reviewed_by, remarks, updated_at) VALUES (?, ?, 'Approved', datetime('now'), ?, 'Approved by Admin', datetime('now'))",
-          [pubId, cardId, admin]
+          [pubId, autoCardId, admin]
         );
       }
 
@@ -1512,11 +1591,12 @@ async function startServer() {
     }
   });
 
-  // Admin Reject Volunteer Card in D1
+  // Admin Reject Volunteer Card in D1 (Directly by ID, public_user_id, or user_id)
   app.post("/api/volunteer-card/reject", async (req, res) => {
     try {
-      const { public_user_id, user_id, user_email, reason, admin_email } = req.body;
+      const { id, public_user_id, user_id, user_email, reason, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
+      const cardReqId = Number(id) || null;
 
       if (!pubId && (user_id || user_email)) {
         try {
@@ -1537,6 +1617,14 @@ async function startServer() {
       await ensureVolunteerCardTable();
       const rejReason = String(reason || "Declined by Admin").trim();
       const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      if (cardReqId) {
+        await queryD1(
+          "UPDATE volunteer_card SET status = 'Rejected', remarks = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+          [rejReason, admin, cardReqId]
+        );
+        return res.json({ success: true, message: "Volunteer card marked as Rejected in D1." });
+      }
 
       let existing: any[] = [];
       if (pubId) {
@@ -1564,6 +1652,75 @@ async function startServer() {
     }
   });
 
+  // Admin Fetch all Experience Certificate requests from D1
+  app.get("/api/experience-certificate/admin/all", async (req, res) => {
+    try {
+      await ensureExperienceCertificateTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, requests: [] });
+      }
+
+      const rows = await queryD1(`
+        SELECT ec.*, 
+               COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
+               COALESCE(ud.email, ud2.email, '') AS email,
+               COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
+               COALESCE(ud.photo_url, ud2.photo_url, '') AS photo_url
+        FROM experience_certificate ec
+        LEFT JOIN User_Detail ud ON ec.public_user_id = ud.public_user_id
+        LEFT JOIN User_Detail ud2 ON ec.public_user_id = ud2.user_id
+        ORDER BY ec.id DESC
+      `);
+      return res.json({ success: true, requests: rows || [] });
+    } catch (err: any) {
+      console.warn("Error fetching experience certificates from D1:", err);
+      return res.json({ success: true, requests: [] });
+    }
+  });
+
+  // User Fetch my Experience Certificate from D1
+  app.get("/api/experience-certificate/mine", async (req, res) => {
+    try {
+      const pubId = String(req.query.public_user_id || "").trim();
+      const uid = String(req.query.user_id || "").trim();
+      await ensureExperienceCertificateTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, request: null });
+      }
+
+      const candidateIds: string[] = [];
+      if (pubId) candidateIds.push(pubId);
+      if (uid && !candidateIds.includes(uid)) candidateIds.push(uid);
+
+      if (uid) {
+        try {
+          const uRows = await queryD1("SELECT public_user_id FROM User_Detail WHERE user_id = ? LIMIT 1", [uid]);
+          if (uRows && uRows.length > 0 && uRows[0].public_user_id && !candidateIds.includes(uRows[0].public_user_id)) {
+            candidateIds.push(uRows[0].public_user_id);
+          }
+        } catch (e) {}
+      }
+
+      let row: any = null;
+      for (const idCandidate of candidateIds) {
+        const rows = await queryD1(
+          "SELECT * FROM experience_certificate WHERE public_user_id = ? ORDER BY CASE WHEN LOWER(status) = 'approved' THEN 1 WHEN LOWER(status) = 'pending' THEN 2 ELSE 3 END, id DESC LIMIT 1",
+          [idCandidate]
+        );
+        if (rows && rows.length > 0) {
+          row = rows[0];
+          break;
+        }
+      }
+
+      return res.json({ success: true, request: row });
+    } catch (err: any) {
+      return res.json({ success: true, request: null });
+    }
+  });
+
   // 5. User Experience Certificate -> experience_certificate table
   app.post("/api/experience-certificate/submit", async (req, res) => {
     try {
@@ -1584,11 +1741,12 @@ async function startServer() {
     }
   });
 
-  // Admin Approve Experience Certificate in D1
+  // Admin Approve Experience Certificate in D1 (Directly by ID, public_user_id, or user_id)
   app.post("/api/experience-certificate/approve", async (req, res) => {
     try {
-      const { public_user_id, user_id, user_email, verification_id, registration_date, duration_months, contributions_count, admin_email } = req.body;
+      const { id, public_user_id, user_id, user_email, verification_id, registration_date, duration_months, contributions_count, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
+      const expReqId = Number(id) || null;
 
       if (!pubId && (user_id || user_email)) {
         try {
@@ -1609,6 +1767,15 @@ async function startServer() {
       await ensureExperienceCertificateTable();
       const verId = String(verification_id || "").trim();
       const admin = String(admin_email || "admin@asaansafar.com").trim();
+      const autoVerId = verId || `ASP/EXP/${expReqId || Date.now()}`;
+
+      if (expReqId) {
+        await queryD1(
+          "UPDATE experience_certificate SET status = 'Approved', verification_id = COALESCE(NULLIF(?, ''), verification_id, ?), reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+          [verId, autoVerId, admin, expReqId]
+        );
+        return res.json({ success: true, message: "Experience certificate approved in D1 successfully." });
+      }
 
       let existing: any[] = [];
       if (pubId) {
@@ -1620,12 +1787,12 @@ async function startServer() {
       if (existing && existing.length > 0) {
         await queryD1(
           "UPDATE experience_certificate SET status = 'Approved', verification_id = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
-          [verId || existing[0].verification_id || 'Approved', admin, pubId]
+          [verId || existing[0].verification_id || autoVerId, admin, pubId]
         );
       } else if (pubId) {
         await queryD1(
           "INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, verification_id, status, reviewed_at, reviewed_by, remarks, updated_at) VALUES (?, ?, ?, ?, ?, 'Approved', datetime('now'), ?, 'Approved by Admin', datetime('now'))",
-          [pubId, String(registration_date || ''), Number(duration_months) || 0, Number(contributions_count) || 0, verId, admin]
+          [pubId, String(registration_date || ''), Number(duration_months) || 0, Number(contributions_count) || 0, autoVerId, admin]
         );
       }
 
@@ -1636,11 +1803,12 @@ async function startServer() {
     }
   });
 
-  // Admin Reject Experience Certificate in D1
+  // Admin Reject Experience Certificate in D1 (Directly by ID, public_user_id, or user_id)
   app.post("/api/experience-certificate/reject", async (req, res) => {
     try {
-      const { public_user_id, user_id, user_email, reason, admin_email } = req.body;
+      const { id, public_user_id, user_id, user_email, reason, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
+      const expReqId = Number(id) || null;
 
       if (!pubId && (user_id || user_email)) {
         try {
@@ -1661,6 +1829,14 @@ async function startServer() {
       await ensureExperienceCertificateTable();
       const rejReason = String(reason || "Declined by Admin").trim();
       const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      if (expReqId) {
+        await queryD1(
+          "UPDATE experience_certificate SET status = 'Rejected', remarks = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+          [rejReason, admin, expReqId]
+        );
+        return res.json({ success: true, message: "Experience certificate marked as Rejected in D1." });
+      }
 
       let existing: any[] = [];
       if (pubId) {
