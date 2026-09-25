@@ -19,6 +19,10 @@ import SearchResults from './components/SearchResults';
 import BusDetails from './components/BusDetails';
 import CompanyProfile from './components/CompanyProfile';
 import AdminDashboard from './components/AdminDashboard';
+import UserDashboardModal from './components/UserDashboardModal';
+import UserProfileModal from './components/UserProfileModal';
+import VolunteerCardModal from './components/VolunteerCardModal';
+import ExperienceLetterModal from './components/ExperienceLetterModal';
 import SubmitRoute from './components/SubmitRoute';
 import UpdateFaresModal from './components/UpdateFaresModal';
 import AddFullBusRouteModal from './components/AddFullBusRouteModal';
@@ -68,6 +72,9 @@ function AppContent() {
   const [showFullBusModal, setShowFullBusModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showVolunteerCardModal, setShowVolunteerCardModal] = useState(false);
+  const [showExperienceLetterModal, setShowExperienceLetterModal] = useState(false);
 
   // Load dynamic Google Analytics and Google Search Console settings from Firestore
   useEffect(() => {
@@ -242,6 +249,7 @@ function AppContent() {
       <Navbar 
         onLoginClick={() => setShowAuthModal(true)} 
         onAdminClick={() => navigate('/admin')}
+        onUserPanelClick={() => navigate('/user')}
         onHomeClick={() => {
           if (location.pathname === '/') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -255,7 +263,7 @@ function AppContent() {
         onRoutesClick={() => handleNavClick('routes')}
         onFeaturesClick={() => handleNavClick('features')}
         isAdmin={isAdmin}
-        activeTab={location.pathname === '/' ? 'home' : ''}
+        activeTab={location.pathname === '/' ? 'home' : location.pathname === '/user' ? 'dashboard' : ''}
         onDownloadAppClick={() => setShowDownloadModal(true)}
         onJoinUsClick={() => setShowVolunteerModal(true)}
         onOpenSubmitRoute={handleContributionClick}
@@ -293,6 +301,30 @@ function AppContent() {
           } />
 
           <Route path="/admin" element={isAdmin ? <AdminDashboard buses={buses} onClose={() => navigate('/')} /> : <div className="p-20 text-center">Unauthorized</div>} />
+          <Route path="/user" element={
+            user ? (
+              <UserDashboardModal 
+                isPage={true} 
+                onClose={() => navigate('/')} 
+                onOpenProfile={() => setShowProfileModal(true)}
+                onOpenVolunteerCard={() => setShowVolunteerCardModal(true)}
+                onOpenExperienceLetter={() => setShowExperienceLetterModal(true)}
+                onOpenSubmitRoute={handleContributionClick}
+                onOpenUpdateFares={handleUpdateFaresClick}
+                onOpenFullBusRouteMap={handleFullBusRouteClick}
+              />
+            ) : (
+              <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center">
+                <p className="text-xl font-black text-slate-800 mb-4">Please sign in to access User Panel.</p>
+                <button 
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/30"
+                >
+                  Sign In / سائن ان کریں
+                </button>
+              </div>
+            )
+          } />
           <Route path="/schedules" element={<Schedules onRouteClick={(f, t) => handleSearch({origin: f, destination: t, date: ''})} />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
@@ -348,6 +380,9 @@ function AppContent() {
 
       <AnimatePresence>
         {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+        {showProfileModal && <UserProfileModal onClose={() => setShowProfileModal(false)} />}
+        {showVolunteerCardModal && <VolunteerCardModal onClose={() => setShowVolunteerCardModal(false)} />}
+        {showExperienceLetterModal && <ExperienceLetterModal onClose={() => setShowExperienceLetterModal(false)} />}
       </AnimatePresence>
 
       <AnimatePresence>
@@ -403,7 +438,7 @@ export default function App() {
     const segments = pathname.split('/').filter(Boolean);
     if (segments.length > 0) {
       const KNOWN_ROUTES = [
-        'admin', 'schedules', 'about', 'contact', 'policy', 
+        'admin', 'user', 'schedules', 'about', 'contact', 'policy', 
         'privacy', 'terms', 'disclaimer', 'blog', 
         'team', 'faqs', 'sitemap'
       ];

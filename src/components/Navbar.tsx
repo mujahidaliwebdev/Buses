@@ -12,6 +12,7 @@ import ExperienceLetterModal from './ExperienceLetterModal';
 interface NavbarProps {
   onLoginClick: () => void;
   onAdminClick?: () => void;
+  onUserPanelClick?: () => void;
   onHomeClick?: () => void;
   onPolicyClick?: () => void;
   onSearchClick?: () => void;
@@ -34,6 +35,7 @@ const getLogoPath = () => {
 export default function Navbar({ 
   onLoginClick, 
   onAdminClick, 
+  onUserPanelClick,
   onHomeClick, 
   onPolicyClick,
   onSearchClick,
@@ -109,11 +111,11 @@ export default function Navbar({
             </button>
             {user && (
               <button 
-                onClick={() => setShowDashboardModal(true)}
+                onClick={() => onUserPanelClick ? onUserPanelClick() : setShowDashboardModal(true)}
                 className={`flex items-center gap-1.5 ${activeTab === 'dashboard' ? 'text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl' : 'hover:text-emerald-600'} transition-all cursor-pointer outline-none`}
               >
                 <LayoutDashboard className="w-3.5 h-3.5 text-emerald-600" />
-                <span>User Dashboard</span>
+                <span>User Panel</span>
               </button>
             )}
             {isAdmin && (
@@ -194,12 +196,16 @@ export default function Navbar({
                           <button 
                             onClick={() => {
                               setIsProfileMenuOpen(false);
-                              setShowDashboardModal(true);
+                              if (onUserPanelClick) {
+                                onUserPanelClick();
+                              } else {
+                                setShowDashboardModal(true);
+                              }
                             }}
                             className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-black text-slate-700 flex items-center justify-between transition-all cursor-pointer"
                           >
                             <span className="flex items-center gap-2.5">
-                              <LayoutDashboard className="w-4 h-4 text-emerald-600" /> Dashboard
+                              <LayoutDashboard className="w-4 h-4 text-emerald-600" /> User Panel
                             </span>
                           </button>
 
@@ -325,12 +331,16 @@ export default function Navbar({
                 <button 
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    setShowDashboardModal(true);
+                    if (onUserPanelClick) {
+                      onUserPanelClick();
+                    } else {
+                      setShowDashboardModal(true);
+                    }
                   }}
                   className="w-full text-left py-3 px-4 rounded-xl transition-all text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50 hover:text-emerald-800 flex items-center gap-2"
                 >
                   <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                  <span>User Dashboard</span>
+                  <span>User Panel</span>
                 </button>
               )}
             </div>

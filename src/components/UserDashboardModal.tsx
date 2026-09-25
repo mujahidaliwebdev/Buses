@@ -13,6 +13,7 @@ interface UserDashboardModalProps {
   onOpenSubmitRoute?: () => void;
   onOpenUpdateFares?: () => void;
   onOpenFullBusRouteMap?: () => void;
+  isPage?: boolean;
 }
 
 export default function UserDashboardModal({
@@ -22,7 +23,8 @@ export default function UserDashboardModal({
   onOpenExperienceLetter,
   onOpenSubmitRoute,
   onOpenUpdateFares,
-  onOpenFullBusRouteMap
+  onOpenFullBusRouteMap,
+  isPage = false
 }: UserDashboardModalProps) {
   const currentUser = auth.currentUser;
   const [loading, setLoading] = useState(true);
@@ -104,42 +106,28 @@ export default function UserDashboardModal({
   const rejectedRoutes = contributions.filter(c => c.status === 'rejected').length;
   const pendingRoutes = contributions.filter(c => c.status === 'pending').length;
 
-  return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-slate-950/70 backdrop-blur-md"
-      />
-
-      <motion.div
-        initial={{ scale: 0.95, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 my-8 max-h-[92vh] flex flex-col border border-slate-100"
-      >
-        {/* Header */}
-        <div className="bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-600 px-6 sm:px-8 py-6 text-white shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
-              <BarChart3 className="w-6 h-6 text-emerald-200" />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-900/50 text-emerald-200 text-[10px] font-black uppercase tracking-wider mb-1">
-                <Sparkles className="w-3 h-3" /> Volunteer Dashboard
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight">Your Progress & Activity Status</h2>
-            </div>
+  const content = (
+    <div className={`relative w-full ${isPage ? 'max-w-5xl mx-auto my-8' : 'max-w-4xl my-8'} bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 flex flex-col border border-slate-100 ${isPage ? '' : 'max-h-[92vh]'}`}>
+      {/* Header */}
+      <div className="bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-600 px-6 sm:px-8 py-6 text-white shrink-0 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+            <BarChart3 className="w-6 h-6 text-emerald-200" />
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-900/50 text-emerald-200 text-[10px] font-black uppercase tracking-wider mb-1">
+              <Sparkles className="w-3 h-3" /> User Panel / یوزر پینل
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight">Your Progress & Activity Status</h2>
+          </div>
         </div>
+        <button
+          onClick={onClose}
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 bg-slate-50/50">
@@ -394,6 +382,34 @@ export default function UserDashboardModal({
             </>
           )}
         </div>
+      </div>
+    );
+
+    if (isPage) {
+      return (
+        <div className="min-h-[85vh] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-slate-50/50">
+          {content}
+        </div>
+      );
+    }
+
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-950/70 backdrop-blur-md"
+      />
+
+      <motion.div
+        initial={{ scale: 0.95, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.95, y: 20 }}
+        className="relative z-10"
+      >
+        {content}
       </motion.div>
     </div>
   );
