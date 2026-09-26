@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { userService } from '../lib/firestoreService';
+import { userService, ExperienceRequestItem } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 
 interface ExperienceLetterModalProps {

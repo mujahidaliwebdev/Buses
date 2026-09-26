@@ -36,7 +36,7 @@ import {
   Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { busService, reportService, contributionService, settingsService, userService, experienceRequestService, ExperienceRequestItem, volunteerCardRequestService, VolunteerCardRequestItem } from '../lib/firestoreService';
+import { busService, reportService, contributionService, settingsService, userService, ExperienceRequestItem, VolunteerCardRequestItem } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 import { db, auth } from '../lib/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
@@ -206,12 +206,68 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     });
   }, [usersList, userSearchTerm]);
 
-  React.useEffect(() => {
-    const unsubExp = experienceRequestService.subscribeAllRequests((reqs) => {
-      setExperienceRequestsList(reqs);
+  const fetchExperienceRequestsFromD1 = async () => {
+    setLoadingExperienceRequests(true);
+    try {
+      const list = await d1UserBridge.getAdminExperienceRequests();
+      const formatted = list.map((item: any) => ({
+        id: item.id,
+        publicUserId: item.public_user_id,
+        userName: item.display_name || item.userName || 'Community Volunteer',
+        userEmail: item.email || item.userEmail || '',
+        userPhoto: item.photo_url || item.userPhoto || '',
+        registrationDate: item.registration_date || item.registrationDate || '',
+        durationMonths: item.duration_months ?? item.durationMonths ?? 0,
+        contributionsCount: item.contributions_count ?? item.contributionsCount ?? 0,
+        userNotes: item.user_notes || item.userNotes || '',
+        verificationId: item.verification_id || item.verificationId || '',
+        status: String(item.status || 'Pending').toLowerCase(),
+        rawStatus: item.status || 'Pending',
+        rejectionReason: item.remarks || item.rejectionReason || '',
+        submittedAt: item.created_at || item.submittedAt || '',
+        reviewedAt: item.reviewed_at,
+        reviewedBy: item.reviewed_by
+      }));
+      setExperienceRequestsList(formatted);
+    } catch (err) {
+      console.error("Error loading experience requests from D1:", err);
+    } finally {
       setLoadingExperienceRequests(false);
-    });
-    return unsubExp;
+    }
+  };
+
+  const fetchVolunteerCardRequestsFromD1 = async () => {
+    setLoadingVolunteerCardRequests(true);
+    try {
+      const list = await d1UserBridge.getAdminVolunteerCardRequests();
+      const formatted = list.map((item: any) => ({
+        id: item.id,
+        publicUserId: item.public_user_id,
+        userName: item.display_name || item.userName || 'Community Volunteer',
+        userEmail: item.email || item.userEmail || '',
+        userPhoto: item.photo_url || item.userPhoto || '',
+        userMobile: item.mobile || item.userMobile || '',
+        cnic: item.cnic || '',
+        homeCity: item.home_city || item.homeCity || '',
+        registrationDate: item.registration_date || item.registrationDate || '',
+        volunteerCardId: item.volunteer_card_id || item.volunteerCardId || '',
+        status: String(item.status || 'Pending').toLowerCase(),
+        rawStatus: item.status || 'Pending',
+        rejectionReason: item.remarks || item.rejectionReason || '',
+        submittedAt: item.created_at || item.submittedAt || '',
+        reviewedAt: item.reviewed_at,
+        reviewedBy: item.reviewed_by
+      }));
+      setVolunteerCardRequestsList(formatted);
+    } catch (err) {
+      console.error("Error loading volunteer card requests from D1:", err);
+    } finally {
+      setLoadingVolunteerCardRequests(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchExperienceRequestsFromD1();
   }, []);
 
   React.useEffect(() => {
@@ -273,10 +329,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   }, []);
 
   React.useEffect(() => {
-    return volunteerCardRequestService.subscribeAllRequests((list) => {
-      setVolunteerCardRequestsList(list);
-      setLoadingVolunteerCardRequests(false);
-    });
+    fetchVolunteerCardRequestsFromD1();
   }, []);
 
   // Feedbacks and Complaints real-time subscription
@@ -1159,7 +1212,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
 
 
             <button 
-              onClick={() => setIsViewingExperienceRequests(true)}
+              onClick={() => { setIsViewingExperienceRequests(true); fetchExperienceRequestsFromD1(); }}
               className="relative bg-white hover:bg-teal-50/50 text-teal-900 border border-teal-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
               <div className="flex items-center gap-2.5 truncate">
@@ -1178,7 +1231,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             </button>
 
             <button 
-              onClick={() => setIsViewingVolunteerCardRequests(true)}
+              onClick={() => { setIsViewingVolunteerCardRequests(true); fetchVolunteerCardRequestsFromD1(); }}
               className="relative bg-white hover:bg-emerald-50/50 text-emerald-900 border border-emerald-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
             >
               <div className="flex items-center gap-2.5 truncate">
@@ -3766,7 +3819,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                                   onClick={async () => {
                                     try {
                                       const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
-                                      await experienceRequestService.approveRequest(req.id, adminEmail);
+                                      await d1UserBridge.approveExperienceCertificate({ id: req.id, public_user_id: req.publicUserId, verification_id: req.verificationId || `ASP/EXP/${Date.now()}`, admin_email: adminEmail });
                                       alert(`Experience request for ${req.userName} approved successfully!`);
                                     } catch (err: any) {
                                       alert('Error approving request: ' + err.message);
@@ -3866,7 +3919,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   setSubmittingReject(true);
                   try {
                     const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
-                    await experienceRequestService.rejectRequest(rejectingReqId, adminEmail, rejectionReasonInput.trim());
+                    const res = await d1UserBridge.rejectExperienceCertificate({ id: rejectingReqId, reason: rejectionReasonInput.trim(), admin_email: adminEmail });
+                    if (res.success) {
+                      await fetchExperienceRequestsFromD1();
+                    }
                     setRejectingReqId(null);
                     setRejectionReasonInput('');
                   } catch (err: any) {
@@ -3990,7 +4046,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                                   onClick={async () => {
                                     try {
                                       const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
-                                      await volunteerCardRequestService.approveRequest(req.id, adminEmail);
+                                      const res = await d1UserBridge.approveVolunteerCard({ id: req.id, public_user_id: req.publicUserId, volunteer_card_id: req.volunteerCardId || `VC-${Date.now()}`, admin_email: adminEmail });
+                                      if (res.success) {
+                                        await fetchVolunteerCardRequestsFromD1();
+                                      }
                                       alert(`Volunteer Card for ${req.userName} approved successfully!`);
                                     } catch (err: any) {
                                       alert('Error approving request: ' + err.message);
@@ -4082,7 +4141,10 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   setSubmittingVCReject(true);
                   try {
                     const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
-                    await volunteerCardRequestService.rejectRequest(rejectingVCId, adminEmail, vcRejectionReasonInput.trim());
+                    const res = await d1UserBridge.rejectVolunteerCard({ id: rejectingVCId, reason: vcRejectionReasonInput.trim(), admin_email: adminEmail });
+                    if (res.success) {
+                      await fetchVolunteerCardRequestsFromD1();
+                    }
                     setRejectingVCId(null);
                     setVcRejectionReasonInput('');
                   } catch (err: any) {
