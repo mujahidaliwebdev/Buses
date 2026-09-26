@@ -173,7 +173,7 @@ export const d1UserBridge = {
     admin_email?: string;
   }): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch('/api/volunteer-card/approve', {
+      const res = await fetch(`/api/volunteer-card/${data.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -195,7 +195,7 @@ export const d1UserBridge = {
     admin_email?: string;
   }): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch('/api/volunteer-card/reject', {
+      const res = await fetch(`/api/volunteer-card/${data.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -220,7 +220,7 @@ export const d1UserBridge = {
     admin_email?: string;
   }): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch('/api/experience-certificate/approve', {
+      const res = await fetch(`/api/experience-certificate/${data.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -242,7 +242,7 @@ export const d1UserBridge = {
     admin_email?: string;
   }): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch('/api/experience-certificate/reject', {
+      const res = await fetch(`/api/experience-certificate/${data.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
