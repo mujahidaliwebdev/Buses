@@ -268,6 +268,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
 
   React.useEffect(() => {
     fetchExperienceRequestsFromD1();
+    fetchVolunteerCardRequestsFromD1();
   }, []);
 
   React.useEffect(() => {
