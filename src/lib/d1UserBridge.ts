@@ -255,9 +255,9 @@ export const d1UserBridge = {
   },
 
   // 12. Fetch all Volunteer Card requests for Admin from D1
-  getAdminVolunteerCardRequests: async (): Promise<any[]> => {
+  getAdminVolunteerCardRequests: async (adminEmail: string): Promise<any[]> => {
     try {
-      const res = await fetch('/api/volunteer-card/admin/all');
+      const res = await fetch(`/api/volunteer-card/admin/all?email=${encodeURIComponent(adminEmail)}`);
       if (res.ok) {
         const data = await res.json();
         return Array.isArray(data.requests) ? data.requests : [];
@@ -269,9 +269,9 @@ export const d1UserBridge = {
   },
 
   // 13. Fetch all Experience Certificate requests for Admin from D1
-  getAdminExperienceRequests: async (): Promise<any[]> => {
+  getAdminExperienceRequests: async (adminEmail: string): Promise<any[]> => {
     try {
-      const res = await fetch('/api/experience-certificate/admin/all');
+      const res = await fetch(`/api/experience-certificate/admin/all?email=${encodeURIComponent(adminEmail)}`);
       if (res.ok) {
         const data = await res.json();
         return Array.isArray(data.requests) ? data.requests : [];

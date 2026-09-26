@@ -209,7 +209,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const fetchExperienceRequestsFromD1 = async () => {
     setLoadingExperienceRequests(true);
     try {
-      const list = await d1UserBridge.getAdminExperienceRequests();
+      const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+      const list = await d1UserBridge.getAdminExperienceRequests(adminEmail);
       const formatted = list.map((item: any) => ({
         id: item.id,
         publicUserId: item.public_user_id,
@@ -239,7 +240,8 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const fetchVolunteerCardRequestsFromD1 = async () => {
     setLoadingVolunteerCardRequests(true);
     try {
-      const list = await d1UserBridge.getAdminVolunteerCardRequests();
+      const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+      const list = await d1UserBridge.getAdminVolunteerCardRequests(adminEmail);
       const formatted = list.map((item: any) => ({
         id: item.id,
         publicUserId: item.public_user_id,
