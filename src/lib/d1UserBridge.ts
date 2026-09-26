@@ -287,11 +287,10 @@ export const d1UserBridge = {
     try {
       const params = new URLSearchParams();
       if (publicUserId) params.set('public_user_id', publicUserId);
-      if (userId) params.set('user_id', userId);
       const res = await fetch(`/api/volunteer-card/mine?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        return data.request || null;
+        return Array.isArray(data.requests) && data.requests.length > 0 ? data.requests[0] : null;
       }
       return null;
     } catch (e) {
@@ -304,11 +303,10 @@ export const d1UserBridge = {
     try {
       const params = new URLSearchParams();
       if (publicUserId) params.set('public_user_id', publicUserId);
-      if (userId) params.set('user_id', userId);
       const res = await fetch(`/api/experience-certificate/mine?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        return data.request || null;
+        return Array.isArray(data.requests) && data.requests.length > 0 ? data.requests[0] : null;
       }
       return null;
     } catch (e) {
