@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag, Layers } from 'lucide-react';
-
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { d1UserBridge } from '../lib/d1UserBridge';
 
@@ -43,36 +43,24 @@ export default function UserDashboardModal({
         const uid = currentUser.uid;
         const email = currentUser.email;
 
-        // Fetch contributions / routes added from Cloudflare D1 user tables & Firestore
-        const publicUserId = await d1UserBridge.ensureProfile(currentUser);
-        let d1Contribs: any[] = [];
-        try {
-          const d1Res = await fetch(`/api/contributions/mine?public_user_id=${publicUserId}`);
-          if (d1Res.ok) {
-            const d1Data = await d1Res.json();
-            if (d1Data.success && Array.isArray(d1Data.contributions)) {
-              d1Contribs = d1Data.contributions.map((c: any) => ({
-                id: `d1-${c.id}`,
-                companyName: c.company_name || 'Bus Service',
-                origin: c.stops?.[0]?.city_name || 'Origin',
-                destination: c.stops?.[c.stops?.length - 1]?.city_name || 'Destination',
-                departureTime: c.stops?.[0]?.departure_time || '08:00',
-                busNumber: c.vehicle_plate || 'N/A',
-                status: (c.status || 'Pending').toLowerCase(),
-                routeMap: c.route_map,
-                createdAt: c.submitted_at
-              }));
-            }
-          }
-        } catch (d1Err) {
-          console.warn('D1 contributions fetch notice:', d1Err);
-        }
-
-        const contribSnap = await getDocs(query(collection(db, 'contributions'), where('userId', '==', uid)));
-        const fbContribs = contribSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        
-        // Merge and deduplicate
-        setContributions([...d1Contribs, ...fbContribs]);
+        // Fetch contributions from Cloudflare D1 (sirf is user ki)
+        const pubId = await d1UserBridge.ensureProfile(currentUser);
+        const cRes = await fetch(`/api/contributions/mine?public_user_id=${encodeURIComponent(pubId)}`);
+        const cData = await cRes.json();
+        setContributions((cData.contributions || []).map((c: any) => ({
+          id: `d1-${c.id}`,
+          companyName: c.company_name,
+          busNumber: c.vehicle_plate,
+          origin: c.stops?.[0]?.city_name,
+          destination: c.stops?.[c.stops.length - 1]?.city_name,
+          departureTime: c.stops?.[0]?.departure_time,
+          type: c.service_type,
+          isAC: c.climate_control === 'AC',
+          contactNumber: c.contact_number,
+          fare: 0,
+          status: c.status,
+          remarks: c.remarks
+        })));
 
         // Fetch volunteer applications
         const volSnap = await getDocs(query(collection(db, 'volunteers'), where('userId', '==', uid)));
@@ -101,10 +89,11 @@ export default function UserDashboardModal({
   }, [currentUser]);
 
   // Route stats
+  const norm = (s: any) => String(s || 'pending').toLowerCase();
   const totalRoutes = contributions.length;
-  const acceptedRoutes = contributions.filter(c => c.status === 'approved' || c.status === 'accepted' || !c.status).length;
-  const rejectedRoutes = contributions.filter(c => c.status === 'rejected').length;
-  const pendingRoutes = contributions.filter(c => c.status === 'pending').length;
+  const acceptedRoutes = contributions.filter(c => ['approved', 'accepted'].includes(norm(c.status))).length;
+  const rejectedRoutes = contributions.filter(c => norm(c.status) === 'rejected').length;
+  const pendingRoutes = contributions.filter(c => norm(c.status) === 'pending').length;
 
   const content = (
     <div className={`relative w-full ${isPage ? 'max-w-5xl mx-auto my-8' : 'max-w-4xl my-8'} bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 flex flex-col border border-slate-100 ${isPage ? '' : 'max-h-[92vh]'}`}>
@@ -260,10 +249,10 @@ export default function UserDashboardModal({
                               </td>
                               <td className="px-6 py-4 text-right">
                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                  contrib.status === 'approved' || contrib.status === 'accepted' || !contrib.status ? 'bg-emerald-100 text-emerald-800' :
-                                  contrib.status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                  ['approved', 'accepted'].includes(norm(contrib.status)) ? 'bg-emerald-100 text-emerald-800' :
+                                  norm(contrib.status) === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
                                 }`}>
-                                  {contrib.status || 'Accepted'}
+                                  {contrib.status || 'Pending'}
                                 </span>
                               </td>
                             </tr>

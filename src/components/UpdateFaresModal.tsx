@@ -45,50 +45,18 @@ export default function UpdateFaresModal({ onClose }: UpdateFaresModalProps) {
     setError('');
 
     try {
-      const non_ac = Number(fareNonAc) || 0;
-      const ac = Number(fareAc) || 0;
-      const executive = Number(fareExec) || 0;
-      const business = Number(fareBiz) || 0;
-      const sleeper = Number(fareSleep) || 0;
-
-      // 1. Ensure user has a public_user_id in D1
       const publicUserId = await d1UserBridge.ensureProfile(currentUser);
 
-      // 2. Submit directly to D1 user table contributions_Fare (Status: Pending)
-      const d1Result = await d1UserBridge.submitFareContribution(publicUserId, {
+      const res = await d1UserBridge.submitFareContribution(publicUserId, {
         origin: fareOrigin,
         destination: fareDestination,
-        non_ac,
-        ac,
-        executive,
-        business,
-        sleeper,
-        remarks: 'User submitted route fare update'
+        non_ac: Number(fareNonAc) || 0,
+        ac: Number(fareAc) || 0,
+        executive: Number(fareExec) || 0,
+        business: Number(fareBiz) || 0,
+        sleeper: Number(fareSleep) || 0
       });
-
-      // 3. User activity mirror
-      try {
-        await contributionService.submitContribution({
-          companyName: `Fare Update: ${fareOrigin} to ${fareDestination}`,
-          origin: fareOrigin,
-          destination: fareDestination,
-          departureTime: 'N/A',
-          busNumber: 'FARES',
-          contactNumber: currentUser.phoneNumber || 'N/A',
-          fare: non_ac || ac || executive || business || sleeper,
-          isAC: ac > 0,
-          type: 'Fare Update',
-          non_ac,
-          ac,
-          executive,
-          business,
-          sleeper,
-          userId: currentUser.uid,
-          status: 'pending'
-        });
-      } catch (fbErr) {
-        console.warn('Notice saving local contribution mirror:', fbErr);
-      }
+      if (!res.success) throw new Error(res.message || 'Fare submission failed');
 
       setSuccess(true);
       setTimeout(onClose, 3000);
@@ -139,9 +107,9 @@ export default function UpdateFaresModal({ onClose }: UpdateFaresModalProps) {
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h4 className="text-xl font-black text-slate-900">Fares Updated Successfully!</h4>
+              <h4 className="text-xl font-black text-slate-900">Fare Request Submitted for Review!</h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Thank you for contributing! Route fares for all matching buses have been updated and verified on AsaanSafar.
+                Thank you for contributing! Your route fare update has been submitted for admin review and verification on AsaanSafar.
               </p>
             </div>
           ) : (
