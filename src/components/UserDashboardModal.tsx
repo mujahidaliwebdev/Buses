@@ -88,7 +88,7 @@ export default function UserDashboardModal({
       const pubId = await d1UserBridge.ensureProfile(currentUser);
 
       // 1. Fetch user bus contributions from Cloudflare D1
-      const cRes = await fetch(`/api/contributions/mine?public_user_id=${encodeURIComponent(pubId)}`);
+      const cRes = await fetch(`/api/contributions/mine?public_user_id=${encodeURIComponent(pubId)}&user_id=${encodeURIComponent(uid)}`);
       const cData = await cRes.json();
       setContributions((cData.contributions || []).map((c: any) => ({
         id: `d1-${c.id}`,
@@ -112,7 +112,7 @@ export default function UserDashboardModal({
       })));
 
       // 2. Fetch user fare contributions from Cloudflare D1
-      const myFares = await d1UserBridge.getMyFareRequests(pubId);
+      const myFares = await d1UserBridge.getMyFareRequests(pubId, uid);
       setFareRequests(Array.isArray(myFares) ? myFares : []);
 
       // 3. Fetch volunteer applications
@@ -433,6 +433,8 @@ export default function UserDashboardModal({
         status: 'Pending',
         remarks: null
       } : f));
+
+      fetchUserData();
 
       setTimeout(() => {
         setEditingFare(null);

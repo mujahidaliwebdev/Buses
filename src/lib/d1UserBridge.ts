@@ -357,9 +357,12 @@ export const d1UserBridge = {
   },
 
   // 19. User Fetch my Fare requests from D1
-  getMyFareRequests: async (publicUserId: string): Promise<any[]> => {
+  getMyFareRequests: async (publicUserId: string, userId?: string): Promise<any[]> => {
     try {
-      const res = await fetch(`/api/fare-requests/mine?public_user_id=${encodeURIComponent(publicUserId)}`);
+      const params = new URLSearchParams();
+      if (publicUserId) params.set('public_user_id', publicUserId);
+      if (userId) params.set('user_id', userId);
+      const res = await fetch(`/api/fare-requests/mine?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         return Array.isArray(data.fares) ? data.fares : [];
