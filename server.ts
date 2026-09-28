@@ -1154,14 +1154,13 @@ async function startServer() {
   app.get("/api/contributions/mine", async (req, res) => {
     try {
       const pubId = String(req.query.public_user_id || "").trim();
-      if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
+      const userId = String(req.query.user_id || "").trim();
+      if (!pubId && !userId) return res.status(400).json({ success: false, message: "public_user_id or user_id required" });
 
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, contributions: [] });
-      }
-
-      const contribs = await queryD1("SELECT * FROM contributions_Bus WHERE public_user_id = ? ORDER BY submitted_at DESC", [pubId]);
+      const contribs = await queryD1(
+        "SELECT * FROM contributions_Bus WHERE public_user_id = ? OR public_user_id = ? ORDER BY submitted_at DESC",
+        [pubId, userId || pubId]
+      );
       for (const c of contribs) {
         try {
           const stops = await queryD1("SELECT * FROM contributions_Stops WHERE contribution_id = ? ORDER BY stop_sequence", [c.id]);
@@ -1173,6 +1172,7 @@ async function startServer() {
 
       return res.json({ success: true, contributions: contribs || [] });
     } catch (err: any) {
+      console.warn("Notice querying mine contributions:", err);
       return res.json({ success: true, contributions: [] });
     }
   });
@@ -1182,11 +1182,6 @@ async function startServer() {
       const email = String(req.query.email || "").trim();
       if (email && !ADMIN_EMAILS.includes(email) && !email.includes('admin')) {
         return res.status(403).json({ success: false, message: "Forbidden" });
-      }
-
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, contributions: [] });
       }
 
       const contribs = await queryD1("SELECT * FROM contributions_Bus ORDER BY submitted_at DESC");
@@ -1201,6 +1196,7 @@ async function startServer() {
 
       return res.json({ success: true, contributions: contribs || [] });
     } catch (err: any) {
+      console.warn("Notice querying admin contributions:", err);
       return res.json({ success: true, contributions: [] });
     }
   });
@@ -1274,11 +1270,15 @@ async function startServer() {
   app.post("/api/contributions/:id/resubmit", async (req, res) => {
     try {
       const contribId = req.params.id;
-      const { public_user_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map, stops } = req.body;
-      const pubId = String(public_user_id || "").trim();
+      const { public_user_id, user_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map, stops } = req.body;
+      const pubId = String(public_user_id || user_id || "").trim();
+      const uId = String(user_id || public_user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
-      const existing = await queryD1("SELECT id FROM contributions_Bus WHERE id = ? AND public_user_id = ?", [contribId, pubId]);
+      const existing = await queryD1(
+        "SELECT id FROM contributions_Bus WHERE id = ? AND (public_user_id = ? OR public_user_id = ?)",
+        [contribId, pubId, uId]
+      );
       if (!existing || existing.length === 0) {
         return res.status(404).json({ success: false, message: "Contribution not found or not owned by user." });
       }
@@ -1292,7 +1292,7 @@ async function startServer() {
       const rmap = escapeSql(route_map || "");
 
       await queryD1(
-        `UPDATE contributions_Bus SET company_name = ${comp}, vehicle_plate = ${plate}, contact_number = ${contact}, climate_control = ${climate}, service_type = ${stype}, route_map = ${rmap}, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ${contribId} AND public_user_id = '${pubId.replace(/'/g, "''")}'`
+        `UPDATE contributions_Bus SET company_name = ${comp}, vehicle_plate = ${plate}, contact_number = ${contact}, climate_control = ${climate}, service_type = ${stype}, route_map = ${rmap}, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ${contribId}`
       );
 
       // Replace stops if provided
@@ -1409,13 +1409,15 @@ async function startServer() {
   // 3. User Contributions: Fares -> contributions_Fare
   app.post("/api/fare-requests/submit", async (req, res) => {
     try {
-      const { public_user_id, origin, destination, non_ac, ac, executive, business, sleeper, remarks } = req.body;
-      const pubId = String(public_user_id || "").trim();
+      const { public_user_id, user_id, origin, destination, non_ac, ac, executive, business, sleeper, remarks } = req.body;
+      const pubId = String(public_user_id || user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
       const orig = String(origin || "").trim();
       const dest = String(destination || "").trim();
       if (!orig || !dest) return res.status(400).json({ success: false, message: "Origin and Destination required" });
+
+      await ensureContributionsFareTable();
 
       const nAc = Number(non_ac) || 0;
       const aC = Number(ac) || 0;
@@ -1473,10 +1475,6 @@ async function startServer() {
       }
 
       await ensureContributionsFareTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, requests: [] });
-      }
 
       const rows = await queryD1(`
         SELECT cf.*, 
@@ -1500,17 +1498,18 @@ async function startServer() {
   app.get("/api/fare-requests/mine", async (req, res) => {
     try {
       const pubId = String(req.query.public_user_id || "").trim();
-      if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
+      const userId = String(req.query.user_id || "").trim();
+      if (!pubId && !userId) return res.status(400).json({ success: false, message: "public_user_id or user_id required" });
 
       await ensureContributionsFareTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, fares: [] });
-      }
 
-      const rows = await queryD1("SELECT * FROM contributions_Fare WHERE public_user_id = ? ORDER BY id DESC", [pubId]);
+      const rows = await queryD1(
+        "SELECT * FROM contributions_Fare WHERE public_user_id = ? OR public_user_id = ? ORDER BY id DESC",
+        [pubId, userId || pubId]
+      );
       return res.json({ success: true, fares: rows || [] });
     } catch (err: any) {
+      console.warn("Notice querying mine fare requests:", err);
       return res.json({ success: true, fares: [] });
     }
   });
@@ -1627,19 +1626,23 @@ async function startServer() {
   app.post("/api/fare-requests/:id/resubmit", async (req, res) => {
     try {
       const fareId = req.params.id;
-      const { public_user_id, origin, destination, non_ac, ac, executive, business, sleeper } = req.body;
-      const pubId = String(public_user_id || "").trim();
+      const { public_user_id, user_id, origin, destination, non_ac, ac, executive, business, sleeper } = req.body;
+      const pubId = String(public_user_id || user_id || "").trim();
+      const uId = String(user_id || public_user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
       await ensureContributionsFareTable();
-      const existing = await queryD1("SELECT id FROM contributions_Fare WHERE id = ? AND public_user_id = ?", [fareId, pubId]);
+      const existing = await queryD1(
+        "SELECT id FROM contributions_Fare WHERE id = ? AND (public_user_id = ? OR public_user_id = ?)",
+        [fareId, pubId, uId]
+      );
       if (!existing || existing.length === 0) {
         return res.status(404).json({ success: false, message: "Fare request not found or not owned by user." });
       }
 
       await queryD1(
-        "UPDATE contributions_Fare SET origin = ?, destination = ?, non_ac = ?, ac = ?, executive = ?, business = ?, sleeper = ?, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ? AND public_user_id = ?",
-        [String(origin || "").trim(), String(destination || "").trim(), Number(non_ac) || 0, Number(ac) || 0, Number(executive) || 0, Number(business) || 0, Number(sleeper) || 0, fareId, pubId]
+        "UPDATE contributions_Fare SET origin = ?, destination = ?, non_ac = ?, ac = ?, executive = ?, business = ?, sleeper = ?, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ?",
+        [String(origin || "").trim(), String(destination || "").trim(), Number(non_ac) || 0, Number(ac) || 0, Number(executive) || 0, Number(business) || 0, Number(sleeper) || 0, fareId]
       );
 
       return res.json({ success: true, message: "Fare request resubmitted for review successfully." });

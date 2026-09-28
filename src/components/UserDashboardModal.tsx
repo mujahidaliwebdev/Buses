@@ -58,6 +58,7 @@ export default function UserDashboardModal({
   const [editTerminal, setEditTerminal] = useState('');
   const [editStand, setEditStand] = useState('');
   const [editStops, setEditStops] = useState<any[]>([]);
+  const [customCityIndices, setCustomCityIndices] = useState<Record<number, boolean>>({});
 
   // Editing state for rejected fare
   const [editingFare, setEditingFare] = useState<any | null>(null);
@@ -165,7 +166,7 @@ export default function UserDashboardModal({
         arrival_time: '10:00',
         departure_time: '10:15',
         location: 'General Bus Stand',
-        stand: '1'
+        stand: 'General Bus Stand'
       }
     ]);
   };
@@ -175,24 +176,53 @@ export default function UserDashboardModal({
       setResubmitErrorMsg('A bus route must have at least 2 stops. (کم از کم 2 اسٹاپس ضروری ہیں)');
       return;
     }
-    const updated = editStops.filter((_, i) => i !== index).map((s, idx) => ({ ...s, stop_sequence: idx + 1 }));
-    setEditStops(updated);
+    setEditStops(prev => prev.filter((_, i) => i !== index).map((s, idx) => ({ ...s, stop_sequence: idx + 1 })));
+    setCustomCityIndices(prev => {
+      const nextMap: Record<number, boolean> = {};
+      Object.keys(prev).forEach(k => {
+        const ki = Number(k);
+        if (ki < index) nextMap[ki] = prev[ki];
+        else if (ki > index) nextMap[ki - 1] = prev[ki];
+      });
+      return nextMap;
+    });
   };
 
   const handleMoveStop = (index: number, direction: 'up' | 'down') => {
-    if ((direction === 'up' && index === 0) || (direction === 'down' && index === editStops.length - 1)) return;
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    const updated = [...editStops];
-    const temp = updated[index];
-    updated[index] = updated[targetIndex];
-    updated[targetIndex] = temp;
-    setEditStops(updated.map((s, idx) => ({ ...s, stop_sequence: idx + 1 })));
+    setEditStops(prev => {
+      if ((direction === 'up' && index === 0) || (direction === 'down' && index === prev.length - 1)) return prev;
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[targetIndex];
+      updated[targetIndex] = temp;
+      return updated.map((s, idx) => ({ ...s, stop_sequence: idx + 1 }));
+    });
+    setCustomCityIndices(prev => {
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      const nextMap = { ...prev };
+      const curVal = !!nextMap[index];
+      const targetVal = !!nextMap[targetIndex];
+      nextMap[index] = targetVal;
+      nextMap[targetIndex] = curVal;
+      return nextMap;
+    });
   };
 
   const handleStopChange = (index: number, field: string, value: any) => {
-    const updated = [...editStops];
-    updated[index] = { ...updated[index], [field]: value };
-    setEditStops(updated);
+    setEditStops(prev => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = { ...updated[index], [field]: value };
+        // Keep terminal location and stand synchronized so database updates accurately
+        if (field === 'location') {
+          updated[index].stand = value;
+        } else if (field === 'stand') {
+          updated[index].location = value;
+        }
+      }
+      return updated;
+    });
   };
 
   // Open Edit Route Modal
@@ -210,36 +240,52 @@ export default function UserDashboardModal({
     setEditTerminal(route.terminalLocation || '');
     setEditStand(route.standNumber || '');
     
+    const initialCustomMap: Record<number, boolean> = {};
+
     if (Array.isArray(route.stops) && route.stops.length >= 2) {
-      setEditStops(route.stops.map((s: any, idx: number) => ({
-        stop_sequence: s.stop_sequence || (idx + 1),
-        city_name: s.city_name || '',
-        arrival_time: s.arrival_time || '',
-        departure_time: s.departure_time || '',
-        location: s.location || s.stand || '',
-        stand: s.stand || s.location || ''
-      })));
+      setEditStops(route.stops.map((s: any, idx: number) => {
+        const cityName = s.city_name || '';
+        if (cityName && !PAKISTAN_CITIES.includes(cityName)) {
+          initialCustomMap[idx] = true;
+        }
+        const loc = s.location || s.stand || '';
+        return {
+          stop_sequence: s.stop_sequence || (idx + 1),
+          city_name: cityName,
+          arrival_time: s.arrival_time || '',
+          departure_time: s.departure_time || '',
+          location: loc,
+          stand: loc || 'General Bus Stand'
+        };
+      }));
     } else {
+      const origLoc = route.terminalLocation || route.standNumber || 'General Bus Stand';
+      const origCity = route.origin || 'Lahore';
+      const destCity = route.destination || 'Rawalpindi';
+      if (origCity && !PAKISTAN_CITIES.includes(origCity)) initialCustomMap[0] = true;
+      if (destCity && !PAKISTAN_CITIES.includes(destCity)) initialCustomMap[1] = true;
+
       setEditStops([
         { 
           stop_sequence: 1, 
-          city_name: route.origin || 'Lahore', 
+          city_name: origCity, 
           arrival_time: route.departureTime || '08:00', 
           departure_time: route.departureTime || '08:30', 
-          location: route.terminalLocation || 'General Bus Stand', 
-          stand: route.standNumber || '1' 
+          location: origLoc, 
+          stand: origLoc 
         },
         { 
           stop_sequence: 2, 
-          city_name: route.destination || 'Rawalpindi', 
+          city_name: destCity, 
           arrival_time: route.arrivalTime || '13:30', 
           departure_time: route.arrivalTime || '14:00', 
           location: 'Main Terminal', 
-          stand: '1' 
+          stand: 'Main Terminal' 
         }
       ]);
     }
 
+    setCustomCityIndices(initialCustomMap);
     setResubmitSuccessMsg(null);
     setResubmitErrorMsg(null);
   };
@@ -274,9 +320,10 @@ export default function UserDashboardModal({
       }));
 
       const routeMapStr = preparedStops.map(s => s.city_name).filter(Boolean).join(' -> ');
+      const targetId = editingRoute.rawId || String(editingRoute.id || '').replace('d1-', '');
 
       const res = await d1UserBridge.resubmitBusContribution(
-        editingRoute.rawId,
+        targetId,
         pubId,
         {
           company_name: editCompanyName.trim(),
@@ -296,7 +343,7 @@ export default function UserDashboardModal({
       setResubmitSuccessMsg('Route updated and resubmitted for admin review! (روٹ کی تصحیح کر کے ایڈمن کو دوبارہ بھیج دیا گیا)');
       
       // Update local state optimistically
-      setContributions(prev => prev.map(c => c.rawId === editingRoute.rawId ? {
+      setContributions(prev => prev.map(c => (c.rawId === editingRoute.rawId || c.id === editingRoute.id) ? {
         ...c,
         companyName: editCompanyName.trim(),
         busNumber: editBusNumber.trim(),
@@ -315,10 +362,13 @@ export default function UserDashboardModal({
         stops: preparedStops
       } : c));
 
+      // Refresh data from server
+      fetchUserData();
+
       setTimeout(() => {
         setEditingRoute(null);
         setResubmitSuccessMsg(null);
-      }, 2000);
+      }, 1800);
 
     } catch (err: any) {
       setResubmitErrorMsg(err.message || 'Error resubmitting route');
@@ -1063,18 +1113,55 @@ export default function UserDashboardModal({
                         </div>
 
                         <div className="sm:col-span-3">
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">City Name (شہر)</label>
-                          <input
-                            type="text"
-                            list={`user-edit-city-list-${index}`}
-                            value={stop.city_name}
-                            onChange={(e) => handleStopChange(index, 'city_name', e.target.value)}
-                            placeholder="Select or enter city"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-medium text-slate-900 outline-none focus:border-emerald-600"
-                          />
-                          <datalist id={`user-edit-city-list-${index}`}>
-                            {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                          </datalist>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[10px] font-bold text-slate-500">
+                              City Name (شہر)
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCustomCityIndices(prev => ({
+                                  ...prev,
+                                  [index]: !prev[index]
+                                }));
+                              }}
+                              className="text-[9px] font-black text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.5 rounded transition-all cursor-pointer"
+                              title="Toggle between dropdown list and custom typing"
+                            >
+                              {customCityIndices[index] ? '📋 Select List' : '✍️ Custom City'}
+                            </button>
+                          </div>
+
+                          {customCityIndices[index] ? (
+                            <input
+                              type="text"
+                              value={stop.city_name ?? ''}
+                              onChange={(e) => handleStopChange(index, 'city_name', e.target.value)}
+                              placeholder="Type city name..."
+                              className="w-full bg-white border border-emerald-400 rounded-xl py-2 px-3 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/20"
+                              autoFocus
+                            />
+                          ) : (
+                            <select
+                              value={stop.city_name || ''}
+                              onChange={(e) => {
+                                if (e.target.value === '__CUSTOM__') {
+                                  setCustomCityIndices(prev => ({ ...prev, [index]: true }));
+                                } else {
+                                  handleStopChange(index, 'city_name', e.target.value);
+                                }
+                              }}
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-semibold text-slate-900 outline-none focus:border-emerald-600 cursor-pointer"
+                            >
+                              {stop.city_name && !PAKISTAN_CITIES.includes(stop.city_name) && (
+                                <option value={stop.city_name}>{stop.city_name} (Current)</option>
+                              )}
+                              {PAKISTAN_CITIES.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                              <option value="__CUSTOM__">✍️ Other / Type Custom City...</option>
+                            </select>
+                          )}
                         </div>
 
                         <div className="sm:col-span-2">
@@ -1082,7 +1169,7 @@ export default function UserDashboardModal({
                           <input
                             type="text"
                             placeholder="08:00"
-                            value={stop.arrival_time}
+                            value={stop.arrival_time ?? ''}
                             onChange={(e) => handleStopChange(index, 'arrival_time', e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
                           />
@@ -1093,7 +1180,7 @@ export default function UserDashboardModal({
                           <input
                             type="text"
                             placeholder="08:30"
-                            value={stop.departure_time}
+                            value={stop.departure_time ?? ''}
                             onChange={(e) => handleStopChange(index, 'departure_time', e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
                           />
@@ -1103,13 +1190,10 @@ export default function UserDashboardModal({
                           <label className="block text-[10px] font-bold text-slate-500 mb-1">Terminal / Stand (اڈا / ٹرمینل)</label>
                           <input
                             type="text"
-                            placeholder="General Stand"
-                            value={stop.location || stop.stand || ''}
-                            onChange={(e) => {
-                              handleStopChange(index, 'location', e.target.value);
-                              handleStopChange(index, 'stand', e.target.value);
-                            }}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-900 outline-none focus:border-emerald-600"
+                            placeholder="General Bus Stand"
+                            value={stop.location ?? ''}
+                            onChange={(e) => handleStopChange(index, 'location', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-900 outline-none focus:border-emerald-600 font-medium"
                           />
                         </div>
 
@@ -1246,22 +1330,30 @@ export default function UserDashboardModal({
                     <label className="font-black text-slate-700 block mb-1">Origin City (روانگی)</label>
                     <input
                       type="text"
+                      list="user-fare-edit-origin-list"
                       required
                       value={editFareOrigin}
                       onChange={(e) => setEditFareOrigin(e.target.value)}
                       className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-semibold"
                     />
+                    <datalist id="user-fare-edit-origin-list">
+                      {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </datalist>
                   </div>
 
                   <div>
                     <label className="font-black text-slate-700 block mb-1">Destination City (منزل)</label>
                     <input
                       type="text"
+                      list="user-fare-edit-dest-list"
                       required
                       value={editFareDest}
                       onChange={(e) => setEditFareDest(e.target.value)}
                       className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-semibold"
                     />
+                    <datalist id="user-fare-edit-dest-list">
+                      {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </datalist>
                   </div>
                 </div>
 
