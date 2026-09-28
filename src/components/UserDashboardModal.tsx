@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, Award, Sparkles, AlertCircle, BarChart3, Tag, Layers } from 'lucide-react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+
 import { db, auth } from '../lib/firebase';
 import { d1UserBridge } from '../lib/d1UserBridge';
 

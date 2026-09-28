@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Bus as BusIcon, Plus, Trash2, ArrowUp, ArrowDown, CheckCircle2, AlertCircle, Layers } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
-import { contributionService } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -132,36 +131,12 @@ export default function AddFullBusRouteModal({ onClose }: AddFullBusRouteModalPr
 
       // 2. Submit directly to D1 user tables: contributions_Bus & contributions_Stops (Status: Pending)
       const result = await d1UserBridge.submitBusContribution(publicUserId, busPayload, stopsPayload);
-
-      // 3. Also record in user activity/contributions for backward UI compatibility & real-time Admin review
-      try {
-        await contributionService.submitContribution({
-          companyName: basicInfo.company_name,
-          origin: stops[0]?.city_name || 'Origin',
-          destination: stops[stops.length - 1]?.city_name || 'Destination',
-          departureTime: stops[0]?.departure_time || '08:00',
-          busNumber: basicInfo.vehicle_plate || basicInfo.bus_id,
-          contactNumber: basicInfo.contact_number,
-          fare: 0,
-          isAC: basicInfo.climate_control === 'AC',
-          type: basicInfo.service_type,
-          routeMap: routeMapStr,
-          stops: stopsPayload,
-          d1ContributionId: result.id || null,
-          userId: currentUser.uid,
-          publicUserId: publicUserId,
-          status: 'pending'
-        });
-      } catch (fbErr) {
-        console.warn('Notice saving local contribution mirror:', fbErr);
-      }
-
-      if (result.success) {
-        setSuccess(true);
-        setTimeout(onClose, 3000);
-      } else {
+      if (!result.success) {
         throw new Error(result.message || 'Failed to save full bus route map to database.');
       }
+
+      setSuccess(true);
+      setTimeout(onClose, 3000);
     } catch (err: any) {
       setError(err.message || 'Failed to submit full bus route map. Please try again.');
     } finally {

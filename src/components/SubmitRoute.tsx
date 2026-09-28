@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, MapPin, Clock, Phone, Bus, Send, CheckCircle2, AlertCircle, Info, ChevronRight, User } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
-import { contributionService } from '../lib/firestoreService';
+import { d1UserBridge } from '../lib/d1UserBridge';
 import { calculateDuration } from '../lib/timeUtils';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -61,22 +61,34 @@ export default function SubmitRoute({ onClose }: SubmitRouteProps) {
     setError('');
 
     try {
-      await contributionService.submitContribution({
-        companyName: formData.companyName,
-        origin: formData.origin,
-        destination: formData.destination,
-        departureTime: formData.departureTime,
-        arrivalTime: formData.arrivalTime,
-        fare: parseInt(formData.fare) || 0,
-        busNumber: formData.busNumber,
-        contactNumber: formData.contactNumber,
-        terminalLocation: formData.terminalLocation,
-        standNumber: formData.standNumber || 'N/A',
-        duration: formData.duration,
-        isAC: formData.isAC,
-        type: formData.type,
-        userId: currentUser.uid
-      });
+      const publicUserId = await d1UserBridge.ensureProfile(currentUser);
+
+      const res = await d1UserBridge.submitBusContribution(
+        publicUserId,
+        {
+          company_name: formData.companyName,
+          vehicle_plate: formData.busNumber,
+          contact_number: formData.contactNumber,
+          climate_control: formData.type === 'Non-AC' ? 'Non-AC' : 'AC',
+          service_type: formData.type === 'Non-AC' ? 'Standard' : formData.type,
+          route_map: `${formData.origin} -> ${formData.destination}`
+        },
+        [
+          { stop_sequence: 1, city_name: formData.origin, arrival_time: formData.departureTime, departure_time: formData.departureTime, location: formData.terminalLocation, stand: formData.standNumber || '' },
+          { stop_sequence: 2, city_name: formData.destination, arrival_time: formData.arrivalTime, departure_time: formData.arrivalTime, location: '', stand: '' }
+        ]
+      );
+      if (!res.success) throw new Error(res.message || 'Submission failed');
+
+      // Ticket price bhi alag fare request ke tor par jaye
+      const fareVal = parseInt(formData.fare) || 0;
+      if (fareVal > 0) {
+        await d1UserBridge.submitFareContribution(publicUserId, {
+          origin: formData.origin,
+          destination: formData.destination,
+          ...(formData.type === 'Non-AC' ? { non_ac: fareVal } : { ac: fareVal })
+        });
+      }
       
       setIsSuccess(true);
       setTimeout(onClose, 3000);

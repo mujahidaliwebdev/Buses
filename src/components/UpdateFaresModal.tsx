@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
 import { PAKISTAN_CITIES } from '../data/mockBuses';
-import { busService, contributionService } from '../lib/firestoreService';
 import { d1UserBridge } from '../lib/d1UserBridge';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
