@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Bus } from '../types';
+import type { Bus } from '../types';
 import { 
   Plus, 
   Trash2, 
@@ -33,7 +33,8 @@ import {
   XCircle,
   ChevronDown,
   ChevronUp,
-  Check
+  Check,
+  RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { busService, reportService, contributionService, settingsService, userService, ExperienceRequestItem, VolunteerCardRequestItem } from '../lib/firestoreService';
@@ -87,6 +88,15 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [rejectingVCId, setRejectingVCId] = useState<string | null>(null);
   const [vcRejectionReasonInput, setVcRejectionReasonInput] = useState('');
   const [submittingVCReject, setSubmittingVCReject] = useState(false);
+
+  // Fare Requests admin state
+  const [isViewingFareRequests, setIsViewingFareRequests] = useState(false);
+  const [fareRequestsList, setFareRequestsList] = useState<any[]>([]);
+  const [loadingFareRequests, setLoadingFareRequests] = useState(true);
+  const [fareFilterStatus, setFareFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [rejectingFareId, setRejectingFareId] = useState<string | number | null>(null);
+  const [fareRejectionReasonInput, setFareRejectionReasonInput] = useState('');
+  const [submittingFareReject, setSubmittingFareReject] = useState(false);
 
   // User route contributions admin states
   const [contributionFilterStatus, setContributionFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
@@ -268,9 +278,23 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }
   };
 
+  const fetchFareRequestsFromD1 = async () => {
+    setLoadingFareRequests(true);
+    try {
+      const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+      const list = await d1UserBridge.getAdminFareRequests(adminEmail);
+      setFareRequestsList(list);
+    } catch (err) {
+      console.error("Error loading fare requests from D1:", err);
+    } finally {
+      setLoadingFareRequests(false);
+    }
+  };
+
   React.useEffect(() => {
     fetchExperienceRequestsFromD1();
     fetchVolunteerCardRequestsFromD1();
+    fetchFareRequestsFromD1();
   }, []);
 
   React.useEffect(() => {
@@ -1175,11 +1199,15 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                 <BusIcon className="w-4 h-4 text-emerald-600 shrink-0" /> 
                 <span className="truncate text-xs">Proposed Routes</span>
               </div>
-              {contributions.length > 0 && (
+              {contributions.filter(c => (c.status || 'pending').toLowerCase() === 'pending').length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-amber-500 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0 animate-pulse">
+                  {contributions.filter(c => (c.status || 'pending').toLowerCase() === 'pending').length}
+                </span>
+              ) : contributions.length > 0 ? (
                 <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {contributions.length}
                 </span>
-              )}
+              ) : null}
             </button>
 
             <button 
@@ -1248,6 +1276,25 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               ) : volunteerCardRequestsList.length > 0 ? (
                 <span className="min-w-[20px] h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
                   {volunteerCardRequestsList.length}
+                </span>
+              ) : null}
+            </button>
+
+            <button 
+              onClick={() => { setIsViewingFareRequests(true); fetchFareRequestsFromD1(); }}
+              className="relative bg-white hover:bg-amber-50/50 text-amber-900 border border-amber-200/80 px-4 py-3 rounded-2xl font-bold flex items-center justify-between shadow-sm transition-all active:scale-95 group"
+            >
+              <div className="flex items-center gap-2.5 truncate">
+                <Tag className="w-4 h-4 text-amber-600 shrink-0" /> 
+                <span className="truncate text-xs">Fare Requests</span>
+              </div>
+              {fareRequestsList.filter(r => String(r.status || '').toLowerCase() === 'pending').length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-amber-500 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0 animate-pulse">
+                  {fareRequestsList.filter(r => String(r.status || '').toLowerCase() === 'pending').length}
+                </span>
+              ) : fareRequestsList.length > 0 ? (
+                <span className="min-w-[20px] h-5 bg-amber-600 text-white text-[10px] font-black rounded-full px-1.5 flex items-center justify-center shrink-0">
+                  {fareRequestsList.length}
                 </span>
               ) : null}
             </button>
@@ -2826,8 +2873,28 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                     </div>
                   </div>
 
-                  {/* Status Filters */}
-                  <div className="flex flex-wrap items-center gap-3">
+                  {/* Category Switcher & Status Filters */}
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
+                    <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-sm flex items-center gap-1.5"
+                      >
+                        <BusIcon className="w-3.5 h-3.5" /> Bus Routes ({contributions.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          resetForm();
+                          setIsViewingFareRequests(true);
+                          fetchFareRequestsFromD1();
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-amber-800 hover:bg-amber-100/60 transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Tag className="w-3.5 h-3.5 text-amber-600" /> Fare Requests ({fareRequestsList.length})
+                      </button>
+                    </div>
+
                     <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
                     {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => {
                       const count = st === 'all' 
@@ -4162,6 +4229,287 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               </button>
               <button
                 onClick={() => setRejectingVCId(null)}
+                className="px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fare Requests Management Modal */}
+      <AnimatePresence>
+        {isViewingFareRequests && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsViewingFareRequests(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-amber-800 via-orange-800 to-amber-900 px-8 py-6 text-white flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20">
+                    <Tag className="w-6 h-6 text-amber-200" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">Fare Requests / کرایہ تجاویز و درخواستیں</h3>
+                    <p className="text-amber-100 text-xs mt-0.5">
+                      Review, verify, and approve user-submitted route fare updates directly into Cloudflare D1.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={fetchFareRequestsFromD1}
+                    className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                    title="Refresh data from D1"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setIsViewingFareRequests(false)}
+                    className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Switcher & Filter Tabs */}
+              <div className="px-8 py-4 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shrink-0">
+                <div className="flex items-center gap-1.5 bg-slate-200/70 p-1.5 rounded-2xl">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsViewingFareRequests(false);
+                      setIsViewingProposals(true);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-black text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <BusIcon className="w-3.5 h-3.5 text-emerald-600" /> Bus Routes ({contributions.length})
+                  </button>
+                  <button
+                    type="button"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-amber-600 text-white shadow-sm flex items-center gap-1.5"
+                  >
+                    <Tag className="w-3.5 h-3.5 text-white" /> Fare Requests ({fareRequestsList.length})
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {(['all', 'pending', 'approved', 'rejected'] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setFareFilterStatus(st)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        fareFilterStatus === st
+                          ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                          : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                      }`}
+                    >
+                      {st} ({fareRequestsList.filter(r => st === 'all' || String(r.status || '').toLowerCase() === st).length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4">
+                {loadingFareRequests ? (
+                  <div className="py-20 text-center text-slate-400 font-bold">Loading fare requests from D1...</div>
+                ) : fareRequestsList.length === 0 ? (
+                  <div className="py-20 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <Tag className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="font-bold text-base text-slate-700">No Fare Requests Yet</p>
+                    <p className="text-xs text-slate-400 mt-1">When users submit fare updates, they will appear here for verification.</p>
+                  </div>
+                ) : (
+                  fareRequestsList
+                    .filter(r => fareFilterStatus === 'all' || String(r.status || '').toLowerCase() === fareFilterStatus)
+                    .map((req) => {
+                      const st = String(req.status || 'Pending').toLowerCase();
+                      return (
+                        <div key={req.id} className="bg-slate-50 hover:bg-white border border-slate-200 rounded-3xl p-6 transition-all space-y-4 shadow-xs">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-full bg-amber-600 text-white font-black text-lg flex items-center justify-center shrink-0 shadow-md">
+                                <Tag className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                                    <span>{req.origin}</span>
+                                    <span className="text-amber-600 font-bold">➔</span>
+                                    <span>{req.destination}</span>
+                                  </h4>
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                    st === 'approved' ? 'bg-emerald-100 text-emerald-800' :
+                                    st === 'rejected' ? 'bg-rose-100 text-rose-800' :
+                                    'bg-amber-100 text-amber-800'
+                                  }`}>
+                                    {req.status || 'Pending'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                                  Contributed by: <strong>{req.display_name || 'Volunteer'}</strong> • {req.email || req.public_user_id || 'User'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {st === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                                        const res = await d1UserBridge.approveFareRequest(req.id, adminEmail);
+                                        if (res.success) {
+                                          alert(`Fare for ${req.origin} to ${req.destination} approved and published to live website!`);
+                                          await fetchFareRequestsFromD1();
+                                        } else {
+                                          alert('Error approving fare: ' + (res.message || 'Unknown error'));
+                                        }
+                                      } catch (err: any) {
+                                        alert('Error approving fare: ' + err.message);
+                                      }
+                                    }}
+                                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" /> Approve (منظور کریں)
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejectingFareId(req.id);
+                                      setFareRejectionReasonInput('');
+                                    }}
+                                    className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    <X className="w-4 h-4" /> Reject (مسترد کریں)
+                                  </button>
+                                </>
+                              )}
+                              {st === 'approved' && (
+                                <span className="px-3 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs rounded-xl flex items-center gap-1">
+                                  <CheckCircle2 className="w-3.5 h-3.5" /> Published Live to D1 Fares
+                                </span>
+                              )}
+                              {st === 'rejected' && (
+                                <span className="px-3 py-2 bg-rose-50 text-rose-800 border border-rose-200 font-bold text-xs rounded-xl">
+                                  Declined
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Fares Breakdown Grid */}
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-white p-4 rounded-2xl border border-slate-100 text-xs">
+                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              <span className="text-[9px] font-black text-slate-400 uppercase block">Non-AC Fare</span>
+                              <span className="font-extrabold text-slate-900 text-sm">
+                                {req.non_ac > 0 ? `Rs. ${Number(req.non_ac).toLocaleString()}` : '-'}
+                              </span>
+                            </div>
+                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              <span className="text-[9px] font-black text-slate-400 uppercase block">AC Standard</span>
+                              <span className="font-extrabold text-emerald-700 text-sm">
+                                {req.ac > 0 ? `Rs. ${Number(req.ac).toLocaleString()}` : '-'}
+                              </span>
+                            </div>
+                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              <span className="text-[9px] font-black text-slate-400 uppercase block">Executive</span>
+                              <span className="font-extrabold text-teal-700 text-sm">
+                                {req.executive > 0 ? `Rs. ${Number(req.executive).toLocaleString()}` : '-'}
+                              </span>
+                            </div>
+                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              <span className="text-[9px] font-black text-slate-400 uppercase block">Business</span>
+                              <span className="font-extrabold text-indigo-700 text-sm">
+                                {req.business > 0 ? `Rs. ${Number(req.business).toLocaleString()}` : '-'}
+                              </span>
+                            </div>
+                            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              <span className="text-[9px] font-black text-slate-400 uppercase block">Sleeper</span>
+                              <span className="font-extrabold text-purple-700 text-sm">
+                                {req.sleeper > 0 ? `Rs. ${Number(req.sleeper).toLocaleString()}` : '-'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Remarks & Submitted At */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1">
+                            <span>
+                              Submitted: <strong>{req.submitted_at ? new Date(req.submitted_at).toLocaleString() : 'Recently'}</strong>
+                            </span>
+                            {req.remarks && (
+                              <span className="text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                                <strong>Remarks:</strong> {req.remarks}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Fare Rejection Reason Prompt Modal */}
+      {rejectingFareId && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setRejectingFareId(null)} />
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl z-10 space-y-4">
+            <h3 className="text-lg font-black text-slate-900">Reason for Rejection / مسترد کرنے کی وجہ</h3>
+            <p className="text-xs text-slate-500">Provide feedback to the user on why this fare proposal was declined.</p>
+            <textarea
+              rows={3}
+              value={fareRejectionReasonInput}
+              onChange={(e) => setFareRejectionReasonInput(e.target.value)}
+              placeholder="e.g. Fare amount does not match current terminal rates or route is already updated..."
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 resize-none"
+            />
+            <div className="flex gap-2 pt-2">
+              <button
+                disabled={submittingFareReject}
+                onClick={async () => {
+                  if (!fareRejectionReasonInput.trim()) {
+                    alert('Please provide a reason.');
+                    return;
+                  }
+                  setSubmittingFareReject(true);
+                  try {
+                    const adminEmail = auth.currentUser?.email || 'mujahidali.webdev@gmail.com';
+                    const res = await d1UserBridge.rejectFareRequest(rejectingFareId, fareRejectionReasonInput.trim(), adminEmail);
+                    if (res.success) {
+                      await fetchFareRequestsFromD1();
+                    }
+                    setRejectingFareId(null);
+                    setFareRejectionReasonInput('');
+                  } catch (err: any) {
+                    alert('Error rejecting request: ' + err.message);
+                  } finally {
+                    setSubmittingFareReject(false);
+                  }
+                }}
+                className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-rose-700 transition-all cursor-pointer"
+              >
+                Confirm Rejection / تصدیق کریں
+              </button>
+              <button
+                onClick={() => setRejectingFareId(null)}
                 className="px-5 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider"
               >
                 Cancel

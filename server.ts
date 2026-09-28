@@ -1270,6 +1270,53 @@ async function startServer() {
     }
   });
 
+  // User: Resubmit rejected Bus route contribution
+  app.post("/api/contributions/:id/resubmit", async (req, res) => {
+    try {
+      const contribId = req.params.id;
+      const { public_user_id, company_name, vehicle_plate, contact_number, climate_control, service_type, route_map, stops } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
+
+      const existing = await queryD1("SELECT id FROM contributions_Bus WHERE id = ? AND public_user_id = ?", [contribId, pubId]);
+      if (!existing || existing.length === 0) {
+        return res.status(404).json({ success: false, message: "Contribution not found or not owned by user." });
+      }
+
+      const escapeSql = (str: any) => `'${String(str || '').trim().replace(/'/g, "''")}'`;
+      const comp = escapeSql(company_name || "");
+      const plate = escapeSql(vehicle_plate || "");
+      const contact = escapeSql(contact_number || "");
+      const climate = escapeSql(climate_control || "AC");
+      const stype = escapeSql(service_type || "Standard");
+      const rmap = escapeSql(route_map || "");
+
+      await queryD1(
+        `UPDATE contributions_Bus SET company_name = ${comp}, vehicle_plate = ${plate}, contact_number = ${contact}, climate_control = ${climate}, service_type = ${stype}, route_map = ${rmap}, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ${contribId} AND public_user_id = '${pubId.replace(/'/g, "''")}'`
+      );
+
+      // Replace stops if provided
+      if (Array.isArray(stops) && stops.length > 0) {
+        await queryD1(`DELETE FROM contributions_Stops WHERE contribution_id = ${contribId}`);
+        const valueClauses = stops.map((s: any, idx: number) => {
+          const cityName = String(s.city_name || "").replace(/'/g, "''");
+          const arr = String(s.arrival_time || "").replace(/'/g, "''");
+          const dep = String(s.departure_time || "").replace(/'/g, "''");
+          const loc = String(s.location || "").replace(/'/g, "''");
+          const stand = String(s.stand || "").replace(/'/g, "''");
+          const seq = s.stop_sequence || (idx + 1);
+          return `(${contribId}, ${seq}, '${cityName}', '${arr}', '${dep}', '${loc}', '${stand}', 'Pending')`;
+        });
+        await queryD1(`INSERT INTO contributions_Stops (contribution_id, stop_sequence, city_name, arrival_time, departure_time, location, stand, status) VALUES ${valueClauses.join(", ")}`);
+      }
+
+      return res.json({ success: true, message: "Route contribution resubmitted for review successfully." });
+    } catch (err: any) {
+      console.error("Error resubmitting contribution:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // Reset user contribution records (e.g. for Naeem Khan or clean slate testing)
   app.post("/api/admin/reset-user-contributions", async (req, res) => {
     try {
@@ -1385,6 +1432,219 @@ async function startServer() {
 
       return res.json({ success: true, message: "Fare contribution saved to contributions_Fare with Pending status." });
     } catch (err: any) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Helpers to safely ensure D1 user tables exist
+  const ensureContributionsFareTable = async () => {
+    try {
+      await queryD1(`
+        CREATE TABLE IF NOT EXISTS contributions_Fare (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            public_user_id TEXT NOT NULL,
+            origin TEXT,
+            destination TEXT,
+            non_ac INTEGER DEFAULT 0,
+            ac INTEGER DEFAULT 0,
+            executive INTEGER DEFAULT 0,
+            business INTEGER DEFAULT 0,
+            sleeper INTEGER DEFAULT 0,
+            submitted_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            reviewed_at TEXT,
+            reviewed_by TEXT,
+            remarks TEXT,
+            status TEXT NOT NULL DEFAULT 'Pending'
+        );
+      `);
+    } catch (e) {}
+    try { await queryD1(`ALTER TABLE contributions_Fare ADD COLUMN reviewed_at TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE contributions_Fare ADD COLUMN reviewed_by TEXT;`); } catch (e) {}
+    try { await queryD1(`ALTER TABLE contributions_Fare ADD COLUMN updated_at TEXT;`); } catch (e) {}
+  };
+
+  // Admin: Get all Fare requests from D1
+  app.get("/api/fare-requests/admin/all", async (req, res) => {
+    try {
+      const email = String(req.query.email || "").trim();
+      if (email && !ADMIN_EMAILS.includes(email) && !email.includes('admin')) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
+
+      await ensureContributionsFareTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, requests: [] });
+      }
+
+      const rows = await queryD1(`
+        SELECT cf.*, 
+               COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
+               COALESCE(ud.email, ud2.email, '') AS email,
+               COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
+               COALESCE(ud.photo_url, ud2.photo_url, '') AS photo_url
+        FROM contributions_Fare cf
+        LEFT JOIN User_Detail ud ON cf.public_user_id = ud.public_user_id
+        LEFT JOIN User_Detail ud2 ON cf.public_user_id = ud2.user_id
+        ORDER BY cf.id DESC
+      `);
+      return res.json({ success: true, requests: rows || [] });
+    } catch (err: any) {
+      console.warn("Error fetching fare requests from D1:", err);
+      return res.json({ success: true, requests: [] });
+    }
+  });
+
+  // User: Get my Fare requests from D1
+  app.get("/api/fare-requests/mine", async (req, res) => {
+    try {
+      const pubId = String(req.query.public_user_id || "").trim();
+      if (!pubId) return res.status(400).json({ success: false, message: "public_user_id required" });
+
+      await ensureContributionsFareTable();
+      const config = getD1Config();
+      if (!config.accountId || !config.databaseId || !config.apiToken) {
+        return res.json({ success: true, fares: [] });
+      }
+
+      const rows = await queryD1("SELECT * FROM contributions_Fare WHERE public_user_id = ? ORDER BY id DESC", [pubId]);
+      return res.json({ success: true, fares: rows || [] });
+    } catch (err: any) {
+      return res.json({ success: true, fares: [] });
+    }
+  });
+
+  // Admin: Approve Fare request in D1 and publish to live fares table
+  app.post("/api/fare-requests/:id/approve", async (req, res) => {
+    try {
+      const { admin_email } = req.body;
+      if (admin_email && !ADMIN_EMAILS.includes(admin_email) && !admin_email.includes('admin')) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
+
+      const fareId = req.params.id;
+      await ensureContributionsFareTable();
+
+      const existing = await queryD1("SELECT * FROM contributions_Fare WHERE id = ? LIMIT 1", [fareId]);
+      if (!existing || existing.length === 0) {
+        return res.status(404).json({ success: false, message: "Fare request not found." });
+      }
+      const fareReq = existing[0];
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      // Update status in contributions_Fare
+      await queryD1(
+        "UPDATE contributions_Fare SET status = 'Approved', reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+        [admin, fareId]
+      );
+
+      // Upsert into live fares table
+      try {
+        await queryD1(`
+          CREATE TABLE IF NOT EXISTS fares (
+              origin TEXT NOT NULL,
+              destination TEXT NOT NULL,
+              non_ac INTEGER DEFAULT 0,
+              ac INTEGER DEFAULT 0,
+              executive INTEGER DEFAULT 0,
+              business INTEGER DEFAULT 0,
+              sleeper INTEGER DEFAULT 0,
+              PRIMARY KEY (origin, destination)
+          );
+        `);
+
+        const orig = String(fareReq.origin || "").trim();
+        const dest = String(fareReq.destination || "").trim();
+        const nAc = Number(fareReq.non_ac) || 0;
+        const aC = Number(fareReq.ac) || 0;
+        const exec = Number(fareReq.executive) || 0;
+        const biz = Number(fareReq.business) || 0;
+        const slp = Number(fareReq.sleeper) || 0;
+
+        if (orig && dest) {
+          // Direct route upsert
+          await queryD1(`
+            INSERT INTO fares (origin, destination, non_ac, ac, executive, business, sleeper)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(origin, destination) DO UPDATE SET
+              non_ac = CASE WHEN excluded.non_ac > 0 THEN excluded.non_ac ELSE fares.non_ac END,
+              ac = CASE WHEN excluded.ac > 0 THEN excluded.ac ELSE fares.ac END,
+              executive = CASE WHEN excluded.executive > 0 THEN excluded.executive ELSE fares.executive END,
+              business = CASE WHEN excluded.business > 0 THEN excluded.business ELSE fares.business END,
+              sleeper = CASE WHEN excluded.sleeper > 0 THEN excluded.sleeper ELSE fares.sleeper END;
+          `, [orig, dest, nAc, aC, exec, biz, slp]);
+
+          // Reverse route upsert as well
+          await queryD1(`
+            INSERT INTO fares (origin, destination, non_ac, ac, executive, business, sleeper)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(origin, destination) DO UPDATE SET
+              non_ac = CASE WHEN excluded.non_ac > 0 THEN excluded.non_ac ELSE fares.non_ac END,
+              ac = CASE WHEN excluded.ac > 0 THEN excluded.ac ELSE fares.ac END,
+              executive = CASE WHEN excluded.executive > 0 THEN excluded.executive ELSE fares.executive END,
+              business = CASE WHEN excluded.business > 0 THEN excluded.business ELSE fares.business END,
+              sleeper = CASE WHEN excluded.sleeper > 0 THEN excluded.sleeper ELSE fares.sleeper END;
+          `, [dest, orig, nAc, aC, exec, biz, slp]);
+        }
+      } catch (upsertErr) {
+        console.warn("Notice updating live fares table:", upsertErr);
+      }
+
+      return res.json({ success: true, message: "Fare request approved and published to live database." });
+    } catch (err: any) {
+      console.error("Error approving fare request:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Admin: Reject Fare request in D1
+  app.post("/api/fare-requests/:id/reject", async (req, res) => {
+    try {
+      const { admin_email, reason } = req.body;
+      if (admin_email && !ADMIN_EMAILS.includes(admin_email) && !admin_email.includes('admin')) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
+
+      const fareId = req.params.id;
+      const rejReason = String(reason || "Declined by Admin").trim();
+      const admin = String(admin_email || "admin@asaansafar.com").trim();
+
+      await ensureContributionsFareTable();
+      await queryD1(
+        "UPDATE contributions_Fare SET status = 'Rejected', remarks = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+        [rejReason, admin, fareId]
+      );
+
+      return res.json({ success: true, message: "Fare request rejected successfully." });
+    } catch (err: any) {
+      console.error("Error rejecting fare request:", err);
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // User: Resubmit rejected Fare request
+  app.post("/api/fare-requests/:id/resubmit", async (req, res) => {
+    try {
+      const fareId = req.params.id;
+      const { public_user_id, origin, destination, non_ac, ac, executive, business, sleeper } = req.body;
+      const pubId = String(public_user_id || "").trim();
+      if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
+
+      await ensureContributionsFareTable();
+      const existing = await queryD1("SELECT id FROM contributions_Fare WHERE id = ? AND public_user_id = ?", [fareId, pubId]);
+      if (!existing || existing.length === 0) {
+        return res.status(404).json({ success: false, message: "Fare request not found or not owned by user." });
+      }
+
+      await queryD1(
+        "UPDATE contributions_Fare SET origin = ?, destination = ?, non_ac = ?, ac = ?, executive = ?, business = ?, sleeper = ?, status = 'Pending', remarks = NULL, updated_at = datetime('now') WHERE id = ? AND public_user_id = ?",
+        [String(origin || "").trim(), String(destination || "").trim(), Number(non_ac) || 0, Number(ac) || 0, Number(executive) || 0, Number(business) || 0, Number(sleeper) || 0, fareId, pubId]
+      );
+
+      return res.json({ success: true, message: "Fare request resubmitted for review successfully." });
+    } catch (err: any) {
+      console.error("Error resubmitting fare request:", err);
       return res.status(500).json({ success: false, message: err.message });
     }
   });

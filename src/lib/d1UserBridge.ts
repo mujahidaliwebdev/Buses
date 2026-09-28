@@ -312,5 +312,96 @@ export const d1UserBridge = {
     } catch (e) {
       return null;
     }
+  },
+
+  // 16. Admin Fetch all Fare requests from D1
+  getAdminFareRequests: async (adminEmail: string): Promise<any[]> => {
+    try {
+      const res = await fetch(`/api/fare-requests/admin/all?email=${encodeURIComponent(adminEmail)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data.requests) ? data.requests : [];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // 17. Admin Approve Fare request in D1
+  approveFareRequest: async (id: number | string, adminEmail: string): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch(`/api/fare-requests/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin_email: adminEmail })
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 18. Admin Reject Fare request in D1
+  rejectFareRequest: async (id: number | string, reason: string, adminEmail: string): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch(`/api/fare-requests/${id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason, admin_email: adminEmail })
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 19. User Fetch my Fare requests from D1
+  getMyFareRequests: async (publicUserId: string): Promise<any[]> => {
+    try {
+      const res = await fetch(`/api/fare-requests/mine?public_user_id=${encodeURIComponent(publicUserId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data.fares) ? data.fares : [];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // 20. User Resubmit rejected bus contribution in D1
+  resubmitBusContribution: async (id: number | string, publicUserId: string, busData: any, stops: any[]): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch(`/api/contributions/${id}/resubmit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          public_user_id: publicUserId,
+          ...busData,
+          stops
+        })
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  },
+
+  // 21. User Resubmit rejected fare request in D1
+  resubmitFareContribution: async (id: number | string, publicUserId: string, fareData: any): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch(`/api/fare-requests/${id}/resubmit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          public_user_id: publicUserId,
+          ...fareData
+        })
+      });
+      return await res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
   }
 };
