@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Shield, CheckCircle2, Clock, XCircle, FileText, Bus, MessageSquare, 
   Award, Sparkles, AlertCircle, BarChart3, Tag, Layers, Edit3, Send, Check, 
-  RefreshCw, Plus, Trash2, ArrowRight, MapPin 
+  RefreshCw, Plus, Trash2, ArrowRight, MapPin, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { d1UserBridge } from '../lib/d1UserBridge';
+import { PAKISTAN_CITIES } from '../data/mockBuses';
 
 interface UserDashboardModalProps {
   onClose: () => void;
@@ -154,6 +155,46 @@ export default function UserDashboardModal({
   const rejectedFares = fareRequests.filter(f => norm(f.status) === 'rejected').length;
   const pendingFares = fareRequests.filter(f => norm(f.status) === 'pending').length;
 
+  // Stop manipulation handlers for route edit modal (matches AddFullBusRouteModal)
+  const handleAddStop = () => {
+    setEditStops(prev => [
+      ...prev,
+      {
+        stop_sequence: prev.length + 1,
+        city_name: PAKISTAN_CITIES[0] || 'Lahore',
+        arrival_time: '10:00',
+        departure_time: '10:15',
+        location: 'General Bus Stand',
+        stand: '1'
+      }
+    ]);
+  };
+
+  const handleRemoveStop = (index: number) => {
+    if (editStops.length <= 2) {
+      setResubmitErrorMsg('A bus route must have at least 2 stops. (کم از کم 2 اسٹاپس ضروری ہیں)');
+      return;
+    }
+    const updated = editStops.filter((_, i) => i !== index).map((s, idx) => ({ ...s, stop_sequence: idx + 1 }));
+    setEditStops(updated);
+  };
+
+  const handleMoveStop = (index: number, direction: 'up' | 'down') => {
+    if ((direction === 'up' && index === 0) || (direction === 'down' && index === editStops.length - 1)) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const updated = [...editStops];
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+    setEditStops(updated.map((s, idx) => ({ ...s, stop_sequence: idx + 1 })));
+  };
+
+  const handleStopChange = (index: number, field: string, value: any) => {
+    const updated = [...editStops];
+    updated[index] = { ...updated[index], [field]: value };
+    setEditStops(updated);
+  };
+
   // Open Edit Route Modal
   const handleOpenEditRoute = (route: any) => {
     setEditingRoute(route);
@@ -161,7 +202,7 @@ export default function UserDashboardModal({
     setEditBusNumber(route.busNumber || '');
     setEditContactNumber(route.contactNumber || '');
     setEditType(route.type || 'Standard');
-    setEditClimate(route.climateControl === 'Non-AC' ? 'Non-AC' : 'AC');
+    setEditClimate(route.climateControl || (route.isAC ? 'AC' : 'Non-AC'));
     setEditOrigin(route.origin || '');
     setEditDestination(route.destination || '');
     setEditDepTime(route.departureTime || '');
@@ -169,19 +210,33 @@ export default function UserDashboardModal({
     setEditTerminal(route.terminalLocation || '');
     setEditStand(route.standNumber || '');
     
-    if (Array.isArray(route.stops) && route.stops.length > 0) {
+    if (Array.isArray(route.stops) && route.stops.length >= 2) {
       setEditStops(route.stops.map((s: any, idx: number) => ({
         stop_sequence: s.stop_sequence || (idx + 1),
         city_name: s.city_name || '',
         arrival_time: s.arrival_time || '',
         departure_time: s.departure_time || '',
-        location: s.location || '',
-        stand: s.stand || ''
+        location: s.location || s.stand || '',
+        stand: s.stand || s.location || ''
       })));
     } else {
       setEditStops([
-        { stop_sequence: 1, city_name: route.origin || '', arrival_time: route.departureTime || '', departure_time: route.departureTime || '', location: route.terminalLocation || '', stand: route.standNumber || '' },
-        { stop_sequence: 2, city_name: route.destination || '', arrival_time: route.arrivalTime || '', departure_time: route.arrivalTime || '', location: '', stand: '' }
+        { 
+          stop_sequence: 1, 
+          city_name: route.origin || 'Lahore', 
+          arrival_time: route.departureTime || '08:00', 
+          departure_time: route.departureTime || '08:30', 
+          location: route.terminalLocation || 'General Bus Stand', 
+          stand: route.standNumber || '1' 
+        },
+        { 
+          stop_sequence: 2, 
+          city_name: route.destination || 'Rawalpindi', 
+          arrival_time: route.arrivalTime || '13:30', 
+          departure_time: route.arrivalTime || '14:00', 
+          location: 'Main Terminal', 
+          stand: '1' 
+        }
       ]);
     }
 
@@ -193,28 +248,40 @@ export default function UserDashboardModal({
   const handleSubmitResubmitRoute = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser || !editingRoute) return;
+
+    if (!editCompanyName.trim()) {
+      setResubmitErrorMsg('Please enter company name. (کمپنی کا نام درج کریں)');
+      return;
+    }
+
+    if (editStops.length < 2) {
+      setResubmitErrorMsg('Please add at least 2 stops. (کم از کم 2 اسٹاپس ضروری ہیں)');
+      return;
+    }
+
     setIsResubmitting(true);
     setResubmitErrorMsg(null);
     try {
       const pubId = await d1UserBridge.ensureProfile(currentUser);
       
-      const preparedStops = editStops.length >= 2 ? editStops.map((s, idx) => ({
-        ...s,
-        stop_sequence: idx + 1
-      })) : [
-        { stop_sequence: 1, city_name: editOrigin, arrival_time: editDepTime, departure_time: editDepTime, location: editTerminal, stand: editStand },
-        { stop_sequence: 2, city_name: editDestination, arrival_time: editArrTime, departure_time: editArrTime, location: '', stand: '' }
-      ];
+      const preparedStops = editStops.map((s, idx) => ({
+        stop_sequence: idx + 1,
+        city_name: String(s.city_name || '').trim(),
+        arrival_time: String(s.arrival_time || '').trim(),
+        departure_time: String(s.departure_time || '').trim(),
+        location: String(s.location || s.stand || '').trim(),
+        stand: String(s.stand || s.location || '').trim()
+      }));
 
-      const routeMapStr = preparedStops.map(s => s.city_name).join(' -> ');
+      const routeMapStr = preparedStops.map(s => s.city_name).filter(Boolean).join(' -> ');
 
       const res = await d1UserBridge.resubmitBusContribution(
         editingRoute.rawId,
         pubId,
         {
-          company_name: editCompanyName,
-          vehicle_plate: editBusNumber,
-          contact_number: editContactNumber,
+          company_name: editCompanyName.trim(),
+          vehicle_plate: editBusNumber.trim(),
+          contact_number: editContactNumber.trim(),
           climate_control: editClimate,
           service_type: editType,
           route_map: routeMapStr
@@ -231,9 +298,9 @@ export default function UserDashboardModal({
       // Update local state optimistically
       setContributions(prev => prev.map(c => c.rawId === editingRoute.rawId ? {
         ...c,
-        companyName: editCompanyName,
-        busNumber: editBusNumber,
-        contactNumber: editContactNumber,
+        companyName: editCompanyName.trim(),
+        busNumber: editBusNumber.trim(),
+        contactNumber: editContactNumber.trim(),
         service_type: editType,
         climateControl: editClimate,
         isAC: editClimate === 'AC',
@@ -241,6 +308,8 @@ export default function UserDashboardModal({
         destination: preparedStops[preparedStops.length - 1]?.city_name,
         departureTime: preparedStops[0]?.departure_time,
         arrivalTime: preparedStops[preparedStops.length - 1]?.arrival_time,
+        terminalLocation: preparedStops[0]?.location || '',
+        standNumber: preparedStops[0]?.stand || '',
         status: 'Pending',
         remarks: null,
         stops: preparedStops
@@ -249,7 +318,7 @@ export default function UserDashboardModal({
       setTimeout(() => {
         setEditingRoute(null);
         setResubmitSuccessMsg(null);
-      }, 1800);
+      }, 2000);
 
     } catch (err: any) {
       setResubmitErrorMsg(err.message || 'Error resubmitting route');
@@ -819,41 +888,46 @@ export default function UserDashboardModal({
       {/* EDIT & RESUBMIT BUS ROUTE MODAL */}
       <AnimatePresence>
         {editingRoute && (
-          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setEditingRoute(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="fixed inset-0 bg-slate-950/85 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden z-10 my-8 flex flex-col border border-slate-100 max-h-[92vh]"
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 px-6 py-5 text-white flex items-center justify-between shrink-0">
+              <div className="bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-600 px-6 sm:px-8 py-5 text-white shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                    <Edit3 className="w-5 h-5 text-rose-200" />
+                  <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+                    <Layers className="w-6 h-6 text-emerald-200" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black">Edit & Resubmit Route (روٹ کی تصحیح)</h3>
-                    <p className="text-rose-100 text-xs">Correct errors and resubmit directly for admin approval.</p>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-200 bg-emerald-900/50 px-2.5 py-1 rounded-full">
+                      Route Correction & Resubmission
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight mt-1">
+                      Edit & Resubmit Route (روٹ کی تصحیح و دوبارہ جمع)
+                    </h3>
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setEditingRoute(null)}
-                  className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl cursor-pointer"
+                  className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSubmitResubmitRoute} className="flex-1 overflow-y-auto p-6 space-y-5">
+              <form onSubmit={handleSubmitResubmitRoute} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
                 {/* Admin Rejection Reason Alert */}
                 <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 space-y-1 shadow-xs">
                   <div className="flex items-center gap-1.5 font-black uppercase text-[10px] text-rose-600">
@@ -861,205 +935,243 @@ export default function UserDashboardModal({
                     <span>Admin Rejection Reason / مسترد کرنے کی وجہ:</span>
                   </div>
                   <p className="font-semibold text-rose-800 text-sm">
-                    {editingRoute.remarks || 'Please verify route timing, stops, or stand location.'}
+                    {editingRoute.remarks || 'Please verify route timing, stops, or stand location and resubmit.'}
                   </p>
                 </div>
 
                 {resubmitErrorMsg && (
-                  <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200">
-                    {resubmitErrorMsg}
+                  <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl text-xs font-bold flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>{resubmitErrorMsg}</span>
                   </div>
                 )}
 
                 {resubmitSuccessMsg && (
-                  <div className="p-3 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {resubmitSuccessMsg}
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{resubmitSuccessMsg}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Company / Operator Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={editCompanyName}
-                      onChange={(e) => setEditCompanyName(e.target.value)}
-                      placeholder="e.g. Faisal Movers, Daewoo Express"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    />
-                  </div>
+                {/* Section 1: Bus Information & Operator Details (Issue 2 fixed: NO departure/arrival times here!) */}
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/60 space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <Bus className="w-4 h-4 text-emerald-600" /> 1. Bus Information & Operator Details (بس کی بنیادی معلومات)
+                  </h4>
 
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Bus Number / Plate</label>
-                    <input
-                      type="text"
-                      required
-                      value={editBusNumber}
-                      onChange={(e) => setEditBusNumber(e.target.value)}
-                      placeholder="e.g. LES-1234 or B-01"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold font-mono"
-                    />
-                  </div>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                        Company / Operator Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Faisal Movers"
+                        value={editCompanyName}
+                        onChange={(e) => setEditCompanyName(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold text-slate-900 outline-none focus:border-emerald-600"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Origin City (روانگی کا شہر)</label>
-                    <input
-                      type="text"
-                      required
-                      value={editOrigin}
-                      onChange={(e) => setEditOrigin(e.target.value)}
-                      placeholder="e.g. Lahore"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                        Vehicle Plate / Number
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. LEA-21-9988"
+                        value={editBusNumber}
+                        onChange={(e) => setEditBusNumber(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Destination City (منزل کا شہر)</label>
-                    <input
-                      type="text"
-                      required
-                      value={editDestination}
-                      onChange={(e) => setEditDestination(e.target.value)}
-                      placeholder="e.g. Rawalpindi"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                        Contact Number
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 0300-1234567"
+                        value={editContactNumber}
+                        onChange={(e) => setEditContactNumber(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Departure Time (روانگی کا وقت)</label>
-                    <input
-                      type="text"
-                      value={editDepTime}
-                      onChange={(e) => setEditDepTime(e.target.value)}
-                      placeholder="e.g. 08:30 AM or 08:30"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                        Climate Control
+                      </label>
+                      <select
+                        value={editClimate}
+                        onChange={(e) => setEditClimate(e.target.value as any)}
+                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 outline-none focus:border-emerald-600"
+                      >
+                        <option value="Non-AC">Non-AC</option>
+                        <option value="AC">AC</option>
+                        <option value="Executive">Executive</option>
+                        <option value="Business">Business</option>
+                        <option value="Sleeper">Sleeper</option>
+                      </select>
+                    </div>
 
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Arrival Time (پہنچنے کا وقت)</label>
-                    <input
-                      type="text"
-                      value={editArrTime}
-                      onChange={(e) => setEditArrTime(e.target.value)}
-                      placeholder="e.g. 01:30 PM or 13:30"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Contact Number (رابطہ نمبر)</label>
-                    <input
-                      type="text"
-                      value={editContactNumber}
-                      onChange={(e) => setEditContactNumber(e.target.value)}
-                      placeholder="e.g. 0300-1234567"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-black text-slate-700 block mb-1">Service Type</label>
-                    <select
-                      value={editType}
-                      onChange={(e) => setEditType(e.target.value)}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 font-semibold"
-                    >
-                      <option value="Standard">Standard</option>
-                      <option value="Executive">Executive</option>
-                      <option value="Business">Business</option>
-                      <option value="Sleeper">Sleeper</option>
-                      <option value="Daewoo">Daewoo</option>
-                      <option value="Luxury">Luxury</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Climate control toggle */}
-                <div className="flex items-center gap-3 pt-2">
-                  <span className="text-xs font-black text-slate-700">Climate Control:</span>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditClimate('AC')}
-                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                        editClimate === 'AC' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      AC (ایئر کنڈیشنڈ)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditClimate('Non-AC')}
-                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                        editClimate === 'Non-AC' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      Non-AC (سادہ)
-                    </button>
-                  </div>
-                </div>
-
-                {/* Stops section if route has multiple stops */}
-                {editStops.length > 2 && (
-                  <div className="space-y-2 pt-2 border-t border-slate-100">
-                    <span className="text-xs font-black text-slate-700 block">Stops Sequence ({editStops.length} stops)</span>
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                      {editStops.map((stop, idx) => (
-                        <div key={idx} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
-                          <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">
-                            {idx + 1}
-                          </span>
-                          <input
-                            type="text"
-                            value={stop.city_name}
-                            onChange={(e) => {
-                              const updated = [...editStops];
-                              updated[idx].city_name = e.target.value;
-                              setEditStops(updated);
-                            }}
-                            placeholder="City Name"
-                            className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
-                          />
-                          <input
-                            type="text"
-                            value={stop.departure_time || stop.arrival_time}
-                            onChange={(e) => {
-                              const updated = [...editStops];
-                              updated[idx].departure_time = e.target.value;
-                              updated[idx].arrival_time = e.target.value;
-                              setEditStops(updated);
-                            }}
-                            placeholder="Time"
-                            className="w-24 p-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
-                          />
-                        </div>
-                      ))}
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                        Service Type
+                      </label>
+                      <select
+                        value={editType}
+                        onChange={(e) => setEditType(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 outline-none focus:border-emerald-600"
+                      >
+                        <option value="Standard">Standard</option>
+                        <option value="Express">Express</option>
+                        <option value="Luxury">Luxury</option>
+                        <option value="Business Class">Business Class</option>
+                      </select>
                     </div>
                   </div>
-                )}
+                </div>
 
-                {/* Footer Buttons */}
-                <div className="flex gap-3 pt-3">
-                  <button
-                    type="submit"
-                    disabled={isResubmitting}
-                    className="flex-1 py-3.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {isResubmitting ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                    <span>Submit Correction for Review / تصحیح کر کے بھیجیں</span>
-                  </button>
+                {/* Section 2: Sequenced Stops (Issue 3 fixed: Arrival Time AND Departure Time both clearly visible) */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                        2. Sequenced Route Stops ({editStops.length} Stops) / اسٹاپس کی ترتیب
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        Add all intermediate stops in exact chronological order with Arrival and Departure times.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddStop}
+                      className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" /> Add Stop / نیا اسٹاپ شامل کریں
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {editStops.map((stop, index) => (
+                      <div key={index} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid sm:grid-cols-12 gap-3 items-center">
+                        <div className="sm:col-span-1 flex items-center justify-center font-black text-xs text-slate-500 bg-slate-100 py-2 rounded-xl">
+                          #{stop.stop_sequence || index + 1}
+                        </div>
+
+                        <div className="sm:col-span-3">
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">City Name (شہر)</label>
+                          <input
+                            type="text"
+                            list={`user-edit-city-list-${index}`}
+                            value={stop.city_name}
+                            onChange={(e) => handleStopChange(index, 'city_name', e.target.value)}
+                            placeholder="Select or enter city"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-medium text-slate-900 outline-none focus:border-emerald-600"
+                          />
+                          <datalist id={`user-edit-city-list-${index}`}>
+                            {PAKISTAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                          </datalist>
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">Arrival Time (پہنچنے کا وقت)</label>
+                          <input
+                            type="text"
+                            placeholder="08:00"
+                            value={stop.arrival_time}
+                            onChange={(e) => handleStopChange(index, 'arrival_time', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">Departure Time (روانگی کا وقت)</label>
+                          <input
+                            type="text"
+                            placeholder="08:30"
+                            value={stop.departure_time}
+                            onChange={(e) => handleStopChange(index, 'departure_time', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 outline-none focus:border-emerald-600"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">Terminal / Stand (اڈا / ٹرمینل)</label>
+                          <input
+                            type="text"
+                            placeholder="General Stand"
+                            value={stop.location || stop.stand || ''}
+                            onChange={(e) => {
+                              handleStopChange(index, 'location', e.target.value);
+                              handleStopChange(index, 'stand', e.target.value);
+                            }}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-900 outline-none focus:border-emerald-600"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2 flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveStop(index, 'up')}
+                            disabled={index === 0}
+                            className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveStop(index, 'down')}
+                            disabled={index === editStops.length - 1}
+                            className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveStop(index)}
+                            disabled={editStops.length <= 2}
+                            className="p-2 text-rose-500 hover:text-rose-700 disabled:opacity-30 cursor-pointer"
+                            title="Remove Stop"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setEditingRoute(null)}
-                    className="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs uppercase tracking-wider cursor-pointer"
+                    className="w-1/3 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-widest rounded-2xl transition-all cursor-pointer"
                   >
                     Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isResubmitting}
+                    className="w-2/3 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isResubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Submitting Correction...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Resubmit Corrected Route / درست روٹ دوبارہ جمع کروائیں</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
@@ -1071,19 +1183,19 @@ export default function UserDashboardModal({
       {/* EDIT & RESUBMIT FARE REQUEST MODAL */}
       <AnimatePresence>
         {editingFare && (
-          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setEditingFare(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 my-8 flex flex-col max-h-[90vh]"
             >
               {/* Header */}
               <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 px-6 py-5 text-white flex items-center justify-between shrink-0">
