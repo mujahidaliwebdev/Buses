@@ -365,7 +365,7 @@ export const d1UserBridge = {
       const res = await fetch(`/api/fare-requests/mine?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        return Array.isArray(data.fares) ? data.fares : [];
+        return Array.isArray(data.requests) ? data.requests : [];
       }
       return [];
     } catch (e) {
