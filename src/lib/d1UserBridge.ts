@@ -406,5 +406,19 @@ export const d1UserBridge = {
     } catch (e: any) {
       return { success: false, message: e.message };
     }
+  },
+
+  // 22. Fetch a user's D1 profile (for the true registration_date etc.)
+  getMyProfile: async (publicUserId: string): Promise<any | null> => {
+    try {
+      const res = await fetch(`/api/users/profile?public_user_id=${encodeURIComponent(publicUserId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.profile || null;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 };

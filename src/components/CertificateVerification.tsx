@@ -81,6 +81,50 @@ export default function CertificateVerification() {
       const safeKey = normalizedId.replace(/\//g, '_');
 
       try {
+        // 0. Primary Source of Truth: Query Cloudflare D1 experience_certificate table
+        try {
+          const res = await fetch(`/api/experience-certificate/verify?id=${encodeURIComponent(normalizedId)}`);
+          if (res.ok) {
+            const d1Data = await res.json();
+            if (d1Data.success && d1Data.certificate) {
+              const cert = d1Data.certificate;
+              let regDateFormatted = 'Verified';
+              if (cert.user_registration_date || cert.registration_date) {
+                const parsed = new Date(cert.user_registration_date || cert.registration_date);
+                if (!isNaN(parsed.getTime())) {
+                  regDateFormatted = parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+              }
+              let issueDateFormatted = 'Verified';
+              if (cert.reviewed_at || cert.submitted_at) {
+                const parsed = new Date(cert.reviewed_at || cert.submitted_at);
+                if (!isNaN(parsed.getTime())) {
+                  issueDateFormatted = parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+              }
+
+              if (isMounted) {
+                setCertData({
+                  id: cert.verification_id || normalizedId,
+                  fullName: cert.display_name || 'Community Volunteer',
+                  role: 'Official Community Volunteer',
+                  organization: 'AsaanSafar Pakistan',
+                  department: 'Community Operations & Data Verification',
+                  issueDate: issueDateFormatted,
+                  joiningDate: regDateFormatted,
+                  status: 'Letter Verified & Active',
+                  isVerified: true
+                });
+                setIsVerified(true);
+                setLoading(false);
+              }
+              return;
+            }
+          }
+        } catch (d1Err) {
+          console.warn('D1 verification check notice:', d1Err);
+        }
+
         // 1. Query Firestore experience_certificates collection
         try {
           const certDocRef = doc(db, 'experience_certificates', safeKey);

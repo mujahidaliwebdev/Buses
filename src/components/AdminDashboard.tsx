@@ -3889,7 +3889,14 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                                   onClick={async () => {
                                     try {
                                       const adminEmail = auth.currentUser?.email || 'admin@asaansafar.com';
-                                      await d1UserBridge.approveExperienceCertificate({ id: req.id, public_user_id: req.publicUserId, verification_id: req.verificationId || `ASP/EXP/${Date.now()}`, admin_email: adminEmail });
+                                      const canonicalId = req.publicUserId ? `ASP/EXP/${req.publicUserId}` : (req.verificationId || `ASP/EXP/${req.id}`);
+                                      await d1UserBridge.approveExperienceCertificate({ 
+                                        id: req.id, 
+                                        public_user_id: req.publicUserId, 
+                                        verification_id: canonicalId, 
+                                        admin_email: adminEmail 
+                                      });
+                                      await fetchExperienceRequestsFromD1();
                                       alert(`Experience request for ${req.userName} approved successfully!`);
                                     } catch (err: any) {
                                       alert('Error approving request: ' + err.message);

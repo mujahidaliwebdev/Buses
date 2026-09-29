@@ -1919,10 +1919,6 @@ async function startServer() {
   app.get("/api/experience-certificate/admin/all", async (req, res) => {
     try {
       await ensureExperienceCertificateTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, requests: [] });
-      }
 
       const rows = await queryD1(`
         SELECT ec.*, 
@@ -1948,10 +1944,6 @@ async function startServer() {
       const pubId = String(req.query.public_user_id || "").trim();
       const uid = String(req.query.user_id || "").trim();
       await ensureExperienceCertificateTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, request: null });
-      }
 
       const candidateIds: string[] = [];
       if (pubId) candidateIds.push(pubId);
@@ -1987,15 +1979,30 @@ async function startServer() {
   // 5. User Experience Certificate -> experience_certificate table
   app.post("/api/experience-certificate/submit", async (req, res) => {
     try {
-      const { public_user_id, registration_date, duration_months, contributions_count, user_notes, verification_id, remarks } = req.body;
+      const { public_user_id, duration_months, contributions_count, user_notes, remarks } = req.body;
       const pubId = String(public_user_id || "").trim();
       if (!pubId) return res.status(401).json({ success: false, message: "public_user_id required" });
 
       await ensureExperienceCertificateTable();
+
+      // Always pull the TRUE registration date from User_Detail (source of truth)
+      let trueRegDate = req.body.registration_date || "";
+      try {
+        const uRows = await queryD1(
+          "SELECT registration_date FROM User_Detail WHERE public_user_id = ? OR user_id = ? LIMIT 1",
+          [pubId, pubId]
+        );
+        if (uRows && uRows.length > 0 && uRows[0].registration_date) {
+          trueRegDate = uRows[0].registration_date;
+        }
+      } catch (e) {
+        console.warn("Could not fetch registration_date from User_Detail:", e);
+      }
+
       const escapeSql = (str: any) => `'${String(str || '').replace(/'/g, "''")}'`;
 
       await queryD1(
-        `INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, user_notes, verification_id, remarks, status) VALUES (${escapeSql(pubId)}, ${escapeSql(registration_date || '')}, ${Number(duration_months) || 0}, ${Number(contributions_count) || 0}, ${escapeSql(user_notes || '')}, ${escapeSql(verification_id || '')}, ${escapeSql(remarks || '')}, 'Pending')`
+        `INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, user_notes, verification_id, remarks, status) VALUES (${escapeSql(pubId)}, ${escapeSql(trueRegDate || '')}, ${Number(duration_months) || 0}, ${Number(contributions_count) || 0}, ${escapeSql(user_notes || '')}, '', ${escapeSql(remarks || '')}, 'Pending')`
       );
 
       return res.json({ success: true, message: "Experience certificate request saved to experience_certificate with Pending status." });
@@ -2005,11 +2012,26 @@ async function startServer() {
   });
 
   // Admin Approve Experience Certificate in D1 (Directly by ID, public_user_id, or user_id)
-  app.post("/api/experience-certificate/approve", async (req, res) => {
+  app.post(["/api/experience-certificate/approve", "/api/experience-certificate/:id/approve"], async (req, res) => {
     try {
-      const { id, public_user_id, user_id, user_email, verification_id, registration_date, duration_months, contributions_count, admin_email } = req.body;
+      const expReqId = Number(req.params.id || req.body.id) || null;
+      const { public_user_id, user_id, user_email, duration_months, contributions_count, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
-      const expReqId = Number(id) || null;
+
+      await ensureExperienceCertificateTable();
+
+      let reqRow: any = null;
+      if (expReqId) {
+        try {
+          const rows = await queryD1("SELECT * FROM experience_certificate WHERE id = ? LIMIT 1", [expReqId]);
+          if (rows && rows.length > 0) {
+            reqRow = rows[0];
+            if (!pubId && reqRow.public_user_id) {
+              pubId = String(reqRow.public_user_id);
+            }
+          }
+        } catch (e) {}
+      }
 
       if (!pubId && (user_id || user_email)) {
         try {
@@ -2027,17 +2049,31 @@ async function startServer() {
         pubId = String(user_id);
       }
 
-      await ensureExperienceCertificateTable();
-      const verId = String(verification_id || "").trim();
+      // Consistent Verification ID format: ASP/EXP/${public_user_id}
+      const targetPubId = pubId || (reqRow?.public_user_id ? String(reqRow.public_user_id) : '');
+      const verificationId = targetPubId ? `ASP/EXP/${targetPubId}` : `ASP/EXP/${expReqId || Date.now()}`;
       const admin = String(admin_email || "admin@asaansafar.com").trim();
-      const autoVerId = verId || `ASP/EXP/${expReqId || Date.now()}`;
+
+      // Ensure true registration_date is fetched from User_Detail
+      let trueRegDate = reqRow?.registration_date || req.body.registration_date || '';
+      if (targetPubId) {
+        try {
+          const uRows = await queryD1(
+            "SELECT registration_date FROM User_Detail WHERE public_user_id = ? OR user_id = ? LIMIT 1",
+            [targetPubId, targetPubId]
+          );
+          if (uRows && uRows.length > 0 && uRows[0].registration_date) {
+            trueRegDate = uRows[0].registration_date;
+          }
+        } catch (e) {}
+      }
 
       if (expReqId) {
         await queryD1(
-          "UPDATE experience_certificate SET status = 'Approved', verification_id = COALESCE(NULLIF(?, ''), verification_id, ?), reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
-          [verId, autoVerId, admin, expReqId]
+          "UPDATE experience_certificate SET status = 'Approved', verification_id = ?, registration_date = COALESCE(NULLIF(?, ''), registration_date), reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE id = ?",
+          [verificationId, trueRegDate, admin, expReqId]
         );
-        return res.json({ success: true, message: "Experience certificate approved in D1 successfully." });
+        return res.json({ success: true, verification_id: verificationId, message: "Experience certificate approved in D1 successfully." });
       }
 
       let existing: any[] = [];
@@ -2049,17 +2085,17 @@ async function startServer() {
 
       if (existing && existing.length > 0) {
         await queryD1(
-          "UPDATE experience_certificate SET status = 'Approved', verification_id = ?, reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
-          [verId || existing[0].verification_id || autoVerId, admin, pubId]
+          "UPDATE experience_certificate SET status = 'Approved', verification_id = ?, registration_date = COALESCE(NULLIF(?, ''), registration_date), reviewed_at = datetime('now'), reviewed_by = ?, updated_at = datetime('now') WHERE public_user_id = ?",
+          [verificationId, trueRegDate, admin, pubId]
         );
       } else if (pubId) {
         await queryD1(
           "INSERT INTO experience_certificate (public_user_id, registration_date, duration_months, contributions_count, verification_id, status, reviewed_at, reviewed_by, remarks, updated_at) VALUES (?, ?, ?, ?, ?, 'Approved', datetime('now'), ?, 'Approved by Admin', datetime('now'))",
-          [pubId, String(registration_date || ''), Number(duration_months) || 0, Number(contributions_count) || 0, autoVerId, admin]
+          [pubId, String(trueRegDate || ''), Number(duration_months) || 0, Number(contributions_count) || 0, verificationId, admin]
         );
       }
 
-      return res.json({ success: true, message: "Experience certificate approved in D1 successfully." });
+      return res.json({ success: true, verification_id: verificationId, message: "Experience certificate approved in D1 successfully." });
     } catch (err: any) {
       console.error("Error approving experience certificate in D1:", err);
       return res.status(500).json({ success: false, message: err.message });
@@ -2067,11 +2103,11 @@ async function startServer() {
   });
 
   // Admin Reject Experience Certificate in D1 (Directly by ID, public_user_id, or user_id)
-  app.post("/api/experience-certificate/reject", async (req, res) => {
+  app.post(["/api/experience-certificate/reject", "/api/experience-certificate/:id/reject"], async (req, res) => {
     try {
-      const { id, public_user_id, user_id, user_email, reason, admin_email } = req.body;
+      const expReqId = Number(req.params.id || req.body.id) || null;
+      const { public_user_id, user_id, user_email, reason, admin_email } = req.body;
       let pubId = String(public_user_id || "").trim();
-      const expReqId = Number(id) || null;
 
       if (!pubId && (user_id || user_email)) {
         try {
@@ -2124,6 +2160,41 @@ async function startServer() {
     } catch (err: any) {
       console.error("Error rejecting experience certificate in D1:", err);
       return res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // Verify Experience Certificate in D1
+  app.get("/api/experience-certificate/verify", async (req, res) => {
+    try {
+      const idParam = String(req.query.id || "").trim();
+      if (!idParam) return res.status(400).json({ success: false, message: "id required" });
+
+      await ensureExperienceCertificateTable();
+      const cleanVerId = idParam.replace(/[-_]/g, '/');
+      const publicIdFromVer = idParam.replace(/^ASP\/EXP\//i, '').replace(/^EXP-/i, '').replace(/[-_]/g, '');
+
+      const rows = await queryD1(`
+        SELECT ec.*, 
+               COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
+               COALESCE(ud.email, ud2.email, '') AS email,
+               COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
+               COALESCE(ud.registration_date, ec.registration_date) AS user_registration_date
+        FROM experience_certificate ec
+        LEFT JOIN User_Detail ud ON ec.public_user_id = ud.public_user_id
+        LEFT JOIN User_Detail ud2 ON ec.public_user_id = ud2.user_id
+        WHERE ec.verification_id = ? 
+           OR ec.verification_id = ? 
+           OR ec.public_user_id = ?
+        ORDER BY CASE WHEN LOWER(ec.status) = 'approved' THEN 1 ELSE 2 END, ec.id DESC
+        LIMIT 1
+      `, [idParam, cleanVerId, publicIdFromVer]);
+
+      if (rows && rows.length > 0 && String(rows[0].status).toLowerCase() === 'approved') {
+        return res.json({ success: true, certificate: rows[0] });
+      }
+      return res.json({ success: false, message: "Certificate not found or not approved" });
+    } catch (e: any) {
+      return res.status(500).json({ success: false, message: e.message });
     }
   });
 

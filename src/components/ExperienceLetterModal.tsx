@@ -61,7 +61,7 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
   // State
   const [joiningDateStr, setJoiningDateStr] = useState<string>('12 May 2026');
   const [registrationDateObj, setRegistrationDateObj] = useState<Date>(new Date(2026, 4, 12));
-  const [verificationId, setVerificationId] = useState<string>('ASP/EXP/2026051201');
+  const [verificationId, setVerificationId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
 
   // Request & Eligibility States
@@ -122,9 +122,19 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
           if (!isNaN(parsed.getTime())) regDate = parsed;
         }
 
-        const formattedJoining = isMujahid 
-          ? '12 May 2026' 
-          : regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        // Pull true registration date from D1 User_Detail as primary source of truth
+        try {
+          const publicUserIdForProfile = await d1UserBridge.ensureProfile(currentUser);
+          const d1Profile = await d1UserBridge.getMyProfile(publicUserIdForProfile);
+          if (d1Profile?.registration_date) {
+            const d1Parsed = new Date(d1Profile.registration_date);
+            if (!isNaN(d1Parsed.getTime())) regDate = d1Parsed;
+          }
+        } catch (d1Err) {
+          console.warn('Notice reading D1 profile:', d1Err);
+        }
+
+        const formattedJoining = regDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
         // 2. Fetch user contributions
         try {
@@ -137,24 +147,9 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
           console.warn('Notice reading contributions:', e);
         }
 
-        // 3. Get / generate Verification ID
-        let assignedId = isMujahid ? 'ASP/EXP/2026051201' : '';
-        try {
-          assignedId = await userService.generateOrGetVerificationId(currentUser, volunteerName);
-        } catch (e) {
-          console.warn('Notice getting verification ID:', e);
-        }
-        if (!assignedId) {
-          const regYear = regDate.getFullYear().toString();
-          const regMonth = String(regDate.getMonth() + 1).padStart(2, '0');
-          const regDay = String(regDate.getDate()).padStart(2, '0');
-          assignedId = isMujahid ? 'ASP/EXP/2026051201' : `ASP/EXP/${regYear}${regMonth}${regDay}01`;
-        }
-
         if (isMounted) {
           setRegistrationDateObj(regDate);
           setJoiningDateStr(formattedJoining);
-          setVerificationId(assignedId);
         }
       } catch (err) {
         console.error('Error loading experience modal data:', err);
@@ -170,18 +165,27 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
         const pubId = await d1UserBridge.ensureProfile(currentUser);
         const myCert = await d1UserBridge.getMyExperienceCertificate(pubId, currentUser.uid);
         if (isMounted && myCert) {
+          const isApproved = String(myCert.status || '').toLowerCase() === 'approved';
+          const finalId = myCert.verification_id || (isApproved && pubId ? `ASP/EXP/${pubId}` : '');
           setRequestData({
             id: String(myCert.id),
             status: String(myCert.status || 'Pending').toLowerCase(),
-            verificationId: myCert.verification_id,
+            verificationId: finalId,
             durationMonths: myCert.duration_months,
             contributionsCount: myCert.contributions_count,
             submittedAt: myCert.created_at,
             remarks: myCert.remarks,
             rejectionReason: myCert.remarks
           });
-          if (myCert.verification_id) {
-            setVerificationId(myCert.verification_id);
+          if (finalId) {
+            setVerificationId(finalId);
+          }
+          if (myCert.registration_date) {
+            const d1Reg = new Date(myCert.registration_date);
+            if (!isNaN(d1Reg.getTime())) {
+              setRegistrationDateObj(d1Reg);
+              setJoiningDateStr(d1Reg.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }));
+            }
           }
         }
       } catch (e) {
@@ -212,13 +216,13 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
     try {
       const publicUserId = await d1UserBridge.ensureProfile(currentUser);
 
-      // Save directly to D1 experience_certificate table
+      // Save directly to D1 experience_certificate table with true registration date
       const res = await d1UserBridge.submitExperienceCertificate(publicUserId, {
         registration_date: registrationDateObj.toISOString(),
         duration_months: tenure.months,
         contributions_count: contributionsCount,
         user_notes: userNotes.trim(),
-        verification_id: verificationId,
+        verification_id: '',
         remarks: 'Experience certificate request submitted'
       });
 
@@ -231,16 +235,21 @@ export default function ExperienceLetterModal({ onClose, onOpenAuth }: Experienc
       // Refresh immediately from D1
       const myCert = await d1UserBridge.getMyExperienceCertificate(publicUserId, currentUser.uid);
       if (myCert) {
+        const isApproved = String(myCert.status || '').toLowerCase() === 'approved';
+        const finalId = myCert.verification_id || (isApproved ? `ASP/EXP/${publicUserId}` : '');
         setRequestData({
           id: String(myCert.id),
           status: String(myCert.status || 'Pending').toLowerCase(),
-          verificationId: myCert.verification_id,
+          verificationId: finalId,
           durationMonths: myCert.duration_months,
           contributionsCount: myCert.contributions_count,
           submittedAt: myCert.created_at,
           remarks: myCert.remarks,
           rejectionReason: myCert.remarks
         });
+        if (finalId) {
+          setVerificationId(finalId);
+        }
       }
     } catch (err: any) {
       console.error('Error submitting experience request:', err);
