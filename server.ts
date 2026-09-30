@@ -1726,10 +1726,6 @@ async function startServer() {
   app.get("/api/volunteer-card/admin/all", async (req, res) => {
     try {
       await ensureVolunteerCardTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, requests: [] });
-      }
 
       const rows = await queryD1(`
         SELECT vc.*, 
@@ -1755,10 +1751,6 @@ async function startServer() {
       const pubId = String(req.query.public_user_id || "").trim();
       const uid = String(req.query.user_id || "").trim();
       await ensureVolunteerCardTable();
-      const config = getD1Config();
-      if (!config.accountId || !config.databaseId || !config.apiToken) {
-        return res.json({ success: true, request: null });
-      }
 
       const candidateIds: string[] = [];
       if (pubId) candidateIds.push(pubId);
@@ -2163,18 +2155,28 @@ async function startServer() {
     }
   });
 
-  // Verify Experience Certificate in D1
+  // Verify Experience Certificate or Volunteer Card in D1 (Single Source of Truth)
   app.get("/api/experience-certificate/verify", async (req, res) => {
     try {
       const idParam = String(req.query.id || "").trim();
       if (!idParam) return res.status(400).json({ success: false, message: "id required" });
 
       await ensureExperienceCertificateTable();
-      const cleanVerId = idParam.replace(/[-_]/g, '/');
-      const publicIdFromVer = idParam.replace(/^ASP\/EXP\//i, '').replace(/^EXP-/i, '').replace(/[-_]/g, '');
+      await ensureVolunteerCardTable();
 
-      const rows = await queryD1(`
+      const cleanVerId = idParam.replace(/[-_]/g, '/');
+      const dashedVerId = idParam.replace(/\//g, '-');
+      const publicIdFromVer = idParam
+        .replace(/^ASP\/EXP\//i, '')
+        .replace(/^ASP\/VOL\//i, '')
+        .replace(/^EXP[-_]/i, '')
+        .replace(/^VC[-_]/i, '')
+        .replace(/[^0-9a-zA-Z]/g, '');
+
+      // 1. Check experience_certificate table in D1
+      const ecRows = await queryD1(`
         SELECT ec.*, 
+               'experience_certificate' AS type,
                COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
                COALESCE(ud.email, ud2.email, '') AS email,
                COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
@@ -2183,19 +2185,55 @@ async function startServer() {
         LEFT JOIN User_Detail ud ON ec.public_user_id = ud.public_user_id
         LEFT JOIN User_Detail ud2 ON ec.public_user_id = ud2.user_id
         WHERE ec.verification_id = ? 
+           OR LOWER(ec.verification_id) = LOWER(?)
            OR ec.verification_id = ? 
+           OR ec.verification_id = ?
+           OR ec.public_user_id = ?
            OR ec.public_user_id = ?
         ORDER BY CASE WHEN LOWER(ec.status) = 'approved' THEN 1 ELSE 2 END, ec.id DESC
         LIMIT 1
-      `, [idParam, cleanVerId, publicIdFromVer]);
+      `, [idParam, idParam, cleanVerId, dashedVerId, publicIdFromVer, idParam]);
 
-      if (rows && rows.length > 0 && String(rows[0].status).toLowerCase() === 'approved') {
-        return res.json({ success: true, certificate: rows[0] });
+      if (ecRows && ecRows.length > 0 && String(ecRows[0].status).toLowerCase() === 'approved') {
+        return res.json({ success: true, certificate: ecRows[0] });
       }
-      return res.json({ success: false, message: "Certificate not found or not approved" });
+
+      // 2. Check volunteer_card table in D1
+      const vcRows = await queryD1(`
+        SELECT vc.*, 
+               'volunteer_card' AS type,
+               COALESCE(vc.volunteer_card_id, ?) AS verification_id,
+               COALESCE(ud.display_name, ud2.display_name, 'Community Volunteer') AS display_name,
+               COALESCE(ud.email, ud2.email, '') AS email,
+               COALESCE(ud.mobile, ud2.mobile, '') AS mobile,
+               COALESCE(ud.registration_date, vc.registration_date) AS user_registration_date
+        FROM volunteer_card vc
+        LEFT JOIN User_Detail ud ON vc.public_user_id = ud.public_user_id
+        LEFT JOIN User_Detail ud2 ON vc.public_user_id = ud2.user_id
+        WHERE vc.volunteer_card_id = ? 
+           OR LOWER(vc.volunteer_card_id) = LOWER(?)
+           OR vc.volunteer_card_id = ?
+           OR vc.public_user_id = ?
+           OR vc.public_user_id = ?
+        ORDER BY CASE WHEN LOWER(vc.status) = 'approved' THEN 1 ELSE 2 END, vc.id DESC
+        LIMIT 1
+      `, [idParam, idParam, idParam, cleanVerId, publicIdFromVer, idParam]);
+
+      if (vcRows && vcRows.length > 0 && String(vcRows[0].status).toLowerCase() === 'approved') {
+        return res.json({ success: true, certificate: vcRows[0] });
+      }
+
+      return res.json({ success: false, message: "Record not found or not approved in D1 database" });
     } catch (e: any) {
       return res.status(500).json({ success: false, message: e.message });
     }
+  });
+
+  // Alias endpoint for generic credential verification
+  app.get("/api/volunteer-card/verify", async (req, res) => {
+    // Forward to unified verification handler
+    const idParam = String(req.query.id || "").trim();
+    return res.redirect(`/api/experience-certificate/verify?id=${encodeURIComponent(idParam)}`);
   });
 
   // Gemini AI Chatbot Route

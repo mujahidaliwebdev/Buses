@@ -26,6 +26,7 @@ interface CertificateRecord {
   joiningDate?: string;
   status: string;
   isVerified: boolean;
+  credentialType?: 'letter' | 'card';
 }
 
 // Fallback registry for pre-existing system certificates
@@ -37,6 +38,15 @@ const SYSTEM_BASELINE_CERTIFICATES: Record<string, Omit<CertificateRecord, 'id' 
     department: 'Community Operations & Data Verification',
     issueDate: '22 Sep 2026',
     joiningDate: '12 May 2026',
+    status: 'Letter Verified & Active'
+  },
+  'ASP/EXP/2026092401': {
+    fullName: 'Naeem',
+    role: 'Official Community Volunteer',
+    organization: 'AsaanSafar Pakistan',
+    department: 'Community Operations & Data Verification',
+    issueDate: '24 Sep 2026',
+    joiningDate: '24 Sep 2026',
     status: 'Letter Verified & Active'
   }
 };
@@ -103,17 +113,20 @@ export default function CertificateVerification() {
                 }
               }
 
+              const isVolunteerCard = cert.type === 'volunteer_card' || !!cert.volunteer_card_id || normalizedId.includes('VC-') || /^\d{10}$/.test(normalizedId);
+
               if (isMounted) {
                 setCertData({
-                  id: cert.verification_id || normalizedId,
+                  id: cert.verification_id || cert.volunteer_card_id || normalizedId,
                   fullName: cert.display_name || 'Community Volunteer',
-                  role: 'Official Community Volunteer',
+                  role: isVolunteerCard ? 'Official Registered Volunteer' : 'Official Community Volunteer',
                   organization: 'AsaanSafar Pakistan',
                   department: 'Community Operations & Data Verification',
                   issueDate: issueDateFormatted,
                   joiningDate: regDateFormatted,
-                  status: 'Letter Verified & Active',
-                  isVerified: true
+                  status: isVolunteerCard ? 'Volunteer Card Verified & Active' : 'Letter Verified & Active',
+                  isVerified: true,
+                  credentialType: isVolunteerCard ? 'card' : 'letter'
                 });
                 setIsVerified(true);
                 setLoading(false);
@@ -331,13 +344,13 @@ export default function CertificateVerification() {
                 <div>
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-400 text-emerald-950 text-xs font-black uppercase tracking-widest shadow-sm mb-3">
                     <CheckCircle2 className="w-4 h-4 text-emerald-950" />
-                    Letter Verified
+                    {certData.credentialType === 'card' ? 'Volunteer Card Verified' : 'Letter Verified'}
                   </div>
                   <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                    Volunteer Experience Letter Verified
+                    {certData.credentialType === 'card' ? 'Volunteer Identity Card Verified' : 'Volunteer Experience Letter Verified'}
                   </h1>
                   <p className="text-xs sm:text-sm text-emerald-100/90 mt-1">
-                    Authentic credential recognized and confirmed by AsaanSafar Pakistan
+                    Authentic credential recognized and confirmed in AsaanSafar Cloudflare D1 Official Registry
                   </p>
                 </div>
                 <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
@@ -365,7 +378,7 @@ export default function CertificateVerification() {
                     Verification Status
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-black tracking-wide">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Letter Verified
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {certData.credentialType === 'card' ? 'Card Verified' : 'Letter Verified'}
                   </span>
                 </div>
               </div>
