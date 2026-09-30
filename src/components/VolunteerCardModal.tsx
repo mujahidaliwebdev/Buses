@@ -146,7 +146,94 @@ export default function VolunteerCardModal({ onClose }: VolunteerCardModalProps)
   };
 
   const handleDownloadPDF = () => {
-    window.print();
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const cardHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>AsaanSafar Volunteer Card - ${userData.displayName}</title>
+          <style>
+            @page { size: 85.6mm 54mm landscape; margin: 0; }
+            * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            html, body { margin: 0; padding: 0; width: 100%; height: 100%; font-family: Arial, Helvetica, sans-serif; background: #fff; }
+            .card {
+              position: relative;
+              width: 85.6mm;
+              height: 54mm;
+              padding: 4mm 5mm;
+              border: 1.2mm solid #047857;
+              border-radius: 3mm;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              overflow: hidden;
+            }
+            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 0.4mm solid #d1fae5; padding-bottom: 1.5mm; }
+            .brand { display: flex; align-items: center; gap: 1.5mm; }
+            .brand img { width: 6mm; height: 6mm; border-radius: 1mm; object-fit: cover; }
+            .brand-text h1 { margin: 0; font-size: 3.2mm; font-weight: 900; color: #0f172a; }
+            .brand-text span { font-size: 1.6mm; font-weight: 700; color: #047857; text-transform: uppercase; }
+            .qr { display: flex; align-items: center; gap: 1mm; background: #ecfdf5; padding: 0.8mm 1.5mm; border-radius: 1.5mm; border: 0.2mm solid #047857; }
+            .qr img { width: 6mm; height: 6mm; }
+            .body { display: flex; gap: 2mm; align-items: center; }
+            .details { flex: 1; font-size: 2.1mm; font-weight: 700; line-height: 1.6; }
+            .details .label { color: #047857; font-weight: 900; text-transform: uppercase; font-size: 1.7mm; display: inline-block; width: 15mm; }
+            .photo-block { text-align: center; }
+            .photo-block .photo { width: 13mm; height: 13mm; border-radius: 2mm; border: 0.3mm solid #047857; object-fit: cover; background: #f1f5f9; }
+            .photo-block .name { font-size: 2.2mm; font-weight: 900; margin-top: 1mm; max-width: 20mm; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .photo-block .role { font-size: 1.7mm; font-weight: 800; color: #047857; text-transform: uppercase; }
+            .footer { display: flex; justify-content: space-between; font-size: 1.5mm; color: #047857; font-weight: 700; text-transform: uppercase; border-top: 0.3mm solid #d1fae5; padding-top: 1mm; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="header">
+              <div class="brand">
+                <img src="${getLogoPath()}" alt="Logo" />
+                <div class="brand-text">
+                  <h1>AsaanSafar <span style="color:#0f172a;">Pakistan</span></h1>
+                  <span>Official Volunteer Identity Card</span>
+                </div>
+              </div>
+              <div class="qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(formatVolunteerCardId())}" alt="QR" />
+              </div>
+            </div>
+            <div class="body">
+              <div class="details">
+                <div><span class="label">ID:</span> ${formatVolunteerCardId()}</div>
+                <div><span class="label">CNIC:</span> ${userData.cnic}</div>
+                <div><span class="label">Gender:</span> ${userData.gender}</div>
+                <div><span class="label">District:</span> ${userData.district}</div>
+                <div><span class="label">Expiry:</span> ${getExpiryDate()}</div>
+              </div>
+              <div class="photo-block">
+                ${userData.photoURL ? `<img class="photo" src="${userData.photoURL}" />` : `<div class="photo" style="display:flex;align-items:center;justify-content:center;font-weight:900;font-size:5mm;color:#334155;">${(userData.displayName || 'V').charAt(0).toUpperCase()}</div>`}
+                <div class="name">${userData.displayName}</div>
+                <div class="role">Volunteer</div>
+              </div>
+            </div>
+            <div class="footer">
+              <span>www.asaansafar.com</span>
+              <span>Official ID Card</span>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.close();
+              }, 400);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(cardHtml);
+    printWindow.document.close();
   };
 
   // Format ID from registration date (e.g. 2026-05-12 -> 2026051201)
