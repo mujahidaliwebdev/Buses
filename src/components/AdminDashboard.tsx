@@ -47,6 +47,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import CloudflareD1Exporter from './CloudflareD1Exporter';
 import BusEditorModal, { MasterBusData } from './BusEditorModal';
+import FareEditorModal, { FareData } from './FareEditorModal';
 import SeoHealthMonitorTab from './SeoHealthMonitorTab';
 
 interface AdminDashboardProps {
@@ -114,34 +115,42 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
   const [savingSettings, setSavingSettings] = useState(false);
   const [d1Connected, setD1Connected] = useState(false);
 
-  // Active View Tab: 'master_buses' (Buses) or 'all_stops' (Stops)
-  const [activeDataTab, setActiveDataTab] = useState<'master_buses' | 'all_stops'>('master_buses');
+  // Active View Tab: 'master_buses' (Buses), 'all_stops' (Stops), or 'fares' (Fares)
+  const [activeDataTab, setActiveDataTab] = useState<'master_buses' | 'all_stops' | 'fares'>('master_buses');
   const [d1Buses, setD1Buses] = useState<MasterBusData[]>([]);
   const [d1Stops, setD1Stops] = useState<any[]>([]);
+  const [d1Fares, setD1Fares] = useState<FareData[]>([]);
   const [loadingD1Data, setLoadingD1Data] = useState(false);
   const [isBusEditorOpen, setIsBusEditorOpen] = useState(false);
   const [selectedBusForEdit, setSelectedBusForEdit] = useState<MasterBusData | null>(null);
 
+  // Fare Editor State
+  const [isFareEditorOpen, setIsFareEditorOpen] = useState(false);
+  const [selectedFareForEdit, setSelectedFareForEdit] = useState<FareData | null>(null);
+
   const fetchD1MasterData = async () => {
     setLoadingD1Data(true);
     try {
-      const [busesRes, stopsRes, statusRes] = await Promise.all([
+      const [busesRes, stopsRes, faresRes, statusRes] = await Promise.all([
         fetch('/api/d1/buses'),
         fetch('/api/d1/bus-stops'),
+        fetch('/api/d1/fares'),
         fetch('/api/d1/status')
       ]);
       const busesData = await busesRes.json();
       const stopsData = await stopsRes.json();
+      const faresData = await faresRes.json();
       const statusData = await statusRes.json();
 
-      if (statusData.connected) {
-        setD1Connected(true);
-      }
+      setD1Connected(Boolean(statusData?.connected));
       if (busesData.live && Array.isArray(busesData.buses)) {
         setD1Buses(busesData.buses);
       }
       if (stopsData.live && Array.isArray(stopsData.stops)) {
         setD1Stops(stopsData.stops);
+      }
+      if (faresData.fares && Array.isArray(faresData.fares)) {
+        setD1Fares(faresData.fares);
       }
     } catch (e) {
       console.warn("Could not fetch live D1 data:", e);
@@ -570,6 +579,38 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     }
   };
 
+  const handleOpenFareEditor = (fare: FareData) => {
+    setSelectedFareForEdit(fare);
+    setIsFareEditorOpen(true);
+  };
+
+  const handleAddNewFare = () => {
+    setSelectedFareForEdit(null);
+    setIsFareEditorOpen(true);
+  };
+
+  const handleDeleteFare = async (fare: FareData, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm(`Are you sure you want to delete the fare route for ${fare.origin} -> ${fare.destination} from Cloudflare D1?`)) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/d1/fare/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origin: fare.origin, destination: fare.destination })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchD1MasterData();
+      } else {
+        alert(`Failed to delete fare: ${data.message || 'Error'}`);
+      }
+    } catch (err: any) {
+      alert(`Delete error: ${err.message || err}`);
+    }
+  };
+
   // Master Buses from D1 (or fallback to buses prop if loading/empty)
   const masterBusesList: MasterBusData[] = d1Buses.length > 0 ? d1Buses : buses.map(b => ({
     bus_id: b.id || b.busNumber || 'B-001',
@@ -608,17 +649,37 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     );
   });
 
+  // Fares from D1
+  const filteredFares = d1Fares.filter(fare => {
+    const s = searchTerm.toLowerCase().trim();
+    if (!s) return true;
+    return (
+      (fare.origin || '').toLowerCase().includes(s) ||
+      (fare.destination || '').toLowerCase().includes(s) ||
+      String(fare.non_ac || '').includes(s) ||
+      String(fare.ac || '').includes(s) ||
+      String(fare.executive || '').includes(s) ||
+      String(fare.business || '').includes(s) ||
+      String(fare.sleeper || '').includes(s)
+    );
+  });
+
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, activeDataTab]);
 
   const entriesPerPage = 30; // 30 entries per page as requested
-  const currentTotal = activeDataTab === 'master_buses' ? filteredMasterBuses.length : filteredStops.length;
+  const currentTotal = activeDataTab === 'master_buses' 
+    ? filteredMasterBuses.length 
+    : activeDataTab === 'all_stops' 
+    ? filteredStops.length 
+    : filteredFares.length;
   const totalPages = Math.max(1, Math.ceil(currentTotal / entriesPerPage));
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentMasterBuses = filteredMasterBuses.slice(indexOfFirstEntry, indexOfLastEntry);
   const currentStops = filteredStops.slice(indexOfFirstEntry, indexOfLastEntry);
+  const currentFares = filteredFares.slice(indexOfFirstEntry, indexOfLastEntry);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -645,7 +706,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
     return (
       <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-4 bg-slate-50/75 ${isTop ? 'border-b' : 'border-t'} border-slate-100`}>
         <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-          Showing <span className="text-slate-800 font-extrabold">{indexOfFirstEntry + 1}-{Math.min(indexOfLastEntry, currentTotal)}</span> of <span className="text-slate-800 font-extrabold">{currentTotal}</span> {activeDataTab === 'master_buses' ? 'Buses' : 'Stops'}
+          Showing <span className="text-slate-800 font-extrabold">{indexOfFirstEntry + 1}-{Math.min(indexOfLastEntry, currentTotal)}</span> of <span className="text-slate-800 font-extrabold">{currentTotal}</span> {activeDataTab === 'master_buses' ? 'Buses' : activeDataTab === 'all_stops' ? 'Stops' : 'Fares'}
         </div>
         {totalPages > 1 && (
           <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1">
@@ -1365,18 +1426,29 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
               <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${d1Connected ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-300'}`} title={d1Connected ? 'Live Edge Database Connected' : 'Click to setup/connect D1'} />
             </button>
 
-            <button 
-              id="btn-open-bus-stops-editor"
-              onClick={handleAddNewMasterBus}
-              className="bg-slate-900 hover:bg-slate-800 text-emerald-400 px-4 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-md transition-all active:scale-95 border border-slate-800"
-            >
-              <Plus className="w-4 h-4 text-emerald-400 shrink-0" /> 
-              <span className="text-xs truncate">Add Bus & Stops</span>
-            </button>
+            {activeDataTab === 'fares' ? (
+              <button 
+                id="btn-open-fare-editor"
+                onClick={handleAddNewFare}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-md transition-all active:scale-95 border border-emerald-500"
+              >
+                <Plus className="w-4 h-4 text-white shrink-0" /> 
+                <span className="text-xs truncate">Add Fare / کرایہ شامل کریں</span>
+              </button>
+            ) : (
+              <button 
+                id="btn-open-bus-stops-editor"
+                onClick={handleAddNewMasterBus}
+                className="bg-slate-900 hover:bg-slate-800 text-emerald-400 px-4 py-3 rounded-2xl font-black flex items-center gap-2.5 shadow-md transition-all active:scale-95 border border-slate-800"
+              >
+                <Plus className="w-4 h-4 text-emerald-400 shrink-0" /> 
+                <span className="text-xs truncate">Add Bus & Stops</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* View Switcher Tabs: Master Buses vs. Stops */}
+        {/* View Switcher Tabs: Master Buses vs. Stops vs. Fares */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center p-1.5 bg-slate-200/80 rounded-2xl max-w-fit shadow-inner">
             <button
@@ -1416,6 +1488,25 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                 {filteredStops.length}
               </span>
             </button>
+
+            <button
+              id="tab-view-all-fares"
+              type="button"
+              onClick={() => setActiveDataTab('fares')}
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
+                activeDataTab === 'fares'
+                  ? 'bg-white text-emerald-700 shadow-md shadow-slate-900/5'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Tag className="w-4 h-4 text-emerald-600" />
+              <span>Fares / کرائے</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeDataTab === 'fares' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300/60 text-slate-700'
+              }`}>
+                {filteredFares.length}
+              </span>
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1440,7 +1531,9 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             placeholder={
               activeDataTab === 'master_buses'
                 ? "Search buses by company, bus ID, vehicle plate, route map..."
-                : "Search stops by bus ID, city name, terminal location, stand..."
+                : activeDataTab === 'all_stops'
+                ? "Search stops by bus ID, city name, terminal location, stand..."
+                : "Search fares by origin city, destination city, price..."
             }
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -1544,7 +1637,7 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                   )}
                 </tbody>
               </table>
-            ) : (
+            ) : activeDataTab === 'all_stops' ? (
               /* ========================================================================= */
               /* ALL STOPS TABLE VIEW */
               /* ========================================================================= */
@@ -1619,6 +1712,144 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
                         </tr>
                       );
                     })
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              /* ========================================================================= */
+              /* FARES TABLE VIEW */
+              /* ========================================================================= */
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/70 border-b border-slate-100">
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route (Origin → Destination) / راستہ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Non-AC (نان اے سی)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">AC Standard (اے سی)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Executive (ایگزیکٹو)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Business (بزنس)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Sleeper (سلیپر)</th>
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {currentFares.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-8 py-14 text-center">
+                        <div className="max-w-sm mx-auto space-y-3">
+                          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto">
+                            <Tag className="w-6 h-6" />
+                          </div>
+                          <p className="text-sm font-black text-slate-800">No fares matched your search</p>
+                          <p className="text-xs text-slate-400">Add new city-to-city fares directly to Cloudflare D1</p>
+                          <button
+                            type="button"
+                            onClick={handleAddNewFare}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" /> Add Route Fare
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    currentFares.map((fare, idx) => (
+                      <tr 
+                        key={`fare-${fare.origin}-${fare.destination}-${idx}`}
+                        onClick={() => handleOpenFareEditor(fare)}
+                        className="group hover:bg-emerald-50/30 cursor-pointer transition-colors"
+                      >
+                        <td className="px-8 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100 flex items-center justify-center shrink-0 transition-colors">
+                              <Tag className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                  {fare.origin}
+                                </span>
+                                <span className="text-slate-400 text-xs font-bold">→</span>
+                                <span className="text-xs font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                  {fare.destination}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
+                                Passenger Route Fare • Cloudflare D1
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {fare.non_ac > 0 ? (
+                            <span className="inline-block font-mono text-xs font-black text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+                              Rs. {fare.non_ac.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {fare.ac > 0 ? (
+                            <span className="inline-block font-mono text-xs font-black text-blue-700 bg-blue-50 border border-blue-200/60 px-2.5 py-1 rounded-lg">
+                              Rs. {fare.ac.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {fare.executive > 0 ? (
+                            <span className="inline-block font-mono text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
+                              Rs. {fare.executive.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {fare.business > 0 ? (
+                            <span className="inline-block font-mono text-xs font-black text-purple-700 bg-purple-50 border border-purple-200/60 px-2.5 py-1 rounded-lg">
+                              Rs. {fare.business.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {fare.sleeper > 0 ? (
+                            <span className="inline-block font-mono text-xs font-black text-amber-700 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-lg">
+                              Rs. {fare.sleeper.toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-8 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex justify-end gap-1.5">
+                            <button 
+                              onClick={() => handleOpenFareEditor(fare)}
+                              title="Edit Route Fares"
+                              className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all cursor-pointer"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={(e) => handleDeleteFare(fare, e)}
+                              title="Delete Fare from D1"
+                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
@@ -3781,6 +4012,18 @@ export default function AdminDashboard({ buses, onClose }: AdminDashboardProps) 
             isOpen={isBusEditorOpen}
             busData={selectedBusForEdit}
             onClose={() => setIsBusEditorOpen(false)}
+            onSaveSuccess={fetchD1MasterData}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Cloudflare D1 Route Fare Editor Modal */}
+      <AnimatePresence>
+        {isFareEditorOpen && (
+          <FareEditorModal 
+            isOpen={isFareEditorOpen}
+            fareData={selectedFareForEdit}
+            onClose={() => setIsFareEditorOpen(false)}
             onSaveSuccess={fetchD1MasterData}
           />
         )}

@@ -1,0 +1,22 @@
+{
+  "lahore->rawalpindi": {
+    "origin": "Lahore",
+    "destination": "Rawalpindi",
+    "non_ac": 950,
+    "ac": 1450,
+    "executive": 1950,
+    "business": 2400,
+    "sleeper": 2900,
+    "updatedAt": "2026-10-01T06:06:53.351Z"
+  },
+  "lahore->feroze wattwan": {
+    "origin": "Lahore",
+    "destination": "Feroze Wattwan",
+    "non_ac": 250,
+    "ac": 400,
+    "executive": 500,
+    "business": 600,
+    "sleeper": 800,
+    "updatedAt": "2026-10-01T06:07:12.603Z"
+  }
+}

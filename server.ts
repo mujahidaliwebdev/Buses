@@ -906,8 +906,128 @@ async function startServer() {
   });
 
   // ====================================================
-  // USER PROFILES & CONTRIBUTIONS (CLOUDFLARE D1 BACKED)
+  // 12. CLOUDFLARE D1 FARES (MASTER FARES REGISTRY)
   // ====================================================
+  const ensureFaresTable = async () => {
+    try {
+      await queryD1(`
+        CREATE TABLE IF NOT EXISTS fares (
+          origin TEXT NOT NULL,
+          destination TEXT NOT NULL,
+          non_ac INTEGER DEFAULT 0,
+          ac INTEGER DEFAULT 0,
+          executive INTEGER DEFAULT 0,
+          business INTEGER DEFAULT 0,
+          sleeper INTEGER DEFAULT 0,
+          PRIMARY KEY (origin, destination)
+        );
+      `);
+    } catch (e) {
+      console.warn("Notice ensuring fares table:", e);
+    }
+  };
+
+  // Get all fares from Cloudflare D1
+  app.get("/api/d1/fares", async (req, res) => {
+    try {
+      await ensureFaresTable();
+      const rows = await queryD1(`SELECT * FROM fares ORDER BY origin ASC, destination ASC;`);
+      return res.json({ live: true, count: (rows || []).length, fares: rows || [] });
+    } catch (error: any) {
+      console.error("Error fetching fares from D1:", error);
+      return res.status(500).json({ live: false, fares: [], message: error.message });
+    }
+  });
+
+  // Save / Update Fare in Cloudflare D1
+  app.post("/api/d1/fare/save", async (req, res) => {
+    try {
+      await ensureFaresTable();
+      const { origin, destination, old_origin, old_destination, non_ac, ac, executive, business, sleeper } = req.body;
+      const orig = String(origin || "").trim();
+      const dest = String(destination || "").trim();
+      if (!orig || !dest) {
+        return res.status(400).json({ success: false, message: "Origin and destination are required." });
+      }
+
+      const nonAcVal = Number(non_ac) || 0;
+      const acVal = Number(ac) || 0;
+      const execVal = Number(executive) || 0;
+      const bizVal = Number(business) || 0;
+      const sleepVal = Number(sleeper) || 0;
+
+      // If renaming route, delete old row
+      if (old_origin && old_destination && (old_origin.trim() !== orig || old_destination.trim() !== dest)) {
+        await queryD1(`DELETE FROM fares WHERE origin = ? AND destination = ?`, [old_origin.trim(), old_destination.trim()]);
+      }
+
+      await queryD1(`
+        INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [orig, dest, nonAcVal, acVal, execVal, bizVal, sleepVal]);
+
+      // Keep custom_fares.json updated as fallback storage
+      try {
+        const publicDir = path.join(process.cwd(), "public");
+        const customFaresPath = path.join(publicDir, "data", "custom_fares.json");
+        let customFares: Record<string, any> = {};
+        if (fs.existsSync(customFaresPath)) {
+          try { customFares = JSON.parse(fs.readFileSync(customFaresPath, "utf-8")); } catch {}
+        }
+        const key = `${orig}->${dest}`.toLowerCase();
+        customFares[key] = {
+          origin: orig,
+          destination: dest,
+          non_ac: nonAcVal,
+          ac: acVal,
+          executive: execVal,
+          business: bizVal,
+          sleeper: sleepVal,
+          updatedAt: new Date().toISOString()
+        };
+        if (!fs.existsSync(path.dirname(customFaresPath))) {
+          fs.mkdirSync(path.dirname(customFaresPath), { recursive: true });
+        }
+        fs.writeFileSync(customFaresPath, JSON.stringify(customFares, null, 2), "utf-8");
+      } catch (e) {}
+
+      return res.json({ success: true, message: `Fare for ${orig} -> ${dest} saved to Cloudflare D1 successfully!` });
+    } catch (error: any) {
+      console.error("Error saving fare to D1:", error);
+      return res.status(500).json({ success: false, message: error.message || "Failed to save fare." });
+    }
+  });
+
+  // Delete Fare from Cloudflare D1
+  app.post("/api/d1/fare/delete", async (req, res) => {
+    try {
+      await ensureFaresTable();
+      const { origin, destination } = req.body;
+      const orig = String(origin || "").trim();
+      const dest = String(destination || "").trim();
+      if (!orig || !dest) {
+        return res.status(400).json({ success: false, message: "Origin and destination required." });
+      }
+
+      await queryD1(`DELETE FROM fares WHERE origin = ? AND destination = ?`, [orig, dest]);
+
+      try {
+        const publicDir = path.join(process.cwd(), "public");
+        const customFaresPath = path.join(publicDir, "data", "custom_fares.json");
+        if (fs.existsSync(customFaresPath)) {
+          const customFares = JSON.parse(fs.readFileSync(customFaresPath, "utf-8"));
+          const key = `${orig}->${dest}`.toLowerCase();
+          delete customFares[key];
+          fs.writeFileSync(customFaresPath, JSON.stringify(customFares, null, 2), "utf-8");
+        }
+      } catch (e) {}
+
+      return res.json({ success: true, message: `Fare route ${orig} -> ${dest} deleted successfully.` });
+    } catch (error: any) {
+      console.error("Error deleting fare from D1:", error);
+      return res.status(500).json({ success: false, message: error.message || "Failed to delete fare." });
+    }
+  });
   const ADMIN_EMAILS = ['mujahidali.webdev@gmail.com', 'mujahidali.stf@gmail.com', 'kanwal200485@gmail.com', 'admin@asaansafar.com'];
   const CNIC_PATTERN = /^\d{5}-\d{7}-\d{1}$/;
 

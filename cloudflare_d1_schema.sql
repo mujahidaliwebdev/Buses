@@ -191,10 +191,3 @@ INSERT OR REPLACE INTO bus_stops (bus_id, city_name, stop_sequence, arrival_time
 ('B-10002', 'Garh Moor', 4, '04:30', '04:30', 'Main Stop', '0'),
 ('B-10002', 'Shorkot', 5, '05:00', '05:00', 'Main Stop', '0');
 
--- Seed example fares (Origin -> Destination):
-INSERT OR REPLACE INTO fares (origin, destination, non_ac, ac, executive, business, sleeper) VALUES
-('Lahore', 'Sheikhupura', 150, 250, 350, 450, 600),
-('Lahore', 'Feroze Wattwan', 250, 400, 500, 600, 800),
-('Lahore', 'Manawala', 300, 450, 550, 700, 900),
-('Lahore', 'Shahkot', 350, 500, 650, 800, 1000);
-
